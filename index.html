@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Briefify v2 — Design Brief Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
   --bg: #F5F2EC;
@@ -182,18 +183,59 @@ h1 em{color:var(--accent);font-style:italic}
 .validation-msg{font-size:12px;color:#c0392b;margin-top:5px;display:none}
 .field.error input,.field.error textarea{border-color:#e74c3c}
 .field.error .validation-msg{display:block}
+
+/* AUTH SCREENS */
+#auth-screen{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 65px);padding:40px 20px}
+#auth-screen.active{display:flex}
+.auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:36px 40px;width:100%;max-width:420px}
+.auth-box h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:6px}
+.auth-box .auth-sub{font-size:14px;color:var(--ink2);margin-bottom:28px}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--ink3);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--ink2)}
+.auth-switch a{color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.auth-error{background:#FFF0F0;border:1px solid #fcc;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--success);margin-bottom:16px;display:none}
+.auth-success.show{display:block}
+.btn-full{width:100%;justify-content:center}
+.btn-loading{opacity:.7;pointer-events:none}
+#dashboard-screen{display:none;padding:40px;max-width:900px;margin:0 auto}
+#dashboard-screen.active{display:block}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.dashboard-header h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px}
+.briefs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.brief-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:all .18s}
+.brief-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+.brief-item-name{font-weight:500;font-size:15px;margin-bottom:4px}
+.brief-item-meta{font-size:12px;color:var(--ink3);margin-bottom:10px}
+.brief-item-tag{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink2)}
+.empty-state .empty-icon{font-size:36px;margin-bottom:12px}
+.empty-state p{margin-bottom:20px;font-size:15px}
+.nav-auth-btns{display:flex;align-items:center;gap:8px}
+.user-menu{position:relative;display:flex;align-items:center;gap:8px}
+.user-menu .user-email{font-size:13px;color:var(--ink2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="logo">Brie<span>fi</span>fy</div>
-  <div class="nav-right">
+  <div class="logo" onclick="goHome()" style="cursor:pointer">Brie<span>fi</span>fy</div>
+  <div class="nav-right" id="nav-guest">
+    <button class="btn btn-secondary btn-sm" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
+    <button class="btn btn-accent btn-sm" onclick="showScreen('auth-screen');showAuthTab('signup')">Sign up</button>
+  </div>
+  <div class="nav-right user-menu" id="nav-user" style="display:none">
+    <span class="user-email" id="nav-user-email"></span>
+    <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard-screen');loadDashboard()">My briefs</button>
     <div class="profile-badge" onclick="openProfileModal()">
-      <div class="avatar">DK</div>
-      <span id="nav-brief-url">your brief link</span>
+      <div class="avatar" id="nav-avatar">?</div>
+      <span id="nav-brief-url">brief link</span>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="showScreen('landing')">Home</button>
+    <button class="btn btn-secondary btn-sm" onclick="signOut()">Sign out</button>
   </div>
 </nav>
 
@@ -227,6 +269,79 @@ h1 em{color:var(--accent);font-style:italic}
       <div class="tpl-icon">⇢</div>
       <div class="tpl-name">Landing page</div>
       <div class="tpl-desc">Promo, marketing site</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="screen">
+  <div class="auth-box">
+    <!-- LOGIN FORM -->
+    <div id="auth-login">
+      <h2>Welcome back</h2>
+      <p class="auth-sub">Sign in to access your briefs</p>
+      <div class="auth-error" id="login-error"></div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn">Sign in</button>
+      <p class="auth-switch">No account? <a onclick="showAuthTab('signup')">Create one</a></p>
+      <p class="auth-switch" style="margin-top:8px"><a onclick="showAuthTab('forgot')">Forgot password?</a></p>
+    </div>
+    <!-- SIGNUP FORM -->
+    <div id="auth-signup" style="display:none">
+      <h2>Create account</h2>
+      <p class="auth-sub">Join Briefify to save and manage your briefs</p>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="auth-success" id="signup-success"></div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>Confirm password</label>
+        <input type="password" id="signup-password2" placeholder="Repeat password" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn">Create account</button>
+      <p class="auth-switch">Already have an account? <a onclick="showAuthTab('login')">Sign in</a></p>
+    </div>
+    <!-- FORGOT PASSWORD -->
+    <div id="auth-forgot" style="display:none">
+      <h2>Reset password</h2>
+      <p class="auth-sub">We'll send a reset link to your email</p>
+      <div class="auth-error" id="forgot-error"></div>
+      <div class="auth-success" id="forgot-success"></div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn">Send reset link</button>
+      <p class="auth-switch"><a onclick="showAuthTab('login')">← Back to sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div id="dashboard-screen" class="screen">
+  <div class="dashboard-header">
+    <h2>My Briefs</h2>
+    <button class="btn btn-primary" onclick="startBrief('blank')">+ New brief</button>
+  </div>
+  <div class="briefs-grid" id="briefs-list">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>No briefs yet. Create your first one!</p>
+      <button class="btn btn-accent" onclick="startBrief('blank')">Start from scratch</button>
     </div>
   </div>
 </div>
@@ -483,6 +598,156 @@ h1 em{color:var(--accent);font-style:italic}
 
 <div class="toast" id="toast"></div>
 
+<script>
+// ============================================================
+// SUPABASE AUTH
+// Configure with your project URL and anon key
+// ============================================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+
+// ---- Auth state listener ----
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  currentUser = session?.user || null;
+  updateNavAuth();
+  if (event === 'SIGNED_IN') {
+    // If on auth screen after login → go to landing or dashboard
+    const active = document.querySelector('.screen.active');
+    if (active && active.id === 'auth-screen') {
+      showScreen('landing');
+    }
+  }
+  if (event === 'SIGNED_OUT') {
+    showScreen('landing');
+  }
+  if (event === 'PASSWORD_RECOVERY') {
+    showScreen('auth-screen');
+    showAuthTab('reset');
+  }
+});
+
+// ---- Init on load ----
+async function initAuth() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  currentUser = session?.user || null;
+  updateNavAuth();
+}
+
+function updateNavAuth() {
+  const navGuest = document.getElementById('nav-guest');
+  const navUser = document.getElementById('nav-user');
+  if (currentUser) {
+    navGuest.style.display = 'none';
+    navUser.style.display = 'flex';
+    const email = currentUser.email || '';
+    document.getElementById('nav-user-email').textContent = email;
+    document.getElementById('nav-avatar').textContent = email.charAt(0).toUpperCase();
+  } else {
+    navGuest.style.display = 'flex';
+    navUser.style.display = 'none';
+  }
+}
+
+function goHome() {
+  showScreen('landing');
+}
+
+// ---- Show auth tabs ----
+function showAuthTab(tab) {
+  ['login','signup','forgot'].forEach(t => {
+    document.getElementById('auth-' + t).style.display = (t === tab) ? 'block' : 'none';
+  });
+  showScreen('auth-screen');
+}
+
+// ---- Login ----
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  errEl.classList.remove('show');
+  if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = 'Signing in…';
+  const { error } = await _supabase.auth.signInWithPassword({ email, password });
+  btn.classList.remove('btn-loading'); btn.textContent = 'Sign in';
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+}
+
+// ---- Signup ----
+async function doSignup() {
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const password2 = document.getElementById('signup-password2').value;
+  const errEl = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  const btn = document.getElementById('signup-btn');
+  errEl.classList.remove('show'); successEl.classList.remove('show');
+  if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+  if (password !== password2) { errEl.textContent = 'Passwords do not match.'; errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = 'Creating account…';
+  const { error } = await _supabase.auth.signUp({ email, password });
+  btn.classList.remove('btn-loading'); btn.textContent = 'Create account';
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else { successEl.textContent = 'Check your email to confirm your account, then sign in.'; successEl.classList.add('show'); }
+}
+
+// ---- Forgot password ----
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errEl = document.getElementById('forgot-error');
+  const successEl = document.getElementById('forgot-success');
+  const btn = document.getElementById('forgot-btn');
+  errEl.classList.remove('show'); successEl.classList.remove('show');
+  if (!email) { errEl.textContent = 'Enter your email address.'; errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = 'Sending…';
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  btn.classList.remove('btn-loading'); btn.textContent = 'Send reset link';
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else { successEl.textContent = 'Reset link sent! Check your inbox.'; successEl.classList.add('show'); }
+}
+
+// ---- Sign out ----
+async function signOut() {
+  await _supabase.auth.signOut();
+  showScreen('landing');
+}
+
+// ---- Dashboard: load user's briefs ----
+async function loadDashboard() {
+  if (!currentUser) { showScreen('auth-screen'); showAuthTab('login'); return; }
+  const container = document.getElementById('briefs-list');
+  container.innerHTML = '<p style="color:var(--ink2);font-size:14px">Loading…</p>';
+  const { data, error } = await _supabase
+    .from('briefs')
+    .select('id,slug,data,created_at')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (error || !data) {
+    container.innerHTML = '<p style="color:#c0392b;font-size:14px">Failed to load briefs.</p>';
+    return;
+  }
+  if (data.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No briefs yet. Create your first one!</p><button class="btn btn-accent" onclick="startBrief('blank')">Start from scratch</button></div>`;
+    return;
+  }
+  container.innerHTML = data.map(b => {
+    const d = b.data || {};
+    const date = new Date(b.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const tag = d.type ? `<span class="brief-item-tag">${d.type}</span>` : '';
+    return `<div class="brief-item" onclick="window.location='/brief/${b.slug}'">
+      <div class="brief-item-name">${d.name || 'Untitled Brief'}</div>
+      <div class="brief-item-meta">${date} · ${b.slug}</div>
+      ${tag}
+    </div>`;
+  }).join('');
+}
+</script>
 <script>
 const TEMPLATES = {
   blank: { title: 'Design Brief', preselect: {} },
@@ -794,6 +1059,9 @@ function exportPDF() { closeModal('export-modal'); window.print(); }
 let savedBriefUrl = '';
 
 async function saveBrief(briefData) {
+  if (currentUser) {
+    briefData.user_id = currentUser.id;
+  }
   try {
     const resp = await fetch('/api/briefs', {
       method: 'POST',
@@ -899,7 +1167,10 @@ async function loadBriefFromUrl() {
 }
 
 // Run on page load
-window.addEventListener('DOMContentLoaded', loadBriefFromUrl);
+window.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+  loadBriefFromUrl();
+});
 
 function showDemo() {
   startBrief('mobile');
