@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Briefify <briefs@yourdomain.com>', // ← замени на свой домен
+        from: 'Briefify <charlott4ka@gmail.com>', // ← замени на свой домен
         to: [toEmail],
         subject: `Design brief ready: ${projectName}`,
         html: `
