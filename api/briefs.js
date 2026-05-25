@@ -1,15 +1,15 @@
 // api/briefs.js
 // Сохранение и загрузка брифов из Supabase
 
-import { createClient } from '@supabase/supabase-js';
-import { nanoid } from 'nanoid';
+const { createClient } = require('@supabase/supabase-js');
+const { nanoid } = require('nanoid');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY // service_role ключ — только на сервере!
+  process.env.SUPABASE_SERVICE_KEY
 );
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
 
   // POST /api/briefs — сохранить бриф
   if (req.method === 'POST') {
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'data is required' });
     }
 
-    const slug = nanoid(8); // e.g. "aB3kR9mQ"
+    const slug = nanoid(8);
 
     const { data, error } = await supabase
       .from('briefs')
@@ -36,9 +36,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save brief' });
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${req.headers.host}`;
+
     return res.status(200).json({
       slug: data.slug,
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/brief/${data.slug}`
+      url: `${appUrl}/brief/${data.slug}`
     });
   }
 
