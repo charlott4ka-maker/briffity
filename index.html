@@ -840,6 +840,63 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// Load shared brief from URL: /brief/{slug}
+async function loadBriefFromUrl() {
+  const match = window.location.pathname.match(/^\/brief\/([a-zA-Z0-9_-]+)$/);
+  if (!match) return;
+  const slug = match[1];
+
+  // Show loading state
+  showScreen('result-screen');
+  document.getElementById('res-project-name').textContent = 'Loading brief…';
+  document.getElementById('res-task').textContent = '';
+  document.getElementById('res-audience').textContent = '';
+  document.getElementById('res-goal').textContent = '';
+  document.getElementById('res-style').textContent = '';
+  document.getElementById('res-budget').textContent = '';
+  document.getElementById('res-deadline').textContent = '';
+  document.getElementById('res-notes-card').style.display = 'none';
+
+  try {
+    const resp = await fetch(`/api/briefs?slug=${encodeURIComponent(slug)}`);
+    if (!resp.ok) {
+      document.getElementById('res-project-name').textContent = 'Brief not found';
+      document.getElementById('res-task').textContent = 'This link may be invalid or the brief was deleted.';
+      return;
+    }
+    const row = await resp.json();
+    const d = row.data || row;
+
+    document.getElementById('res-project-name').textContent = d.name || 'Untitled Brief';
+    document.getElementById('res-date').textContent = 'Generated ' + new Date(row.created_at || Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('res-task').textContent = [d.task, d.type ? `Type: ${d.type}` : ''].filter(Boolean).join('\n');
+    document.getElementById('res-audience').textContent = d.audience || '—';
+    document.getElementById('res-goal').textContent = d.goal || '—';
+    document.getElementById('res-style').textContent = [d.style, d.refs ? `References: ${d.refs}` : '', d.avoid ? `Avoid: ${d.avoid}` : ''].filter(Boolean).join('\n') || '—';
+    document.getElementById('res-budget').textContent = d.selectedBudget || d.budget || '—';
+    document.getElementById('res-deadline').textContent = d.deadline || '—';
+
+    if (d.notes) {
+      document.getElementById('res-notes').textContent = d.notes;
+      document.getElementById('res-notes-card').style.display = 'block';
+    }
+
+    if (d.aiSummary) {
+      aiSummaryText = d.aiSummary;
+      const summaryEl = document.getElementById('ai-summary-text');
+      if (summaryEl) summaryEl.textContent = d.aiSummary;
+      const summaryCard = document.getElementById('ai-summary-card');
+      if (summaryCard) summaryCard.style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('res-project-name').textContent = 'Failed to load brief';
+    document.getElementById('res-task').textContent = 'Please check your connection and try again.';
+  }
+}
+
+// Run on page load
+window.addEventListener('DOMContentLoaded', loadBriefFromUrl);
+
 function showDemo() {
   startBrief('mobile');
   setTimeout(() => {
