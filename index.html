@@ -211,7 +211,7 @@ h1 em{color:var(--accent);font-style:italic}
 .brief-item-name{font-weight:500;font-size:15px;margin-bottom:4px}
 .brief-item-meta{font-size:12px;color:var(--ink3);margin-bottom:10px}
 .brief-item-tag{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
-.empty-state{text-align:center;padding:60px 20px;color:var(--ink2)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink2);max-width:340px;margin:0 auto}
 .empty-state .empty-icon{font-size:36px;margin-bottom:12px}
 .empty-state p{margin-bottom:20px;font-size:15px}
 .nav-auth-btns{display:flex;align-items:center;gap:8px}
@@ -225,57 +225,68 @@ h1 em{color:var(--accent);font-style:italic}
 .guest-banner-text strong{font-weight:600}
 .guest-banner-actions{display:flex;gap:8px;flex-shrink:0}
 
+/* LANG SWITCHER */
+.lang-switcher{display:flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:3px;gap:2px}
+.lang-btn{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
 </style>
 </head>
 <body>
 
 <nav>
   <div class="logo" onclick="goHome()" style="cursor:pointer">Brie<span>fi</span>fy</div>
-  <div class="nav-right" id="nav-guest">
-    <button class="btn btn-secondary btn-sm" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
-    <button class="btn btn-accent btn-sm" onclick="showScreen('auth-screen');showAuthTab('signup')">Sign up</button>
-  </div>
-  <div class="nav-right user-menu" id="nav-user" style="display:none">
-    <span class="user-email" id="nav-user-email"></span>
-    <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard-screen');loadDashboard()">My briefs</button>
-    <div class="profile-badge" onclick="openProfileModal()">
-      <div class="avatar" id="nav-avatar">?</div>
-      <span id="nav-brief-url">brief link</span>
+  <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="lang-uk" onclick="setLang('uk')">УК</button>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="signOut()">Sign out</button>
+    <div class="nav-right" id="nav-guest">
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
+      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="showScreen('auth-screen');showAuthTab('signup')">Sign up</button>
+    </div>
+    <div class="nav-right user-menu" id="nav-user" style="display:none">
+      <span class="user-email" id="nav-user-email"></span>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.mybriefs" onclick="showScreen('dashboard-screen');loadDashboard()">My briefs</button>
+      <div class="profile-badge" onclick="openProfileModal()">
+        <div class="avatar" id="nav-avatar">?</div>
+        <span id="nav-brief-url">brief link</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signout" onclick="signOut()">Sign out</button>
+    </div>
   </div>
 </nav>
 
 <!-- LANDING -->
 <div id="landing" class="screen active">
-  <div class="hero-tag">✦ Design Brief Generator v2</div>
-  <h1>Your client fills the brief.<br>You get <em>everything</em> you need.</h1>
-  <p class="hero-sub">AI hints, reference uploads, niche templates — so you stop chasing information and start designing.</p>
+  <div class="hero-tag"><span data-i18n="landing.tag">✦ Design Brief Generator v2</span></div>
+  <h1><span data-i18n="landing.h1">Your client fills the brief.</span><br>You get <em data-i18n="landing.h1em">everything</em> <span data-i18n="landing.h1b">you need.</span></h1>
+  <p class="hero-sub"><span data-i18n="landing.sub">AI hints, reference uploads, niche templates — so you stop chasing information and start designing.</span></p>
   <div class="hero-btns">
-    <button class="btn btn-primary" onclick="startBrief('blank')">Start from scratch →</button>
-    <button class="btn btn-secondary" onclick="showDemo()">See example</button>
+    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="landing.start">Start from scratch →</span></button>
+    <button class="btn btn-secondary" onclick="showDemo()"><span data-i18n="landing.demo">See example</span></button>
   </div>
-  <p class="templates-label">Or start with a template</p>
+  <p class="templates-label"><span data-i18n="landing.templates">Or start with a template</span></p>
   <div class="template-grid">
     <div class="tpl-card" onclick="startBrief('mobile')">
       <div class="tpl-icon">📱</div>
-      <div class="tpl-name">Mobile app</div>
-      <div class="tpl-desc">iOS / Android design</div>
+      <div class="tpl-name"><span data-i18n="tpl.mobile">Mobile app</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.mobile_desc">iOS / Android design</span></div>
     </div>
     <div class="tpl-card" onclick="startBrief('saas')">
       <div class="tpl-icon">🖥️</div>
-      <div class="tpl-name">Web / SaaS</div>
-      <div class="tpl-desc">Dashboard, product UI</div>
+      <div class="tpl-name"><span data-i18n="tpl.saas">Web / SaaS</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.saas_desc">Dashboard, product UI</span></div>
     </div>
     <div class="tpl-card" onclick="startBrief('brand')">
       <div class="tpl-icon">✦</div>
-      <div class="tpl-name">Branding</div>
-      <div class="tpl-desc">Logo, identity, style guide</div>
+      <div class="tpl-name"><span data-i18n="tpl.brand">Branding</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.brand_desc">Logo, identity, style guide</span></div>
     </div>
     <div class="tpl-card" onclick="startBrief('landing')">
       <div class="tpl-icon">⇢</div>
-      <div class="tpl-name">Landing page</div>
-      <div class="tpl-desc">Promo, marketing site</div>
+      <div class="tpl-name"><span data-i18n="tpl.landing">Landing page</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.landing_desc">Promo, marketing site</span></div>
     </div>
   </div>
 </div>
@@ -286,8 +297,8 @@ h1 em{color:var(--accent);font-style:italic}
   <div class="auth-box">
     <!-- LOGIN FORM -->
     <div id="auth-login">
-      <h2>Welcome back</h2>
-      <p class="auth-sub">Sign in to access your briefs</p>
+      <h2><span data-i18n="auth.login_title">Welcome back</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.login_sub">Sign in to access your briefs</span></p>
       <div class="auth-error" id="login-error"></div>
       <div class="field">
         <label>Email</label>
@@ -303,8 +314,8 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
     <!-- SIGNUP FORM -->
     <div id="auth-signup" style="display:none">
-      <h2>Create account</h2>
-      <p class="auth-sub">Join Briefify to save and manage your briefs</p>
+      <h2><span data-i18n="auth.signup_title">Create account</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.signup_sub">Join Briefify to save and manage your briefs</span></p>
       <div class="auth-error" id="signup-error"></div>
       <div class="auth-success" id="signup-success"></div>
       <div class="field">
@@ -324,8 +335,8 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
     <!-- FORGOT PASSWORD -->
     <div id="auth-forgot" style="display:none">
-      <h2>Reset password</h2>
-      <p class="auth-sub">We'll send a reset link to your email</p>
+      <h2><span data-i18n="auth.forgot_title">Reset password</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.forgot_sub">We'll send a reset link to your email</span></p>
       <div class="auth-error" id="forgot-error"></div>
       <div class="auth-success" id="forgot-success"></div>
       <div class="field">
@@ -341,13 +352,13 @@ h1 em{color:var(--accent);font-style:italic}
 <!-- DASHBOARD SCREEN -->
 <div id="dashboard-screen" class="screen">
   <div class="dashboard-header">
-    <h2>My Briefs</h2>
-    <button class="btn btn-primary" onclick="startBrief('blank')">+ New brief</button>
+    <h2><span data-i18n="dash.title">My Briefs</span></h2>
+    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="dash.new"><span data-i18n="dash.new">+ New brief</span></span></button>
   </div>
-  <div class="briefs-grid" id="briefs-list">
+  <div class="briefs-grid" id="briefs-list" style="display:block">
     <div class="empty-state">
       <div class="empty-icon">📋</div>
-      <p>No briefs yet. Create your first one!</p>
+      <p><span data-i18n="dash.empty">No briefs yet. Create your first one!</span></p>
       <button class="btn btn-accent" onclick="startBrief('blank')">Start from scratch</button>
     </div>
   </div>
@@ -505,15 +516,15 @@ h1 em{color:var(--accent);font-style:italic}
       <p id="res-date"></p>
     </div>
     <div class="result-actions">
-      <button class="btn btn-secondary btn-sm" onclick="copyLink()">⇢ Copy brief</button>
-      <button class="btn btn-accent btn-sm" onclick="openExportModal()">↓ Export PDF</button>
+      <button class="btn btn-secondary btn-sm" onclick="copyLink()"><span data-i18n="result.copy">⇢ Copy brief</span></button>
+      <button class="btn btn-accent btn-sm" onclick="openExportModal()"><span data-i18n="result.pdf">↓ Export PDF</span></button>
     </div>
   </div>
 
   <!-- Guest banner -->
   <div class="guest-banner" id="guest-banner">
     <div class="guest-banner-text">
-      <strong>⚠ You're not signed in.</strong> You can copy the link to this brief, but it won't be saved to your profile and you won't be able to edit it later.
+      <strong><span data-i18n="banner.title">⚠ You're not signed in.</span></strong> <span data-i18n="banner.text">This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.</span>
     </div>
     <div class="guest-banner-actions">
       <button class="btn btn-secondary btn-xs" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
@@ -523,7 +534,7 @@ h1 em{color:var(--accent);font-style:italic}
 
   <!-- AI Summary -->
   <div class="ai-summary-wrap">
-    <div class="ai-summary-label">✦ AI summary</div>
+    <div class="ai-summary-label"><span data-i18n="result.ai_label">✦ AI summary</span></div>
     <div id="ai-summary-content">
       <div class="ai-loading">Generating summary<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
     </div>
@@ -565,7 +576,7 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="brief-card-body"><p id="res-notes"></p></div>
   </div>
   <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border2);display:flex;gap:10px">
-    <button class="btn btn-secondary" onclick="goToStep(0)">← Edit brief</button>
+    <button class="btn btn-secondary" onclick="goToStep(0)"><span data-i18n="result.edit">← Edit brief</span></button>
     <button class="btn btn-primary" onclick="startBrief('blank',true)">+ New brief</button>
   </div>
 </div>
@@ -707,6 +718,12 @@ function updateNavAuth() {
   } else {
     navGuest.style.display = 'flex';
     navUser.style.display = 'none';
+  }
+  // Update guest banner visibility on result screen
+  const guestBanner = document.getElementById('guest-banner');
+  if (guestBanner) {
+    const onResult = document.getElementById('result-screen')?.classList.contains('active');
+    guestBanner.classList.toggle('show', !currentUser && onResult);
   }
 }
 
@@ -1231,6 +1248,115 @@ function showDemo() {
     });
   }, 100);
 }
+// ============================================================
+// i18n — INTERNATIONALIZATION (EN / UK)
+// ============================================================
+const TRANSLATIONS = {
+  en: {
+    'nav.signin': 'Sign in',
+    'nav.signup': 'Sign up',
+    'nav.mybriefs': 'My briefs',
+    'nav.signout': 'Sign out',
+    'landing.tag': '✦ Design Brief Generator v2',
+    'landing.h1': 'Your client fills the brief.',
+    'landing.h1em': 'everything',
+    'landing.h1b': 'you need.',
+    'landing.sub': 'AI hints, reference uploads, niche templates — so you stop chasing information and start designing.',
+    'landing.start': 'Start from scratch →',
+    'landing.start_plain': 'Start from scratch',
+    'landing.demo': 'See example',
+    'landing.templates': 'Or start with a template',
+    'tpl.mobile': 'Mobile app',
+    'tpl.mobile_desc': 'iOS / Android design',
+    'tpl.saas': 'Web / SaaS',
+    'tpl.saas_desc': 'Dashboard, product UI',
+    'tpl.brand': 'Branding',
+    'tpl.brand_desc': 'Logo, identity, style guide',
+    'tpl.landing': 'Landing page',
+    'tpl.landing_desc': 'Promo, marketing site',
+    'auth.login_title': 'Welcome back',
+    'auth.login_sub': 'Sign in to access your briefs',
+    'auth.signup_title': 'Create account',
+    'auth.signup_sub': 'Join Briefify to save and manage your briefs',
+    'auth.forgot_title': 'Reset password',
+    'auth.forgot_sub': "We'll send a reset link to your email",
+    'dash.title': 'My Briefs',
+    'dash.new': '+ New brief',
+    'dash.empty': 'No briefs yet. Create your first one!',
+    'banner.title': "⚠ You're not signed in.",
+    'banner.text': "This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.",
+    'result.copy': '⇢ Copy brief',
+    'result.pdf': '↓ Export PDF',
+    'result.ai_label': '✦ AI summary',
+    'result.edit': '← Edit brief',
+  },
+  uk: {
+    'nav.signin': 'Увійти',
+    'nav.signup': 'Реєстрація',
+    'nav.mybriefs': 'Мої брифи',
+    'nav.signout': 'Вийти',
+    'landing.tag': '✦ Генератор дизайн-брифів v2',
+    'landing.h1': 'Клієнт заповнює бриф.',
+    'landing.h1em': 'все',
+    'landing.h1b': 'що вам потрібно.',
+    'landing.sub': 'AI-підказки, референси, готові шаблони — щоб ви не витрачали час на уточнення і одразу почали дизайн.',
+    'landing.start': 'Почати з нуля →',
+    'landing.start_plain': 'Почати з нуля',
+    'landing.demo': 'Приклад',
+    'landing.templates': 'Або оберіть шаблон',
+    'tpl.mobile': 'Мобільний застосунок',
+    'tpl.mobile_desc': 'iOS / Android дизайн',
+    'tpl.saas': 'Вебсайт / SaaS',
+    'tpl.saas_desc': 'Дашборд, продуктовий UI',
+    'tpl.brand': 'Брендинг',
+    'tpl.brand_desc': 'Логотип, айдентика, стайлгайд',
+    'tpl.landing': 'Лендінг',
+    'tpl.landing_desc': 'Промо, маркетинговий сайт',
+    'auth.login_title': 'З поверненням',
+    'auth.login_sub': 'Увійдіть, щоб переглянути свої брифи',
+    'auth.signup_title': 'Створити акаунт',
+    'auth.signup_sub': 'Реєструйтесь, щоб зберігати брифи та керувати ними',
+    'auth.forgot_title': 'Відновити пароль',
+    'auth.forgot_sub': 'Ми надішлемо посилання для скидання на вашу пошту',
+    'dash.title': 'Мої брифи',
+    'dash.new': '+ Новий бриф',
+    'dash.empty': 'Поки що немає брифів. Створіть перший!',
+    'banner.title': '⚠ Ви не авторизовані.',
+    'banner.text': 'Цей бриф не буде збережено у вашому профілі, ви не зможете поділитися посиланням на нього та не зможете редагувати його пізніше.',
+    'result.copy': '⇢ Скопіювати бриф',
+    'result.pdf': '↓ Експорт PDF',
+    'result.ai_label': '✦ AI-підсумок',
+    'result.edit': '← Редагувати бриф',
+  }
+};
+
+let currentLang = localStorage.getItem('briefify_lang') || 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('briefify_lang', lang);
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-uk').classList.toggle('active', lang === 'uk');
+  applyTranslations();
+}
+
+function t(key) {
+  return TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS['en'][key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+}
+
+// Apply on load
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+
 </script>
 </body>
 </html>
