@@ -1,6 +1,6 @@
 // api/summarize.js
-// Vercel Serverless Function — проксирует запрос к Anthropic API
-// Ключ хранится в Vercel Environment Variables, а не во фронтенде
+// Vercel Serverless Function — проксирует запрос к OpenRouter API
+// Ключ хранится в Vercel Environment Variables: OPENROUTER_API_KEY
 
 export default async function handler(req, res) {
   // Только POST
@@ -15,15 +15,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY, // ← из Vercel Environment Variables
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': 'Briffity',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'google/gemini-flash-1.5',  // бесплатная модель, можно заменить на любую из openrouter.ai/models
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -35,11 +36,11 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Anthropic error:', data);
-      return res.status(502).json({ error: 'Anthropic API error', details: data });
+      console.error('OpenRouter error:', data);
+      return res.status(502).json({ error: 'OpenRouter API error', details: data });
     }
 
-    const summary = data.content?.[0]?.text || '';
+    const summary = data.choices?.[0]?.message?.content || '';
     return res.status(200).json({ summary });
 
   } catch (err) {
