@@ -2,7 +2,9 @@
 // Сохранение и загрузка брифов из Supabase
 
 const { createClient } = require('@supabase/supabase-js');
-const { nanoid } = require('nanoid');
+// Убрать: const { nanoid } = require('nanoid');
+const { randomBytes } = require('crypto');
+const nanoid = (size = 8) => randomBytes(size).toString('base64url').slice(0, size);
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
