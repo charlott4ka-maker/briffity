@@ -755,17 +755,21 @@ async function generateResult() {
       body: JSON.stringify({ briefText })
     });
     const data = await resp.json();
-    const summary = data.summary || '';
-    aiSummaryText = summary;
-    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${summary}</div>`;
-    document.getElementById('pdf-summary').textContent = summary;
+    if (!resp.ok || !data.summary) {
+      console.error('Summarize error:', data);
+      throw new Error(data.error || 'Empty summary');
+    }
+    aiSummaryText = data.summary;
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${data.summary}</div>`;
+    document.getElementById('pdf-summary').textContent = data.summary;
   } catch(e) {
+    console.error('AI summary failed:', e);
     aiSummaryText = '';
     document.getElementById('ai-summary-content').innerHTML = '<div class="ai-summary-text" style="color:var(--ink2)">Summary unavailable — check your connection and try again.</div>';
     document.getElementById('pdf-summary-section').style.display = 'none';
   }
 
-  // Save brief and generate public link
+  // Save brief AFTER summary is ready so aiSummaryText is included
   const briefData = { name, task, type, audience, goal, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: aiSummaryText };
   saveBrief(briefData);
 
