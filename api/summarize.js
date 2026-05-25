@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         'X-Title': 'Briffity',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.5-flash',,  // бесплатная модель, можно заменить на любую из openrouter.ai/models
+        model: 'google/gemini-3.5-flash',  // бесплатная модель, можно заменить на любую из openrouter.ai/models
         max_tokens: 1000,
         messages: [{
           role: 'user',
