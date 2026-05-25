@@ -658,8 +658,16 @@ let savedBriefUrl = '';
 // ============================================================
 let _supabase = null;
 let currentUser = null;
+let _supabaseReady = null; // Promise — resolves when supabase is initialized
+
+async function getSupabase() {
+  if (_supabase) return _supabase;
+  await _supabaseReady;
+  return _supabase;
+}
 
 async function initAuth() {
+  _supabaseReady = (async () => {
   try {
     const resp = await fetch('/api/auth-config');
     if (!resp.ok) throw new Error('auth-config returned ' + resp.status);
@@ -683,6 +691,8 @@ async function initAuth() {
   } catch(e) {
     console.error('Supabase init failed:', e);
   }
+  })();
+  await _supabaseReady;
 }
 
 function updateNavAuth() {
@@ -721,7 +731,8 @@ async function doLogin() {
   errEl.classList.remove('show');
   if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
   btn.classList.add('btn-loading'); btn.textContent = 'Signing in…';
-  const { error } = await _supabase.auth.signInWithPassword({ email, password });
+  const sb = await getSupabase();
+  const { error } = await sb.auth.signInWithPassword({ email, password });
   btn.classList.remove('btn-loading'); btn.textContent = 'Sign in';
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
 }
@@ -739,10 +750,12 @@ async function doSignup() {
   if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
   if (password !== password2) { errEl.textContent = 'Passwords do not match.'; errEl.classList.add('show'); return; }
   btn.classList.add('btn-loading'); btn.textContent = 'Creating account…';
-  const { error } = await _supabase.auth.signUp({ email, password });
+  const sb = await getSupabase();
+  const { data: signUpData, error } = await sb.auth.signUp({ email, password });
   btn.classList.remove('btn-loading'); btn.textContent = 'Create account';
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
-  else { successEl.textContent = 'Check your email to confirm your account, then sign in.'; successEl.classList.add('show'); }
+  else if (signUpData?.user && !signUpData.session) { successEl.textContent = 'Check your email to confirm your account, then sign in.'; successEl.classList.add('show'); }
+  else { showScreen('landing'); }
 }
 
 // ---- Forgot password ----
@@ -754,7 +767,8 @@ async function doForgot() {
   errEl.classList.remove('show'); successEl.classList.remove('show');
   if (!email) { errEl.textContent = 'Enter your email address.'; errEl.classList.add('show'); return; }
   btn.classList.add('btn-loading'); btn.textContent = 'Sending…';
-  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  const sb = await getSupabase();
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
   btn.classList.remove('btn-loading'); btn.textContent = 'Send reset link';
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
   else { successEl.textContent = 'Reset link sent! Check your inbox.'; successEl.classList.add('show'); }
@@ -762,7 +776,8 @@ async function doForgot() {
 
 // ---- Sign out ----
 async function signOut() {
-  await _supabase.auth.signOut();
+  const sb = await getSupabase();
+  await sb.auth.signOut();
   showScreen('landing');
 }
 
@@ -771,7 +786,8 @@ async function loadDashboard() {
   if (!currentUser) { showScreen('auth-screen'); showAuthTab('login'); return; }
   const container = document.getElementById('briefs-list');
   container.innerHTML = '<p style="color:var(--ink2);font-size:14px">Loading…</p>';
-  const { data, error } = await _supabase
+  const sb = await getSupabase();
+  const { data, error } = await sb
     .from('briefs')
     .select('id,slug,data,created_at')
     .eq('user_id', currentUser.id)
