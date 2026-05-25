@@ -1,7 +1,4 @@
 // api/summarize.js
-const { randomBytes } = require('crypto');
-
-// Rate limit: 5 AI requests per IP per minute (costs money)
 const rateLimitMap = new Map();
 function checkRateLimit(ip, max = 5, windowMs = 60_000) {
   const now = Date.now();
@@ -17,10 +14,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
   if (!checkRateLimit(ip)) {
@@ -28,12 +22,10 @@ module.exports = async function handler(req, res) {
   }
 
   const { briefText } = req.body;
-
   if (!briefText || typeof briefText !== 'string') {
     return res.status(400).json({ error: 'briefText is required' });
   }
 
-  // Cap input to prevent huge/expensive requests
   const trimmed = briefText.slice(0, 3000);
 
   if (!process.env.GEMINI_API_KEY) {
@@ -42,17 +34,21 @@ module.exports = async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are a senior UX designer reviewing a client brief. Write a concise professional summary (3–4 sentences) of this design brief that a designer would read first. Highlight the core goal, audience, key constraints, and one thing to watch out for. Be direct and useful — no fluff.\n\nBrief:\n${trimmed}`
+              text: `You are a senior UX designer reviewing a client design brief. Write a concise professional summary of 3 complete sentences. Cover: (1) the core project goal and audience, (2) key style and technical constraints, (3) one important risk or thing to watch out for. Always finish all 3 sentences completely. Be direct and useful.\n\nBrief:\n${trimmed}`
             }]
           }],
-          generationConfig: { maxOutputTokens: 300 }
+          generationConfig: {
+            maxOutputTokens: 500,
+            temperature: 0.4,
+            stopSequences: []
+          }
         })
       }
     );
@@ -64,8 +60,19 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: 'AI service error' });
     }
 
-    const summary = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return res.status(200).json({ summary });
+    let summary = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // If response was cut off mid-sentence, trim to last complete sentence
+    const sentenceEnd = Math.max(
+      summary.lastIndexOf('. '),
+      summary.lastIndexOf('! '),
+      summary.lastIndexOf('? ')
+    );
+    if (sentenceEnd > 0 && !summary.trim().match(/[.!?]$/)) {
+      summary = summary.slice(0, sentenceEnd + 1);
+    }
+
+    return res.status(200).json({ summary: summary.trim() });
 
   } catch (err) {
     console.error('Handler error:', err);
