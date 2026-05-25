@@ -191,7 +191,7 @@ h1 em{color:var(--accent);font-style:italic}
   <div class="nav-right">
     <div class="profile-badge" onclick="openProfileModal()">
       <div class="avatar">DK</div>
-      briefify.com/daria
+      <span id="nav-brief-url">your brief link</span>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="showScreen('landing')">Home</button>
   </div>
@@ -456,7 +456,7 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="modal-icon" style="background:var(--accent-light);font-size:18px">⇢</div>
     <h3>Your public brief link</h3>
     <p>Share this link with clients — they'll fill your branded brief form and you get the result instantly.</p>
-    <div class="profile-link-box">briefify.com/daria</div>
+    <div class="profile-link-box" id="public-brief-url">Generating link...</div>
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
       <button class="btn btn-accent" onclick="copyProfileLink()">Copy link</button>
@@ -765,6 +765,10 @@ async function generateResult() {
     document.getElementById('pdf-summary-section').style.display = 'none';
   }
 
+  // Save brief and generate public link
+  const briefData = { name, task, type, audience, goal, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: aiSummaryText };
+  saveBrief(briefData);
+
   // PDF fields
   document.getElementById('pdf-name').textContent = name;
   document.getElementById('pdf-meta').textContent = 'Design Brief · ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
@@ -783,10 +787,34 @@ function openExportModal() { document.getElementById('export-modal').classList.a
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function exportPDF() { closeModal('export-modal'); window.print(); }
 
-function openProfileModal() { document.getElementById('profile-modal').classList.add('open'); }
+let savedBriefUrl = '';
+
+async function saveBrief(briefData) {
+  try {
+    const resp = await fetch('/api/briefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: briefData })
+    });
+    const result = await resp.json();
+    if (result.url) {
+      savedBriefUrl = result.url;
+      document.getElementById('public-brief-url').textContent = result.url;
+    }
+  } catch(e) {
+    console.error('Failed to save brief:', e);
+    document.getElementById('public-brief-url').textContent = 'Failed to generate link';
+  }
+}
+
+function openProfileModal() {
+  document.getElementById('profile-modal').classList.add('open');
+}
+
 function copyProfileLink() {
-  navigator.clipboard.writeText('https://briefify.com/daria').catch(()=>{});
-  showToast('Profile link copied!');
+  if (!savedBriefUrl) return;
+  navigator.clipboard.writeText(savedBriefUrl).catch(()=>{});
+  showToast('Brief link copied!');
   closeModal('profile-modal');
 }
 
