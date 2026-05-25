@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Briefify v2 — Design Brief Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F2EC;
+  --surface: #FDFCF9;
+  --ink: #1A1814;
+  --ink2: #6B6760;
+  --ink3: #A8A49E;
+  --accent: #2D5BE3;
+  --accent-light: #EBF0FD;
+  --success: #1A7F5A;
+  --success-light: #E6F5EF;
+  --warn: #B85C00;
+  --warn-light: #FEF3E2;
+  --border: rgba(26,24,20,0.1);
+  --border2: rgba(26,24,20,0.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border2);background:var(--surface)}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-0.5px}
+.logo span{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.profile-badge{display:flex;align-items:center;gap:8px;background:var(--accent-light);border-radius:100px;padding:6px 14px 6px 8px;font-size:13px;color:var(--accent);cursor:pointer;font-weight:500}
+.profile-badge .avatar{width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:500}
+
+.screen{display:none;min-height:calc(100vh - 65px)}
+.screen.active{display:block}
+#landing{display:none;flex-direction:column;align-items:center;justify-content:center;padding:70px 40px;text-align:center}
+#landing.active{display:flex}
+
+.hero-tag{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:28px}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(34px,5vw,56px);line-height:1.1;letter-spacing:-1px;max-width:660px;margin-bottom:20px}
+h1 em{color:var(--accent);font-style:italic}
+.hero-sub{font-size:17px;color:var(--ink2);max-width:460px;margin-bottom:40px;line-height:1.7}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
+
+/* TEMPLATES */
+.templates-label{font-size:12px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
+.template-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:720px;width:100%}
+.tpl-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:all .18s;text-align:left}
+.tpl-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tpl-icon{font-size:22px;margin-bottom:10px}
+.tpl-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.tpl-desc{font-size:12px;color:var(--ink2)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;font-size:15px;font-weight:500;cursor:pointer;border:none;transition:all .18s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:#333;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:#2450cc;transform:translateY(-1px)}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn-xs{padding:6px 12px;font-size:12px}
+
+/* FORM */
+#form-screen{display:none;padding:40px;max-width:700px;margin:0 auto}
+#form-screen.active{display:block}
+.form-header{margin-bottom:28px}
+.form-header h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+.form-header p{color:var(--ink2);font-size:13px}
+
+.autosave-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--success);background:var(--success-light);padding:4px 10px;border-radius:100px;margin-top:8px;opacity:0;transition:opacity .3s}
+.autosave-badge.show{opacity:1}
+
+.progress-wrap{margin-bottom:32px}
+.progress-steps{display:flex;gap:5px;margin-bottom:6px}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s}
+.step-dot.done{background:var(--success)}
+.step-dot.active{background:var(--accent)}
+.progress-label{font-size:12px;color:var(--ink3)}
+.progress-label span{color:var(--ink);font-weight:500}
+
+.form-section{display:none}
+.form-section.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.section-title{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px;letter-spacing:-.3px}
+.section-sub{font-size:14px;color:var(--ink2);margin-bottom:26px}
+
+.field{margin-bottom:20px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field textarea,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;transition:border-color .2s;resize:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field textarea{height:96px}
+
+.ai-tip{display:flex;gap:8px;align-items:flex-start;background:var(--accent-light);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;font-size:13px;color:var(--accent);line-height:1.5;opacity:0;transition:opacity .4s;max-height:0;overflow:hidden}
+.ai-tip.visible{opacity:1;max-height:80px}
+
+.tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.tag{padding:7px 14px;border-radius:100px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink2);user-select:none}
+.tag:hover{border-color:var(--accent);color:var(--accent)}
+.tag.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.budget-option{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .15s;background:var(--surface)}
+.budget-option:hover{border-color:var(--accent)}
+.budget-option.selected{border-color:var(--accent);background:var(--accent-light)}
+.budget-option .range{font-weight:500;font-size:14px}
+.budget-option .label{font-size:12px;color:var(--ink2)}
+
+/* REFERENCE UPLOAD */
+.upload-area{border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);position:relative}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:var(--accent-light)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:24px;margin-bottom:8px}
+.upload-text{font-size:13px;color:var(--ink2)}
+.upload-text strong{color:var(--accent)}
+.ref-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ref-thumb{position:relative;width:72px;height:72px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.ref-thumb img{width:100%;height:100%;object-fit:cover}
+.ref-thumb .remove{position:absolute;top:3px;right:3px;width:18px;height:18px;background:rgba(26,24,20,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:#fff}
+
+.form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border2)}
+
+/* AI SUMMARY */
+.ai-summary-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:20px;position:relative}
+.ai-summary-label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:10px}
+.ai-summary-text{font-size:15px;line-height:1.7;color:var(--ink)}
+.ai-loading{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
+.dots span{animation:blink 1.2s infinite;opacity:0}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* RESULT */
+#result-screen{display:none;padding:40px;max-width:700px;margin:0 auto}
+#result-screen.active{display:block;animation:fadeIn .4s ease}
+.result-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.result-title h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+.result-title p{font-size:13px;color:var(--ink3)}
+.result-actions{display:flex;gap:8px;flex-shrink:0}
+
+.brief-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.brief-card-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border2);background:var(--bg)}
+.brief-card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.brief-card-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2)}
+.brief-card-body{padding:14px 16px}
+.brief-card-body p{font-size:15px;color:var(--ink);line-height:1.65;white-space:pre-wrap}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+.ref-result-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.ref-result-thumb{width:64px;height:64px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.ref-result-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* PROFILE MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,24,20,.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);padding:32px;max-width:420px;width:90%;text-align:center}
+.modal-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px}
+.modal h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px}
+.modal p{font-size:14px;color:var(--ink2);margin-bottom:20px;line-height:1.6}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+
+.profile-link-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:20px;word-break:break-all}
+
+/* PDF */
+#pdf-content{display:none;padding:60px;font-family:'DM Sans',sans-serif;background:white}
+#pdf-content h1{font-family:'DM Serif Display',serif;font-size:32px;letter-spacing:-.5px;margin-bottom:6px}
+#pdf-content .pdf-meta{font-size:13px;color:#888;margin-bottom:40px}
+#pdf-content .pdf-section{margin-bottom:28px}
+#pdf-content .pdf-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-weight:500;margin-bottom:8px;font-family:'DM Sans',sans-serif}
+#pdf-content .pdf-section p{font-size:15px;color:#222;line-height:1.65;border-left:2px solid #2D5BE3;padding-left:14px;white-space:pre-wrap}
+#pdf-content .pdf-summary{background:#EBF0FD;border-radius:8px;padding:16px 18px;margin-bottom:32px}
+#pdf-content .pdf-summary h3{color:#2D5BE3;margin-bottom:6px}
+#pdf-content .pdf-summary p{border:none;padding:0;color:#1A1814}
+@media print{body>*:not(#pdf-content){display:none!important}#pdf-content{display:block!important}}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.validation-msg{font-size:12px;color:#c0392b;margin-top:5px;display:none}
+.field.error input,.field.error textarea{border-color:#e74c3c}
+.field.error .validation-msg{display:block}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Brie<span>fi</span>fy</div>
+  <div class="nav-right">
+    <div class="profile-badge" onclick="openProfileModal()">
+      <div class="avatar">DK</div>
+      briefify.com/daria
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="showScreen('landing')">Home</button>
+  </div>
+</nav>
+
+<!-- LANDING -->
+<div id="landing" class="screen active">
+  <div class="hero-tag">✦ Design Brief Generator v2</div>
+  <h1>Your client fills the brief.<br>You get <em>everything</em> you need.</h1>
+  <p class="hero-sub">AI hints, reference uploads, niche templates — so you stop chasing information and start designing.</p>
+  <div class="hero-btns">
+    <button class="btn btn-primary" onclick="startBrief('blank')">Start from scratch →</button>
+    <button class="btn btn-secondary" onclick="showDemo()">See example</button>
+  </div>
+  <p class="templates-label">Or start with a template</p>
+  <div class="template-grid">
+    <div class="tpl-card" onclick="startBrief('mobile')">
+      <div class="tpl-icon">📱</div>
+      <div class="tpl-name">Mobile app</div>
+      <div class="tpl-desc">iOS / Android design</div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('saas')">
+      <div class="tpl-icon">🖥️</div>
+      <div class="tpl-name">Web / SaaS</div>
+      <div class="tpl-desc">Dashboard, product UI</div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('brand')">
+      <div class="tpl-icon">✦</div>
+      <div class="tpl-name">Branding</div>
+      <div class="tpl-desc">Logo, identity, style guide</div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('landing')">
+      <div class="tpl-icon">⇢</div>
+      <div class="tpl-name">Landing page</div>
+      <div class="tpl-desc">Promo, marketing site</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM SCREEN -->
+<div id="form-screen" class="screen">
+  <div class="form-header">
+    <h2 id="form-title">Design Brief</h2>
+    <p>Answer honestly — the more specific, the better the outcome</p>
+    <div class="autosave-badge" id="autosave-badge">✓ Draft saved</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+    <div class="progress-label">Step <span id="step-num">1</span> of 4 — <span id="step-name">Project overview</span></div>
+  </div>
+
+  <!-- Section 0: Project -->
+  <div class="form-section active" id="section-0">
+    <div class="section-title">What's the project?</div>
+    <div class="section-sub">Give us the basics — we'll help sharpen the details</div>
+    <div class="field" id="field-name">
+      <label>Project name</label>
+      <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
+      <div class="validation-msg">Please give your project a name</div>
+    </div>
+    <div class="field" id="field-task">
+      <label>What needs to be done?</label>
+      <textarea id="f-task" placeholder="Describe in your own words..." oninput="autosave();maybeShowTip('tip-task',this.value,20)"></textarea>
+      <div class="ai-tip" id="tip-task">
+        <span style="flex-shrink:0">✦</span>
+        Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.
+      </div>
+      <div class="validation-msg">Please describe what needs to be done</div>
+    </div>
+    <div class="field">
+      <label>Project type</label>
+      <div class="tag-grid" id="tags-type">
+        <span class="tag" onclick="toggleTag(this,'type')">Mobile app</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Web / SaaS</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Landing page</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Branding</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Dashboard</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Email design</span>
+        <span class="tag" onclick="toggleTag(this,'type')">Other</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: Audience -->
+  <div class="form-section" id="section-1">
+    <div class="section-title">Who is this for?</div>
+    <div class="section-sub">The audience shapes every design decision</div>
+    <div class="field">
+      <label>Target audience</label>
+      <textarea id="f-audience" placeholder="Age, interests, tech level, pain points..." oninput="autosave();maybeShowTip('tip-audience',this.value,15)"></textarea>
+      <div class="ai-tip" id="tip-audience">
+        <span style="flex-shrink:0">✦</span>
+        Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.
+      </div>
+    </div>
+    <div class="field">
+      <label>Key user goal — what should they do in 1 sentence?</label>
+      <input type="text" id="f-goal" placeholder="e.g. Order food in under 2 minutes" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label>Platforms</label>
+      <div class="tag-grid">
+        <span class="tag" onclick="toggleTag(this,'platform')">iOS</span>
+        <span class="tag" onclick="toggleTag(this,'platform')">Android</span>
+        <span class="tag" onclick="toggleTag(this,'platform')">Web browser</span>
+        <span class="tag" onclick="toggleTag(this,'platform')">Desktop app</span>
+        <span class="tag" onclick="toggleTag(this,'platform')">Tablet</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Style + References -->
+  <div class="form-section" id="section-2">
+    <div class="section-title">Look, feel & references</div>
+    <div class="section-sub">Visuals communicate faster than words</div>
+    <div class="field">
+      <label>Style</label>
+      <div class="tag-grid">
+        <span class="tag" onclick="toggleTag(this,'style')">Minimal</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Modern</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Playful</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Corporate</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Bold</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Elegant</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Friendly</span>
+        <span class="tag" onclick="toggleTag(this,'style')">Dark / edgy</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Apps or sites you admire</label>
+      <input type="text" id="f-refs" placeholder="e.g. Bolt, Notion, Linear, Airbnb" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label>Upload visual references (optional)</label>
+      <div class="upload-area" id="upload-area" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+        <input type="file" id="ref-upload" accept="image/*" multiple onchange="handleFiles(this.files)">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each</div>
+      </div>
+      <div class="ref-previews" id="ref-previews"></div>
+    </div>
+    <div class="field">
+      <label>What to avoid</label>
+      <input type="text" id="f-avoid" placeholder="e.g. Stock photos, red color, heavy gradients" oninput="autosave()">
+    </div>
+  </div>
+
+  <!-- Section 3: Budget & timeline -->
+  <div class="form-section" id="section-3">
+    <div class="section-title">Budget & timeline</div>
+    <div class="section-sub">Help the designer plan the right scope</div>
+    <div class="field">
+      <label>Budget range</label>
+      <div class="budget-grid">
+        <div class="budget-option" onclick="selectBudget(this,'Under $500')"><div class="range">Under $500</div><div class="label">Small scope</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$500 – $1,200')"><div class="range">$500 – $1,200</div><div class="label">Mid project</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$1,200 – $3,000')"><div class="range">$1,200 – $3,000</div><div class="label">Full design cycle</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$3,000+')"><div class="range">$3,000+</div><div class="label">Complex / ongoing</div></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Deadline</label>
+      <input type="text" id="f-deadline" placeholder="e.g. End of June, ASAP, flexible" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label>Anything else the designer should know?</label>
+      <textarea id="f-notes" placeholder="Existing brand assets, team size, technical constraints..." oninput="autosave()"></textarea>
+    </div>
+  </div>
+
+  <div class="form-nav">
+    <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none">← Back</button>
+    <div></div>
+    <button class="btn btn-accent" id="btn-next" onclick="nextStep()">Continue →</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen" class="screen">
+  <div class="result-header">
+    <div class="result-title">
+      <h2 id="res-project-name">Project Brief</h2>
+      <p id="res-date"></p>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-secondary btn-sm" onclick="copyLink()">⇢ Copy brief</button>
+      <button class="btn btn-accent btn-sm" onclick="openExportModal()">↓ Export PDF</button>
+    </div>
+  </div>
+
+  <!-- AI Summary -->
+  <div class="ai-summary-wrap">
+    <div class="ai-summary-label">✦ AI summary</div>
+    <div id="ai-summary-content">
+      <div class="ai-loading">Generating summary<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+  </div>
+
+  <div class="brief-card">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#EBF0FD">📋</div><div class="brief-card-label">Project overview</div></div>
+    <div class="brief-card-body"><p id="res-task"></p></div>
+  </div>
+  <div class="brief-grid">
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">👥</div><div class="brief-card-label">Audience</div></div>
+      <div class="brief-card-body"><p id="res-audience"></p></div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FEF3E2">🎯</div><div class="brief-card-label">User goal</div></div>
+      <div class="brief-card-body"><p id="res-goal"></p></div>
+    </div>
+  </div>
+  <div class="brief-card">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5EEFF">🎨</div><div class="brief-card-label">Style & references</div></div>
+    <div class="brief-card-body">
+      <p id="res-style"></p>
+      <div class="ref-result-grid" id="res-refs-imgs"></div>
+    </div>
+  </div>
+  <div class="brief-grid">
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FFF0F0">💰</div><div class="brief-card-label">Budget</div></div>
+      <div class="brief-card-body"><p id="res-budget"></p></div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">📅</div><div class="brief-card-label">Deadline</div></div>
+      <div class="brief-card-body"><p id="res-deadline"></p></div>
+    </div>
+  </div>
+  <div class="brief-card" id="res-notes-card">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5F2EC">📝</div><div class="brief-card-label">Additional notes</div></div>
+    <div class="brief-card-body"><p id="res-notes"></p></div>
+  </div>
+  <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border2);display:flex;gap:10px">
+    <button class="btn btn-secondary" onclick="goToStep(0)">← Edit brief</button>
+    <button class="btn btn-primary" onclick="startBrief('blank',true)">+ New brief</button>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-icon" style="background:var(--success-light)">✓</div>
+    <h3>Export as PDF</h3>
+    <p>Your brief will open in print mode — save it as PDF or send to a printer.</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('export-modal')">Cancel</button>
+      <button class="btn btn-accent" onclick="exportPDF()">Print / Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-icon" style="background:var(--accent-light);font-size:18px">⇢</div>
+    <h3>Your public brief link</h3>
+    <p>Share this link with clients — they'll fill your branded brief form and you get the result instantly.</p>
+    <div class="profile-link-box">briefify.com/daria</div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
+      <button class="btn btn-accent" onclick="copyProfileLink()">Copy link</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF -->
+<div id="pdf-content">
+  <h1 id="pdf-name"></h1>
+  <div class="pdf-meta" id="pdf-meta"></div>
+  <div class="pdf-summary" id="pdf-summary-section">
+    <h3>AI Summary</h3>
+    <p id="pdf-summary"></p>
+  </div>
+  <div class="pdf-section"><h3>Project overview</h3><p id="pdf-task"></p></div>
+  <div class="pdf-section"><h3>Target audience</h3><p id="pdf-audience"></p></div>
+  <div class="pdf-section"><h3>User goal</h3><p id="pdf-goal"></p></div>
+  <div class="pdf-section"><h3>Style & references</h3><p id="pdf-style"></p></div>
+  <div class="pdf-section"><h3>Budget</h3><p id="pdf-budget"></p></div>
+  <div class="pdf-section"><h3>Deadline</h3><p id="pdf-deadline"></p></div>
+  <div class="pdf-section" id="pdf-notes-section"><h3>Notes</h3><p id="pdf-notes"></p></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TEMPLATES = {
+  blank: { title: 'Design Brief', preselect: {} },
+  mobile: {
+    title: 'Mobile App Brief',
+    preselect: { type: ['Mobile app'], platform: ['iOS','Android'] },
+    hints: { task: 'For mobile apps: describe which screens need to be designed (onboarding, home, profile, etc.) and whether you have existing flows.' }
+  },
+  saas: {
+    title: 'Web / SaaS Brief',
+    preselect: { type: ['Web / SaaS'], platform: ['Web browser'] },
+    hints: { task: 'For SaaS: mention if this is a B2B or B2C product, who the admin is vs end user, and which key screens matter most.' }
+  },
+  brand: {
+    title: 'Branding Brief',
+    preselect: { type: ['Branding'] },
+    hints: { task: 'For branding: describe your brand values, industry, and key competitors. Do you need logo only, or full identity?' }
+  },
+  landing: {
+    title: 'Landing Page Brief',
+    preselect: { type: ['Landing page'], platform: ['Web browser'] },
+    hints: { task: 'For landing pages: what is the one action you want visitors to take? What is the main headline you have in mind?' }
+  }
+};
+
+let currentStep = 0;
+let currentTemplate = 'blank';
+const totalSteps = 4;
+const stepNames = ['Project overview','Target audience','Style & references','Budget & timeline'];
+let selectedTags = { type:[], platform:[], style:[] };
+let selectedBudget = '';
+let refImages = [];
+let autosaveTimer = null;
+let aiSummaryText = '';
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id === 'landing' ? 'landing' : id).classList.add('active');
+}
+
+function startBrief(template, fresh) {
+  currentTemplate = template || 'blank';
+  const tpl = TEMPLATES[currentTemplate];
+  document.getElementById('form-title').textContent = tpl.title;
+
+  if (fresh || template) {
+    document.querySelectorAll('#form-screen input, #form-screen textarea').forEach(el => el.value = '');
+    document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
+    document.querySelectorAll('.budget-option.selected').forEach(b => b.classList.remove('selected'));
+    selectedTags = { type:[], platform:[], style:[] };
+    selectedBudget = '';
+    refImages = [];
+    document.getElementById('ref-previews').innerHTML = '';
+    document.getElementById('autosave-badge').classList.remove('show');
+  }
+
+  if (tpl.preselect) {
+    Object.entries(tpl.preselect).forEach(([group, vals]) => {
+      document.querySelectorAll(`#section-0 .tag, #section-1 .tag`).forEach(tag => {
+        if (vals.includes(tag.textContent)) {
+          tag.classList.add('selected');
+          if (!selectedTags[group]) selectedTags[group] = [];
+          if (!selectedTags[group].includes(tag.textContent)) selectedTags[group].push(tag.textContent);
+        }
+      });
+    });
+  }
+
+  loadDraft();
+  goToStep(0);
+  showScreen('form-screen');
+}
+
+function goToStep(step) {
+  currentStep = step;
+  updateForm();
+}
+
+function updateForm() {
+  document.querySelectorAll('.form-section').forEach((s,i) => s.classList.toggle('active', i === currentStep));
+  document.querySelectorAll('.step-dot').forEach((d,i) => {
+    d.classList.remove('active','done');
+    if (i < currentStep) d.classList.add('done');
+    if (i === currentStep) d.classList.add('active');
+  });
+  document.getElementById('step-num').textContent = currentStep + 1;
+  document.getElementById('step-name').textContent = stepNames[currentStep];
+  document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'inline-flex';
+  document.getElementById('btn-next').textContent = currentStep === totalSteps - 1 ? 'Generate brief →' : 'Continue →';
+  clearErrors();
+}
+
+function validateStep() {
+  if (currentStep === 0) {
+    let ok = true;
+    if (!document.getElementById('f-name').value.trim()) {
+      document.getElementById('field-name').classList.add('error'); ok = false;
+    }
+    if (!document.getElementById('f-task').value.trim()) {
+      document.getElementById('field-task').classList.add('error'); ok = false;
+    }
+    return ok;
+  }
+  return true;
+}
+
+function clearErrors() {
+  document.querySelectorAll('.field.error').forEach(f => f.classList.remove('error'));
+}
+
+function nextStep() {
+  if (!validateStep()) return;
+  if (currentStep < totalSteps - 1) { currentStep++; updateForm(); }
+  else generateResult();
+}
+function prevStep() { if (currentStep > 0) { currentStep--; updateForm(); } }
+
+function toggleTag(el, group) {
+  const val = el.textContent;
+  el.classList.toggle('selected');
+  if (!selectedTags[group]) selectedTags[group] = [];
+  if (el.classList.contains('selected')) selectedTags[group].push(val);
+  else selectedTags[group] = selectedTags[group].filter(v => v !== val);
+  autosave();
+}
+
+function selectBudget(el, val) {
+  document.querySelectorAll('.budget-option').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBudget = val;
+  autosave();
+}
+
+function maybeShowTip(id, val, min) {
+  const tip = document.getElementById(id);
+  if (tip) tip.classList.toggle('visible', val.length >= min);
+}
+
+// AUTOSAVE
+function autosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    const data = {
+      name: document.getElementById('f-name').value,
+      task: document.getElementById('f-task').value,
+      audience: document.getElementById('f-audience').value,
+      goal: document.getElementById('f-goal').value,
+      refs: document.getElementById('f-refs').value,
+      avoid: document.getElementById('f-avoid').value,
+      deadline: document.getElementById('f-deadline').value,
+      notes: document.getElementById('f-notes').value,
+      tags: selectedTags,
+      budget: selectedBudget
+    };
+    try { localStorage.setItem('briefify_draft', JSON.stringify(data)); } catch(e) {}
+    const badge = document.getElementById('autosave-badge');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 2000);
+  }, 800);
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem('briefify_draft');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.name) document.getElementById('f-name').value = d.name;
+    if (d.task) document.getElementById('f-task').value = d.task;
+    if (d.audience) document.getElementById('f-audience').value = d.audience;
+    if (d.goal) document.getElementById('f-goal').value = d.goal;
+    if (d.refs) document.getElementById('f-refs').value = d.refs;
+    if (d.avoid) document.getElementById('f-avoid').value = d.avoid;
+    if (d.deadline) document.getElementById('f-deadline').value = d.deadline;
+    if (d.notes) document.getElementById('f-notes').value = d.notes;
+    if (d.budget) {
+      selectedBudget = d.budget;
+      document.querySelectorAll('.budget-option').forEach(b => {
+        if (b.querySelector('.range').textContent === d.budget) b.classList.add('selected');
+      });
+    }
+  } catch(e) {}
+}
+
+// FILE UPLOAD
+function handleDrag(e, on) {
+  e.preventDefault();
+  document.getElementById('upload-area').classList.toggle('drag', on);
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-area').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      refImages.push(e.target.result);
+      renderPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderPreviews() {
+  const container = document.getElementById('ref-previews');
+  container.innerHTML = '';
+  refImages.forEach((src, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'ref-thumb';
+    wrap.innerHTML = `<img src="${src}" alt="Reference ${i+1}"><div class="remove" onclick="removeRef(${i})">✕</div>`;
+    container.appendChild(wrap);
+  });
+}
+function removeRef(i) {
+  refImages.splice(i, 1);
+  renderPreviews();
+}
+
+// GENERATE RESULT
+async function generateResult() {
+  const name = document.getElementById('f-name').value || 'Untitled project';
+  const task = document.getElementById('f-task').value || '—';
+  const type = selectedTags.type.join(', ');
+  const audience = document.getElementById('f-audience').value || '—';
+  const goal = document.getElementById('f-goal').value || '—';
+  const platforms = selectedTags.platform.join(', ');
+  const style = selectedTags.style.join(', ');
+  const refs = document.getElementById('f-refs').value;
+  const avoid = document.getElementById('f-avoid').value;
+  const deadline = document.getElementById('f-deadline').value || '—';
+  const notes = document.getElementById('f-notes').value;
+
+  const taskFull = [task, type ? `Type: ${type}` : ''].filter(Boolean).join('\n');
+  const audienceFull = [audience, platforms ? `Platforms: ${platforms}` : ''].filter(Boolean).join('\n');
+  const styleFull = [style, refs ? `References: ${refs}` : '', avoid ? `Avoid: ${avoid}` : ''].filter(Boolean).join('\n');
+
+  document.getElementById('res-project-name').textContent = name;
+  document.getElementById('res-date').textContent = 'Generated ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('res-task').textContent = taskFull;
+  document.getElementById('res-audience').textContent = audienceFull;
+  document.getElementById('res-goal').textContent = goal;
+  document.getElementById('res-style').textContent = styleFull || '—';
+  document.getElementById('res-budget').textContent = selectedBudget || '—';
+  document.getElementById('res-deadline').textContent = deadline;
+
+  const notesCard = document.getElementById('res-notes-card');
+  if (notes) { document.getElementById('res-notes').textContent = notes; notesCard.style.display = 'block'; }
+  else { notesCard.style.display = 'none'; }
+
+  const refsImgContainer = document.getElementById('res-refs-imgs');
+  refsImgContainer.innerHTML = '';
+  refImages.forEach(src => {
+    const div = document.createElement('div');
+    div.className = 'ref-result-thumb';
+    div.innerHTML = `<img src="${src}" alt="reference">`;
+    refsImgContainer.appendChild(div);
+  });
+
+  showScreen('result-screen');
+  document.getElementById('ai-summary-content').innerHTML = '<div class="ai-loading">Generating summary<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+
+  // AI SUMMARY via Anthropic API
+  const briefText = `Project: ${name}\nTask: ${task}\nType: ${type || 'not specified'}\nAudience: ${audience}\nUser goal: ${goal}\nStyle: ${style || 'not specified'}\nReferences: ${refs || 'none'}\nAvoid: ${avoid || 'nothing specified'}\nBudget: ${selectedBudget || 'not specified'}\nDeadline: ${deadline}\nNotes: ${notes || 'none'}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a senior UX designer reviewing a client brief. Write a concise professional summary (3–4 sentences) of this design brief that a designer would read first. Highlight the core goal, audience, key constraints, and one thing to watch out for. Be direct and useful — no fluff.\n\nBrief:\n${briefText}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const summary = data.content?.[0]?.text || '';
+    aiSummaryText = summary;
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${summary}</div>`;
+    document.getElementById('pdf-summary').textContent = summary;
+  } catch(e) {
+    aiSummaryText = '';
+    document.getElementById('ai-summary-content').innerHTML = '<div class="ai-summary-text" style="color:var(--ink2)">Summary unavailable — check your connection and try again.</div>';
+    document.getElementById('pdf-summary-section').style.display = 'none';
+  }
+
+  // PDF fields
+  document.getElementById('pdf-name').textContent = name;
+  document.getElementById('pdf-meta').textContent = 'Design Brief · ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pdf-task').textContent = taskFull;
+  document.getElementById('pdf-audience').textContent = audienceFull;
+  document.getElementById('pdf-goal').textContent = goal;
+  document.getElementById('pdf-style').textContent = styleFull || '—';
+  document.getElementById('pdf-budget').textContent = selectedBudget || '—';
+  document.getElementById('pdf-deadline').textContent = deadline;
+  const pdfNotes = document.getElementById('pdf-notes-section');
+  if (notes) { document.getElementById('pdf-notes').textContent = notes; pdfNotes.style.display = 'block'; }
+  else pdfNotes.style.display = 'none';
+}
+
+function openExportModal() { document.getElementById('export-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function exportPDF() { closeModal('export-modal'); window.print(); }
+
+function openProfileModal() { document.getElementById('profile-modal').classList.add('open'); }
+function copyProfileLink() {
+  navigator.clipboard.writeText('https://briefify.com/daria').catch(()=>{});
+  showToast('Profile link copied!');
+  closeModal('profile-modal');
+}
+
+function copyLink() {
+  const parts = [
+    `Design Brief: ${document.getElementById('res-project-name').textContent}`,
+    aiSummaryText ? `\nSummary: ${aiSummaryText}` : '',
+    `\nProject: ${document.getElementById('res-task').textContent}`,
+    `Audience: ${document.getElementById('res-audience').textContent}`,
+    `Goal: ${document.getElementById('res-goal').textContent}`,
+    `Style: ${document.getElementById('res-style').textContent}`,
+    `Budget: ${document.getElementById('res-budget').textContent}`,
+    `Deadline: ${document.getElementById('res-deadline').textContent}`
+  ].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(parts).catch(()=>{});
+  showToast('Brief copied to clipboard');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showDemo() {
+  startBrief('mobile');
+  setTimeout(() => {
+    document.getElementById('f-name').value = 'Delivery app redesign';
+    document.getElementById('f-task').value = 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
+    document.getElementById('f-audience').value = 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
+    document.getElementById('f-goal').value = 'Complete a food order in under 2 minutes';
+    document.getElementById('f-refs').value = 'Bolt Food, Glovo, Airbnb (for clean layout)';
+    document.getElementById('f-avoid').value = 'Heavy stock photography, overly colorful UI';
+    document.getElementById('f-deadline').value = 'End of June 2026';
+    document.getElementById('f-notes').value = 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
+    selectedBudget = '$1,200 – $3,000';
+    document.querySelectorAll('.budget-option').forEach(b => {
+      b.classList.toggle('selected', b.querySelector('.range').textContent === selectedBudget);
+    });
+    ['Minimal','Modern'].forEach(s => {
+      document.querySelectorAll('#section-2 .tag').forEach(t => {
+        if (t.textContent === s) { t.classList.add('selected'); if (!selectedTags.style.includes(s)) selectedTags.style.push(s); }
+      });
+    });
+  }, 100);
+}
+</script>
+</body>
+</html>
