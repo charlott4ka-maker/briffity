@@ -617,42 +617,72 @@ h1 em{color:var(--accent);font-style:italic}
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-// SUPABASE AUTH
-// Configure with your project URL and anon key
-// ============================================================
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const TEMPLATES = {
+  blank: { title: 'Design Brief', preselect: {} },
+  mobile: {
+    title: 'Mobile App Brief',
+    preselect: { type: ['Mobile app'], platform: ['iOS','Android'] },
+    hints: { task: 'For mobile apps: describe which screens need to be designed (onboarding, home, profile, etc.) and whether you have existing flows.' }
+  },
+  saas: {
+    title: 'Web / SaaS Brief',
+    preselect: { type: ['Web / SaaS'], platform: ['Web browser'] },
+    hints: { task: 'For SaaS: mention if this is a B2B or B2C product, who the admin is vs end user, and which key screens matter most.' }
+  },
+  brand: {
+    title: 'Branding Brief',
+    preselect: { type: ['Branding'] },
+    hints: { task: 'For branding: describe your brand values, industry, and key competitors. Do you need logo only, or full identity?' }
+  },
+  landing: {
+    title: 'Landing Page Brief',
+    preselect: { type: ['Landing page'], platform: ['Web browser'] },
+    hints: { task: 'For landing pages: what is the one action you want visitors to take? What is the main headline you have in mind?' }
+  }
+};
 
+let currentStep = 0;
+let currentTemplate = 'blank';
+const totalSteps = 4;
+const stepNames = ['Project overview','Target audience','Style & references','Budget & timeline'];
+let selectedTags = { type:[], platform:[], style:[] };
+let selectedBudget = '';
+let refImages = [];
+let autosaveTimer = null;
+let aiSummaryText = '';
+let savedBriefUrl = '';
+
+// ============================================================
+// SUPABASE AUTH — ключи загружаются с сервера через /api/auth-config
+// ============================================================
+let _supabase = null;
 let currentUser = null;
 
-// ---- Auth state listener ----
-_supabase.auth.onAuthStateChange(async (event, session) => {
-  currentUser = session?.user || null;
-  updateNavAuth();
-  if (event === 'SIGNED_IN') {
-    // If on auth screen after login → go to landing or dashboard
-    const active = document.querySelector('.screen.active');
-    if (active && active.id === 'auth-screen') {
-      showScreen('landing');
-    }
-  }
-  if (event === 'SIGNED_OUT') {
-    showScreen('landing');
-  }
-  if (event === 'PASSWORD_RECOVERY') {
-    showScreen('auth-screen');
-    showAuthTab('reset');
-  }
-});
-
-// ---- Init on load ----
 async function initAuth() {
-  const { data: { session } } = await _supabase.auth.getSession();
-  currentUser = session?.user || null;
-  updateNavAuth();
+  try {
+    const resp = await fetch('/api/auth-config');
+    if (!resp.ok) throw new Error('auth-config returned ' + resp.status);
+    const { url, anonKey } = await resp.json();
+    _supabase = supabase.createClient(url, anonKey);
+
+    _supabase.auth.onAuthStateChange(async (event, session) => {
+      currentUser = session?.user || null;
+      updateNavAuth();
+      if (event === 'SIGNED_IN') {
+        const active = document.querySelector('.screen.active');
+        if (active && active.id === 'auth-screen') showScreen('landing');
+      }
+      if (event === 'SIGNED_OUT') showScreen('landing');
+      if (event === 'PASSWORD_RECOVERY') { showScreen('auth-screen'); showAuthTab('reset'); }
+    });
+
+    const { data: { session } } = await _supabase.auth.getSession();
+    currentUser = session?.user || null;
+    updateNavAuth();
+  } catch(e) {
+    console.error('Supabase init failed:', e);
+  }
 }
 
 function updateNavAuth() {
@@ -769,39 +799,6 @@ async function loadDashboard() {
 // ============================================================
 // APP CODE
 // ============================================================
-const TEMPLATES = {
-  blank: { title: 'Design Brief', preselect: {} },
-  mobile: {
-    title: 'Mobile App Brief',
-    preselect: { type: ['Mobile app'], platform: ['iOS','Android'] },
-    hints: { task: 'For mobile apps: describe which screens need to be designed (onboarding, home, profile, etc.) and whether you have existing flows.' }
-  },
-  saas: {
-    title: 'Web / SaaS Brief',
-    preselect: { type: ['Web / SaaS'], platform: ['Web browser'] },
-    hints: { task: 'For SaaS: mention if this is a B2B or B2C product, who the admin is vs end user, and which key screens matter most.' }
-  },
-  brand: {
-    title: 'Branding Brief',
-    preselect: { type: ['Branding'] },
-    hints: { task: 'For branding: describe your brand values, industry, and key competitors. Do you need logo only, or full identity?' }
-  },
-  landing: {
-    title: 'Landing Page Brief',
-    preselect: { type: ['Landing page'], platform: ['Web browser'] },
-    hints: { task: 'For landing pages: what is the one action you want visitors to take? What is the main headline you have in mind?' }
-  }
-};
-
-let currentStep = 0;
-let currentTemplate = 'blank';
-const totalSteps = 4;
-const stepNames = ['Project overview','Target audience','Style & references','Budget & timeline'];
-let selectedTags = { type:[], platform:[], style:[] };
-let selectedBudget = '';
-let refImages = [];
-let autosaveTimer = null;
-let aiSummaryText = '';
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1081,7 +1078,6 @@ function openExportModal() { document.getElementById('export-modal').classList.a
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function exportPDF() { closeModal('export-modal'); window.print(); }
 
-let savedBriefUrl = '';
 
 async function saveBrief(briefData) {
   if (currentUser) {
