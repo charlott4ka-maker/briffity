@@ -749,20 +749,13 @@ async function generateResult() {
   const briefText = `Project: ${name}\nTask: ${task}\nType: ${type || 'not specified'}\nAudience: ${audience}\nUser goal: ${goal}\nStyle: ${style || 'not specified'}\nReferences: ${refs || 'none'}\nAvoid: ${avoid || 'nothing specified'}\nBudget: ${selectedBudget || 'not specified'}\nDeadline: ${deadline}\nNotes: ${notes || 'none'}`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `You are a senior UX designer reviewing a client brief. Write a concise professional summary (3–4 sentences) of this design brief that a designer would read first. Highlight the core goal, audience, key constraints, and one thing to watch out for. Be direct and useful — no fluff.\n\nBrief:\n${briefText}`
-        }]
-      })
+      body: JSON.stringify({ briefText })
     });
     const data = await resp.json();
-    const summary = data.content?.[0]?.text || '';
+    const summary = data.summary || '';
     aiSummaryText = summary;
     document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${summary}</div>`;
     document.getElementById('pdf-summary').textContent = summary;
