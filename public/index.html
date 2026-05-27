@@ -204,6 +204,26 @@ h1 em{color:var(--accent);font-style:italic}
 #pdf-content .pdf-summary p{border:none;padding:0;color:#1A1814}
 @media print{body>*:not(#pdf-content){display:none!important}#pdf-content{display:block!important}}
 
+@media(max-width:600px){
+  .result-header{flex-direction:column;gap:10px}
+  .result-title h2{font-size:22px}
+  .result-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .result-actions .status-dropdown{grid-column:1/-1}
+  .result-actions .status-dropdown .status-badge{width:100%;justify-content:center;border-radius:var(--radius-sm);padding:8px 14px;font-size:12px}
+  .result-actions .btn{width:100%;justify-content:center;font-size:13px}
+  .link-box{flex-direction:column;gap:10px;align-items:flex-start}
+  .link-box .btn{width:100%}
+  .share-box{flex-direction:column;align-items:flex-start;gap:10px}
+  .share-box-url{white-space:normal;text-overflow:unset}
+  .share-box-copy{width:100%}
+  .brief-grid{grid-template-columns:1fr!important}
+  .template-grid{grid-template-columns:1fr 1fr!important}
+  .tpl-card{padding:14px 12px}
+  .container{padding:0 14px}
+  #result-screen{padding:24px 16px}
+  .screen{padding:20px 0}
+}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:200}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
