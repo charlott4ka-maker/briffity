@@ -138,10 +138,10 @@ h1 em{color:var(--accent);font-style:italic}
 /* RESULT */
 #result-screen{display:none;padding:40px;max-width:700px;margin:0 auto}
 #result-screen.active{display:block;animation:fadeIn .4s ease}
-.result-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.result-header{display:flex;flex-direction:column;margin-bottom:24px;gap:12px}
 .result-title h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
 .result-title p{font-size:13px;color:var(--ink3)}
-.result-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap}
 
 /* STATUS BADGE */
 .status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:100px;cursor:pointer;transition:all .15s}
@@ -205,7 +205,7 @@ h1 em{color:var(--accent);font-style:italic}
 @media print{body>*:not(#pdf-content){display:none!important}#pdf-content{display:block!important}}
 
 @media(max-width:600px){
-  .result-header{flex-direction:column;gap:10px}
+  .result-header{gap:10px}
   .result-title h2{font-size:22px}
   .result-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .result-actions .status-dropdown{grid-column:1/-1}
@@ -225,6 +225,24 @@ h1 em{color:var(--accent);font-style:italic}
 }
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:200}
+
+/* LIMIT MODAL */
+.limit-overlay{position:fixed;inset:0;background:rgba(26,24,20,.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.limit-modal{background:var(--surface);border-radius:var(--radius);padding:36px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.15)}
+.limit-icon{font-size:40px;margin-bottom:16px}
+.limit-modal h3{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.4px;margin-bottom:8px}
+.limit-modal p{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:24px}
+.limit-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.plan-card{border:1px solid var(--border2);border-radius:var(--radius-sm);padding:16px 14px;text-align:left}
+.plan-card.active{border-color:var(--accent);background:var(--accent-light)}
+.plan-name{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:6px}
+.plan-card.active .plan-name{color:var(--accent)}
+.plan-price{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
+.plan-features{font-size:12px;color:var(--ink2);line-height:1.8}
+.plan-features span{display:block}
+.plan-badge{display:inline-block;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;background:var(--warn-light);color:var(--warn);padding:3px 8px;border-radius:100px;margin-bottom:8px}
+.limit-modal-actions{display:flex;flex-direction:column;gap:8px}
+@media(max-width:600px){.limit-plans{grid-template-columns:1fr}.limit-modal{padding:28px 20px}}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .validation-msg{font-size:12px;color:#c0392b;margin-top:5px;display:none}
@@ -414,6 +432,7 @@ h1 em{color:var(--accent);font-style:italic}
     <h2><span data-i18n="dash.title">My Briefs</span></h2>
     <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="dash.new">+ New brief</span></button>
   </div>
+  <div id="briefs-quota" style="display:none;margin-bottom:20px"></div>
   <div id="briefs-list" style="display:block">
     <div class="empty-state">
       <div class="empty-icon">📋</div>
@@ -926,12 +945,31 @@ async function loadDashboard() {
     
     const result = await resp.json();
     const data = result.data || [];
+    const FREE_LIMIT = 3;
+    const used = data.length;
+    const quotaEl = document.getElementById('briefs-quota');
+    if (used < FREE_LIMIT) {
+      const left = FREE_LIMIT - used;
+      const isUk = currentLang === 'uk';
+      const pct = Math.round((used / FREE_LIMIT) * 100);
+      quotaEl.style.display = 'block';
+      quotaEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--ink2)">${isUk ? `Використано ${used} з ${FREE_LIMIT} безкоштовних брифів` : `${used} of ${FREE_LIMIT} free briefs used`}</span>
+          <span style="font-size:12px;color:${left===1?'var(--warn)':'var(--ink3)'};">${isUk ? `Залишилось: ${left}` : `${left} left`}</span>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${pct>=66?'var(--warn)':'var(--accent)'};border-radius:2px;transition:width .4s"></div>
+        </div>
+      </div>`;
+    } else {
+      quotaEl.style.display = 'none';
+    }
 
     if (data.length === 0) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
       return;
     }
-
     container.innerHTML = `<div class="briefs-grid">${data.map(b => {
       const d = b.data || {};
       const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -1333,6 +1371,14 @@ async function saveBrief(briefData) {
       body: JSON.stringify(payload)
     });
     const result = await resp.json();
+
+    // ── Лимит достигнут ─────────────────────────────────────
+    if (resp.status === 403 && result.error === 'limit_reached') {
+      showLimitModal();
+      return;
+    }
+    // ────────────────────────────────────────────────────────
+
     if (result.url && result.slug) {
       savedBriefSlug = result.slug;
       savedBriefUrl = result.url;
@@ -1348,6 +1394,28 @@ async function saveBrief(briefData) {
   } catch(e) {
     console.error('Save failed:', e);
   }
+}
+
+// ============================================================
+// LIMIT MODAL
+// ============================================================
+function showLimitModal() {
+  const isUk = currentLang === 'uk';
+  document.getElementById('limit-title').textContent = isUk
+    ? 'Ви використали всі 3 безкоштовні брифи'
+    : 'You\'ve used all 3 free briefs';
+  document.getElementById('limit-desc').textContent = isUk
+    ? 'Безкоштовний план включає 3 брифи. Оновіться до Pro, щоб створювати необмежену кількість брифів.'
+    : 'The free plan includes 3 briefs. Upgrade to Pro to create unlimited briefs and unlock more features.';
+  document.getElementById('limit-badge').textContent = isUk ? 'Незабаром' : 'Coming soon';
+  document.getElementById('limit-pro-btn').textContent = isUk ? 'Зрозуміло' : 'Got it';
+  document.getElementById('limit-cancel-btn').textContent = isUk ? 'Може пізніше' : 'Maybe later';
+  document.getElementById('limit-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLimitModal() {
+  document.getElementById('limit-overlay').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 // ============================================================
@@ -1756,5 +1824,42 @@ window.addEventListener('DOMContentLoaded', async () => {
   
 window.addEventListener('popstate', handleInitialRouting);
 </script>
+
+<!-- LIMIT MODAL -->
+<div class="limit-overlay" id="limit-overlay" style="display:none" onclick="if(event.target===this)closeLimitModal()">
+  <div class="limit-modal">
+    <div class="limit-icon">🚀</div>
+    <h3 id="limit-title">You've used all 3 free briefs</h3>
+    <p id="limit-desc">The free plan includes 3 briefs. Upgrade to Pro to create unlimited briefs and unlock more features.</p>
+    <div class="limit-plans">
+      <div class="plan-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0</div>
+        <div class="plan-features">
+          <span>✓ 3 briefs</span>
+          <span>✓ AI summary</span>
+          <span>✓ PDF export</span>
+          <span style="color:var(--ink3)">✗ Unlimited briefs</span>
+        </div>
+      </div>
+      <div class="plan-card active">
+        <div class="plan-badge" id="limit-badge">Coming soon</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">—</div>
+        <div class="plan-features">
+          <span>✓ Unlimited briefs</span>
+          <span>✓ AI summary</span>
+          <span>✓ PDF export</span>
+          <span>✓ Priority support</span>
+        </div>
+      </div>
+    </div>
+    <div class="limit-modal-actions">
+      <button class="btn btn-accent" id="limit-pro-btn" onclick="closeLimitModal()" style="width:100%;justify-content:center">Got it</button>
+      <button class="btn btn-secondary" onclick="closeLimitModal()" style="width:100%;justify-content:center" id="limit-cancel-btn">Maybe later</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
