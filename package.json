@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vercel dev",
-    "build": "mkdir -p .vercel/output/static && cp index.html .vercel/output/static/index.html"
+    "build": "echo 'No build needed'"
   },
   "engines": {
     "node": ">=18.x"
