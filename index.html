@@ -1675,7 +1675,11 @@ function navigateTo(screenId, urlPath) {
 }
 
 function handleInitialRouting() {
-  const path = window.location.pathname;
+  // Убираем лишний слеш на конце, если он есть (например, /login/ -> /login)
+  let path = window.location.pathname;
+  if (path.endsWith('/') && path.length > 1) {
+    path = path.slice(0, -1);
+  }
   const hash = window.location.hash;
 
   if (path.startsWith('/ua') || path.startsWith('/uk')) setLang('uk', false);
@@ -1698,6 +1702,7 @@ function handleInitialRouting() {
       showScreen('dashboard-screen');
     }
   }
+  // ИСПРАВЛЕНО: ищем слаг по переменной path, очищенной от слешей
   else if (path.match(/^\/brief\/([a-z0-9_\-]+)$/i)) loadBriefFromUrl();
   else showScreen('landing');
 }
