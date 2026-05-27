@@ -704,7 +704,8 @@ async function initAuth() {
       if (event === 'SIGNED_IN') {
         const active = document.querySelector('.screen.active');
         if (active && active.id === 'auth-screen' && !window.location.hash.includes('type=recovery')) {
-          handleInitialRouting();
+          // Принудительно уводим авторизованного юзера с экрана логина на его брифы
+          navigateTo('dashboard-screen', '/mybriefs');
         }
       }
       if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
@@ -763,8 +764,11 @@ async function doLogin() {
   const sb = await getSupabase();
   const { error } = await sb.auth.signInWithPassword({ email, password });
   btn.classList.remove('btn-loading'); btn.textContent = t('nav.signin');
-  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
-}
+  if (error) { 
+    errEl.textContent = error.message; errEl.classList.add('show'); 
+  } else {
+    navigateTo('dashboard-screen', '/mybriefs');
+  }
 
 async function doSignup() {
   const email = document.getElementById('signup-email').value.trim();
@@ -1765,6 +1769,10 @@ function handleInitialRouting() {
 
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();
+  handleInitialRouting();
+});
+
+window.addEventListener('popstate', () => {
   handleInitialRouting();
 });
 
