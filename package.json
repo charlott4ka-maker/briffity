@@ -7,9 +7,7 @@
     "@supabase/supabase-js": "^2.43.0",
     "nanoid": "^5.0.7"
   },
-  "devDependencies": {
-    "vercel": "^34.0.0"
-  },
+  "devDependencies": {},
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'Building SPA...'", 
