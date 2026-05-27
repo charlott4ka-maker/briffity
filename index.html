@@ -1675,36 +1675,58 @@ function navigateTo(screenId, urlPath) {
 }
 
 function handleInitialRouting() {
-  // Убираем лишний слеш на конце, если он есть (например, /login/ -> /login)
-  let path = window.location.pathname;
+  // Получаем чистый путь без слеша на конце и лишних пробелов
+  let path = window.location.pathname.trim();
   if (path.endsWith('/') && path.length > 1) {
     path = path.slice(0, -1);
   }
   const hash = window.location.hash;
 
-  if (path.startsWith('/ua') || path.startsWith('/uk')) setLang('uk', false);
-  else setLang(localStorage.getItem('briffity_lang') || 'en', false);
+  // Языковой роутинг
+  if (path.startsWith('/ua') || path.startsWith('/uk')) {
+    setLang('uk', false);
+  } else {
+    setLang(localStorage.getItem('briffity_lang') || 'en', false);
+  }
 
+  // Восстановление пароля из хэша Supabase
   if (hash && (hash.includes('type=recovery') || hash.includes('access_token='))) {
     showScreen('auth-screen');
-    ['login','signup','forgot'].forEach(id => { const el = document.getElementById('auth-'+id); if(el) el.style.display='none'; });
+    ['login','signup','forgot'].forEach(id => { 
+      const el = document.getElementById('auth-'+id); 
+      if(el) el.style.style.display='none'; 
+    });
     document.getElementById('auth-reset-password').style.display = 'block';
     return;
   }
 
-  if (path === '/login') { showScreen('auth-screen'); showAuthTab('login'); }
-  else if (path === '/signup') { showScreen('auth-screen'); showAuthTab('signup'); }
-  else if (path === '/forgot') { showScreen('auth-screen'); showAuthTab('forgot'); }
-  else if (path === '/mybriefs') {
+  // Проверка экранов авторизации и дашборда
+  if (path === '/login' || path === '/ua/login') { 
+    showScreen('auth-screen'); 
+    showAuthTab('login'); 
+  }
+  else if (path === '/signup' || path === '/ua/signup') { 
+    showScreen('auth-screen'); 
+    showAuthTab('signup'); 
+  }
+  else if (path === '/forgot' || path === '/ua/forgot') { 
+    showScreen('auth-screen'); 
+    showAuthTab('forgot'); 
+  }
+  else if (path === '/mybriefs' || path === '/ua/mybriefs') {
     if (!currentUser) {
       navigateTo('auth-screen', '/login');
     } else {
       showScreen('dashboard-screen');
     }
   }
-  // ИСПРАВЛЕНО: ищем слаг по переменной path, очищенной от слешей
-  else if (path.match(/^\/brief\/([a-z0-9_\-]+)$/i)) loadBriefFromUrl();
-  else showScreen('landing');
+  // Улучшенная проверка регулярного выражения для слага брифа
+  else if (/^\/(ua\/)?brief\/([a-z0-9_\-]+)$/i.test(path)) {
+    loadBriefFromUrl();
+  }
+  else {
+    showScreen('landing');
+  }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
