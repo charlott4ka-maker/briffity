@@ -800,14 +800,20 @@ async function loadDashboard() {
     container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Не вдалося завантажити брифи.' : 'Failed to load briefs.'}</p>`;
     return;
   }
+  
+  // ЕСЛИ БРИФОВ НЕТ: Генерируем разметку, которая динамически берет язык из объекта TRANSLATIONS
   if (data.length === 0) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📋</div>
-      <p>${t('dash.empty')}</p>
-      <button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button>
-    </div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p><span>${t('dash.empty')}</span></p>
+        <button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button>
+      </div>
+    `;
     return;
   }
+  
+  // Если брифы есть: выводим список
   container.innerHTML = data.map(b => {
     const d = b.data || {};
     const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -1601,8 +1607,11 @@ function setLang(lang) {
   document.getElementById('lang-uk').classList.toggle('active', lang === 'uk');
   applyTranslations();
   
-  // Dynamic UI elements refresh based on current visibility state
-  if(document.getElementById('form-screen').classList.contains('active')) {
+  // Добавьте вот это условие, чтобы обновлять дашборд при смене языка на лету:
+  if (document.getElementById('dashboard-screen').classList.contains('active')) {
+    loadDashboard();
+  }
+  if (document.getElementById('form-screen').classList.contains('active')) {
     updateForm();
   }
 }
