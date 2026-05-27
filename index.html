@@ -197,7 +197,7 @@ h1 em{color:var(--accent);font-style:italic}
 .auth-switch a:hover{text-decoration:underline}
 .auth-error{background:#FFF0F0;border:1px solid #fcc;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
 .auth-error.show{display:block}
-.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--success);margin-bottom:16px;display:none}
+.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;colorvar(--success);margin-bottom:16px;display:none}
 .auth-success.show{display:block}
 .btn-full{width:100%;justify-content:center}
 .btn-loading{opacity:.7;pointer-events:none}
@@ -250,14 +250,13 @@ h1 em{color:var(--accent);font-style:italic}
       <button class="btn btn-secondary btn-sm" data-i18n="nav.mybriefs" onclick="showScreen('dashboard-screen');loadDashboard()">My briefs</button>
       <div class="profile-badge" onclick="openProfileModal()">
         <div class="avatar" id="nav-avatar">?</div>
-        <span id="nav-brief-url">brief link</span>
+        <span id="nav-brief-url" data-i18n="nav.briefurl">brief link</span>
       </div>
       <button class="btn btn-secondary btn-sm" data-i18n="nav.signout" onclick="signOut()">Sign out</button>
     </div>
   </div>
 </nav>
 
-<!-- LANDING -->
 <div id="landing" class="screen active">
   <div class="hero-tag"><span data-i18n="landing.tag">✦ Design Brief Generator</span></div>
   <h1><span data-i18n="landing.h1">Your client fills the brief.</span><br>You get <em data-i18n="landing.h1em">everything</em> <span data-i18n="landing.h1b">you need.</span></h1>
@@ -292,84 +291,78 @@ h1 em{color:var(--accent);font-style:italic}
 </div>
 
 
-<!-- AUTH SCREEN -->
 <div id="auth-screen" class="screen">
   <div class="auth-box">
-    <!-- LOGIN FORM -->
     <div id="auth-login">
       <h2><span data-i18n="auth.login_title">Welcome back</span></h2>
       <p class="auth-sub"><span data-i18n="auth.login_sub">Sign in to access your briefs</span></p>
       <div class="auth-error" id="login-error"></div>
       <div class="field">
-        <label>Email</label>
+        <label data-i18n="auth.email">Email</label>
         <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="field">
-        <label>Password</label>
+        <label data-i18n="auth.password">Password</label>
         <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn">Sign in</button>
-      <p class="auth-switch">No account? <a onclick="showAuthTab('signup')">Create one</a></p>
-      <p class="auth-switch" style="margin-top:8px"><a onclick="showAuthTab('forgot')">Forgot password?</a></p>
+      <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn" data-i18n="nav.signin">Sign in</button>
+      <p class="auth-switch"><span data-i18n="auth.noaccount">No account?</span> <a onclick="showAuthTab('signup')" data-i18n="auth.createone">Create one</a></p>
+      <p class="auth-switch" style="margin-top:8px"><a onclick="showAuthTab('forgot')" data-i18n="auth.forgotlink">Forgot password?</a></p>
     </div>
-    <!-- SIGNUP FORM -->
     <div id="auth-signup" style="display:none">
       <h2><span data-i18n="auth.signup_title">Create account</span></h2>
       <p class="auth-sub"><span data-i18n="auth.signup_sub">Join Briefify to save and manage your briefs</span></p>
       <div class="auth-error" id="signup-error"></div>
       <div class="auth-success" id="signup-success"></div>
       <div class="field">
-        <label>Email</label>
+        <label data-i18n="auth.email">Email</label>
         <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="field">
-        <label>Password</label>
+        <label data-i18n="auth.password">Password</label>
         <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password">
       </div>
       <div class="field">
-        <label>Confirm password</label>
+        <label data-i18n="auth.confirm_password">Confirm password</label>
         <input type="password" id="signup-password2" placeholder="Repeat password" autocomplete="new-password">
       </div>
-      <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn">Create account</button>
-      <p class="auth-switch">Already have an account? <a onclick="showAuthTab('login')">Sign in</a></p>
+      <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn" data-i18n="auth.signup_btn">Create account</button>
+      <p class="auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a onclick="showAuthTab('login')" data-i18n="nav.signin">Sign in</a></p>
     </div>
-    <!-- FORGOT PASSWORD -->
     <div id="auth-forgot" style="display:none">
       <h2><span data-i18n="auth.forgot_title">Reset password</span></h2>
       <p class="auth-sub"><span data-i18n="auth.forgot_sub">We'll send a reset link to your email</span></p>
       <div class="auth-error" id="forgot-error"></div>
       <div class="auth-success" id="forgot-success"></div>
       <div class="field">
-        <label>Email</label>
+        <label data-i18n="auth.email">Email</label>
         <input type="email" id="forgot-email" placeholder="you@example.com">
       </div>
-      <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn">Send reset link</button>
-      <p class="auth-switch"><a onclick="showAuthTab('login')">← Back to sign in</a></p>
+      <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn" data-i18n="auth.send_reset">Send reset link</button>
+      <p class="auth-switch"><a onclick="showAuthTab('login')" data-i18n="auth.back_signin">← Back to sign in</a></p>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD SCREEN -->
 <div id="dashboard-screen" class="screen">
   <div class="dashboard-header">
     <h2><span data-i18n="dash.title">My Briefs</span></h2>
-    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="dash.new"><span data-i18n="dash.new">+ New brief</span></span></button>
+    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="dash.new">+ New brief</span></button>
   </div>
   <div class="briefs-grid" id="briefs-list" style="display:block">
     <div class="empty-state">
       <div class="empty-icon">📋</div>
       <p><span data-i18n="dash.empty">No briefs yet. Create your first one!</span></p>
-      <button class="btn btn-accent" onclick="startBrief('blank')">Start from scratch</button>
+      <button class="btn btn-accent" onclick="startBrief('blank')" data-i18n="dash.scratch">Start from scratch</button>
     </div>
   </div>
 </div>
 
-<!-- FORM SCREEN -->
 <div id="form-screen" class="screen">
   <div class="form-header">
     <h2 id="form-title">Design Brief</h2>
-    <p>Answer honestly — the more specific, the better the outcome</p>
-    <div class="autosave-badge" id="autosave-badge">✓ Draft saved</div>
+    <p data-i18n="form.subtitle">Answer honestly — the more specific, the better the outcome</p>
+    <div class="autosave-badge" id="autosave-badge" data-i18n="form.saved">✓ Draft saved</div>
   </div>
 
   <div class="progress-wrap">
@@ -379,124 +372,120 @@ h1 em{color:var(--accent);font-style:italic}
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
     </div>
-    <div class="progress-label">Step <span id="step-num">1</span> of 4 — <span id="step-name">Project overview</span></div>
+    <div class="progress-label"><span data-i18n="form.step">Step</span> <span id="step-num">1</span> <span data-i18n="form.of">of</span> 4 — <span id="step-name">Project overview</span></div>
   </div>
 
-  <!-- Section 0: Project -->
   <div class="form-section active" id="section-0">
     <div class="section-title" data-i18n="section0.title">What's the project?</div>
     <div class="section-sub" data-i18n="section0.sub">Give us the basics — we'll help sharpen the details</div>
     <div class="field" id="field-name">
-      <label>Project name</label>
+      <label data-i18n="fields.project_name">Project name</label>
       <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
-      <div class="validation-msg">Please give your project a name</div>
+      <div class="validation-msg" data-i18n="val.name">Please give your project a name</div>
     </div>
     <div class="field" id="field-task">
-      <label>What needs to be done?</label>
+      <label data-i18n="fields.task">What needs to be done?</label>
       <textarea id="f-task" placeholder="Describe in your own words..." oninput="autosave();maybeShowTip('tip-task',this.value,20)"></textarea>
       <div class="ai-tip" id="tip-task">
         <span style="flex-shrink:0">✦</span>
-        Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.
+        <span data-i18n="tips.task">Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.</span>
       </div>
-      <div class="validation-msg">Please describe what needs to be done</div>
+      <div class="validation-msg" data-i18n="val.task">Please describe what needs to be done</div>
     </div>
     <div class="field">
-      <label>Project type</label>
+      <label data-i18n="fields.type">Project type</label>
       <div class="tag-grid" id="tags-type">
-        <span class="tag" onclick="toggleTag(this,'type')">Mobile app</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Web / SaaS</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Landing page</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Branding</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Dashboard</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Email design</span>
-        <span class="tag" onclick="toggleTag(this,'type')">Other</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.mobile">Mobile app</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.saas">Web / SaaS</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.landing">Landing page</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.brand">Branding</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.dashboard">Dashboard</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.email">Email design</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.other">Other</span>
       </div>
     </div>
   </div>
 
-  <!-- Section 1: Audience -->
   <div class="form-section" id="section-1">
     <div class="section-title" data-i18n="section1.title">Who is this for?</div>
     <div class="section-sub" data-i18n="section1.sub">The audience shapes every design decision</div>
     <div class="field">
-      <label>Target audience</label>
+      <label data-i18n="fields.audience">Target audience</label>
       <textarea id="f-audience" placeholder="Age, interests, tech level, pain points..." oninput="autosave();maybeShowTip('tip-audience',this.value,15)"></textarea>
       <div class="ai-tip" id="tip-audience">
         <span style="flex-shrink:0">✦</span>
-        Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.
+        <span data-i18n="tips.audience">Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.</span>
       </div>
     </div>
     <div class="field">
-      <label>Key user goal — what should they do in 1 sentence?</label>
+      <label data-i18n="fields.goal">Key user goal — what should they do in 1 sentence?</label>
       <input type="text" id="f-goal" placeholder="e.g. Order food in under 2 minutes" oninput="autosave()">
     </div>
     <div class="field">
-      <label>Platforms</label>
+      <label data-i18n="fields.platforms">Platforms</label>
       <div class="tag-grid">
         <span class="tag" onclick="toggleTag(this,'platform')">iOS</span>
         <span class="tag" onclick="toggleTag(this,'platform')">Android</span>
-        <span class="tag" onclick="toggleTag(this,'platform')">Web browser</span>
-        <span class="tag" onclick="toggleTag(this,'platform')">Desktop app</span>
-        <span class="tag" onclick="toggleTag(this,'platform')">Tablet</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.web">Web browser</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.desktop">Desktop app</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.tablet">Tablet</span>
       </div>
     </div>
   </div>
 
-  <!-- Section 2: Style + References -->
   <div class="form-section" id="section-2">
-    <div class="section-title">Look, feel & references</div>
-    <div class="section-sub">Visuals communicate faster than words</div>
+    <div class="section-title" data-i18n="section2.title">Look, feel & references</div>
+    <div class="section-sub" data-i18n="section2.sub">Visuals communicate faster than words</div>
     <div class="field">
-      <label>Style</label>
+      <label data-i18n="fields.style">Style</label>
       <div class="tag-grid">
-        <span class="tag" onclick="toggleTag(this,'style')">Minimal</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Modern</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Playful</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Corporate</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Bold</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Elegant</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Friendly</span>
-        <span class="tag" onclick="toggleTag(this,'style')">Dark / edgy</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.minimal">Minimal</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.modern">Modern</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.playful">Playful</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.corporate">Corporate</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.bold">Bold</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.elegant">Elegant</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.friendly">Friendly</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.dark">Dark / edgy</span>
       </div>
     </div>
     <div class="field">
-      <label>Apps or sites you admire</label>
+      <label data-i18n="fields.refs">Apps or sites you admire</label>
       <input type="text" id="f-refs" placeholder="e.g. Bolt, Notion, Linear, Airbnb" oninput="autosave()">
     </div>
     <div class="field">
-      <label>Upload visual references (optional)</label>
+      <label data-i18n="fields.upload">Upload visual references (optional)</label>
       <div class="upload-area" id="upload-area" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
         <input type="file" id="ref-upload" accept="image/*" multiple onchange="handleFiles(this.files)">
         <div class="upload-icon">🖼</div>
-        <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each</div>
+        <div class="upload-text" id="upload-text-container"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each</div>
       </div>
       <div class="ref-previews" id="ref-previews"></div>
     </div>
     <div class="field">
-      <label>What to avoid</label>
+      <label data-i18n="fields.avoid">What to avoid</label>
       <input type="text" id="f-avoid" placeholder="e.g. Stock photos, red color, heavy gradients" oninput="autosave()">
     </div>
   </div>
 
-  <!-- Section 3: Budget & timeline -->
   <div class="form-section" id="section-3">
-    <div class="section-title">Budget & timeline</div>
-    <div class="section-sub">Help the designer plan the right scope</div>
+    <div class="section-title" data-i18n="section3.title">Budget & timeline</div>
+    <div class="section-sub" data-i18n="section3.sub">Help the designer plan the right scope</div>
     <div class="field">
-      <label>Budget range</label>
+      <label data-i18n="fields.budget">Budget range</label>
       <div class="budget-grid">
-        <div class="budget-option" onclick="selectBudget(this,'Under $500')"><div class="range">Under $500</div><div class="label">Small scope</div></div>
-        <div class="budget-option" onclick="selectBudget(this,'$500 – $1,200')"><div class="range">$500 – $1,200</div><div class="label">Mid project</div></div>
-        <div class="budget-option" onclick="selectBudget(this,'$1,200 – $3,000')"><div class="range">$1,200 – $3,000</div><div class="label">Full design cycle</div></div>
-        <div class="budget-option" onclick="selectBudget(this,'$3,000+')"><div class="range">$3,000+</div><div class="label">Complex / ongoing</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'Under $500')"><div class="range" data-i18n="budget.under500">Under $500</div><div class="label" data-i18n="budget.small">Small scope</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$500 – $1,200')"><div class="range">$500 – $1,200</div><div class="label" data-i18n="budget.mid">Mid project</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$1,200 – $3,000')"><div class="range">$1,200 – $3,000</div><div class="label" data-i18n="budget.full">Full design cycle</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$3,000+')"><div class="range">$3,000+</div><div class="label" data-i18n="budget.complex">Complex / ongoing</div></div>
       </div>
     </div>
     <div class="field">
-      <label>Deadline</label>
+      <label data-i18n="fields.deadline">Deadline</label>
       <input type="text" id="f-deadline" placeholder="e.g. End of June, ASAP, flexible" oninput="autosave()">
     </div>
     <div class="field">
-      <label>Anything else the designer should know?</label>
+      <label data-i18n="fields.notes">Anything else the designer should know?</label>
       <textarea id="f-notes" placeholder="Existing brand assets, team size, technical constraints..." oninput="autosave()"></textarea>
     </div>
   </div>
@@ -508,7 +497,6 @@ h1 em{color:var(--accent);font-style:italic}
   </div>
 </div>
 
-<!-- RESULT SCREEN -->
 <div id="result-screen" class="screen">
   <div class="result-header">
     <div class="result-title">
@@ -521,7 +509,6 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
   </div>
 
-  <!-- Guest banner -->
   <div class="guest-banner" id="guest-banner">
     <div class="guest-banner-text">
       <strong><span data-i18n="banner.title">⚠ You're not signed in.</span></strong> <span data-i18n="banner.text">This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.</span>
@@ -532,11 +519,10 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
   </div>
 
-  <!-- AI Summary -->
   <div class="ai-summary-wrap">
     <div class="ai-summary-label"><span data-i18n="result.ai_label">✦ AI summary</span></div>
     <div id="ai-summary-content">
-      <div class="ai-loading"><span data-i18n="summary.generating">Generating summary</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <button class="btn btn-accent btn-sm" onclick="triggerAiSummary()" id="btn-generate-ai" data-i18n="summary.generate_btn">Generate AI Summary</button>
     </div>
   </div>
 
@@ -581,48 +567,45 @@ h1 em{color:var(--accent);font-style:italic}
   </div>
 </div>
 
-<!-- EXPORT MODAL -->
 <div class="modal-overlay" id="export-modal">
   <div class="modal">
     <div class="modal-icon" style="background:var(--success-light)">✓</div>
-    <h3>Export as PDF</h3>
-    <p>Your brief will open in print mode — save it as PDF or send to a printer.</p>
+    <h3 data-i18n="modal.export_title">Export as PDF</h3>
+    <p data-i18n="modal.export_text">Your brief will open in print mode — save it as PDF or send to a printer.</p>
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeModal('export-modal')">Cancel</button>
-      <button class="btn btn-accent" onclick="exportPDF()">Print / Save PDF</button>
+      <button class="btn btn-secondary" onclick="closeModal('export-modal')" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-accent" onclick="exportPDF()" data-i18n="modal.print_btn">Print / Save PDF</button>
     </div>
   </div>
 </div>
 
-<!-- PROFILE MODAL -->
 <div class="modal-overlay" id="profile-modal">
   <div class="modal">
     <div class="modal-icon" style="background:var(--accent-light);font-size:18px">⇢</div>
-    <h3>Your public brief link</h3>
-    <p>Share this link with clients — they'll fill your branded brief form and you get the result instantly.</p>
-    <div class="profile-link-box" id="public-brief-url">Generating link...</div>
+    <h3 data-i18n="modal.link_title">Your public brief link</h3>
+    <p data-i18n="modal.link_text">Share this link with clients — they'll fill your branded brief form and you get the result instantly.</p>
+    <div class="profile-link-box" id="public-brief-url" data-i18n="modal.generating">Generating link...</div>
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
-      <button class="btn btn-accent" onclick="copyProfileLink()">Copy link</button>
+      <button class="btn btn-secondary" onclick="closeModal('profile-modal')" data-i18n="modal.close">Close</button>
+      <button class="btn btn-accent" onclick="copyProfileLink()" data-i18n="modal.copy_btn">Copy link</button>
     </div>
   </div>
 </div>
 
-<!-- PDF -->
 <div id="pdf-content">
   <h1 id="pdf-name"></h1>
   <div class="pdf-meta" id="pdf-meta"></div>
-  <div class="pdf-summary" id="pdf-summary-section">
-    <h3>AI Summary</h3>
+  <div class="pdf-summary" id="pdf-summary-section" style="display:none">
+    <h3 data-i18n="result.ai_label">AI Summary</h3>
     <p id="pdf-summary"></p>
   </div>
-  <div class="pdf-section"><h3>Project overview</h3><p id="pdf-task"></p></div>
-  <div class="pdf-section"><h3>Target audience</h3><p id="pdf-audience"></p></div>
-  <div class="pdf-section"><h3>User goal</h3><p id="pdf-goal"></p></div>
-  <div class="pdf-section"><h3>Style & references</h3><p id="pdf-style"></p></div>
-  <div class="pdf-section"><h3>Budget</h3><p id="pdf-budget"></p></div>
-  <div class="pdf-section"><h3>Deadline</h3><p id="pdf-deadline"></p></div>
-  <div class="pdf-section" id="pdf-notes-section"><h3>Notes</h3><p id="pdf-notes"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.overview">Project overview</h3><p id="pdf-task"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.audience">Target audience</h3><p id="pdf-audience"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.goal">User goal</h3><p id="pdf-goal"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.style">Style & references</h3><p id="pdf-style"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.budget">Budget</h3><p id="pdf-budget"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.deadline">Deadline</h3><p id="pdf-deadline"></p></div>
+  <div class="pdf-section" id="pdf-notes-section"><h3 data-i18n="card.notes">Notes</h3><p id="pdf-notes"></p></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -633,22 +616,22 @@ const TEMPLATES = {
   blank: { title: 'Design Brief', preselect: {} },
   mobile: {
     title: 'Mobile App Brief',
-    preselect: { type: ['Mobile app'], platform: ['iOS','Android'] },
+    preselect: { type: ['Mobile app', 'Мобільний застосунок'], platform: ['iOS','Android'] },
     hints: { task: 'For mobile apps: describe which screens need to be designed (onboarding, home, profile, etc.) and whether you have existing flows.' }
   },
   saas: {
     title: 'Web / SaaS Brief',
-    preselect: { type: ['Web / SaaS'], platform: ['Web browser'] },
+    preselect: { type: ['Web / SaaS', 'Вебсайт / SaaS'], platform: ['Web browser', 'Веб-браузер'] },
     hints: { task: 'For SaaS: mention if this is a B2B or B2C product, who the admin is vs end user, and which key screens matter most.' }
   },
   brand: {
     title: 'Branding Brief',
-    preselect: { type: ['Branding'] },
+    preselect: { type: ['Branding', 'Брендинг'] },
     hints: { task: 'For branding: describe your brand values, industry, and key competitors. Do you need logo only, or full identity?' }
   },
   landing: {
     title: 'Landing Page Brief',
-    preselect: { type: ['Landing page'], platform: ['Web browser'] },
+    preselect: { type: ['Landing page', 'Лендінг'], platform: ['Web browser', 'Веб-браузер'] },
     hints: { task: 'For landing pages: what is the one action you want visitors to take? What is the main headline you have in mind?' }
   }
 };
@@ -656,20 +639,22 @@ const TEMPLATES = {
 let currentStep = 0;
 let currentTemplate = 'blank';
 const totalSteps = 4;
-const stepNames = ['Project overview','Target audience','Style & references','Budget & timeline'];
+const stepNamesEN = ['Project overview','Target audience','Style & references','Budget & timeline'];
+const stepNamesUK = ['Огляд проєкту','Цільова аудиторія','Стиль та референси','Бюджет та терміни'];
 let selectedTags = { type:[], platform:[], style:[] };
 let selectedBudget = '';
 let refImages = [];
 let autosaveTimer = null;
 let aiSummaryText = '';
 let savedBriefUrl = '';
+let globalBriefData = null; // Store data to save with AI summary later
 
 // ============================================================
-// SUPABASE AUTH — ключи загружаются с сервера через /api/auth-config
+// SUPABASE AUTH
 // ============================================================
 let _supabase = null;
 let currentUser = null;
-let _supabaseReady = null; // Promise — resolves when supabase is initialized
+let _supabaseReady = null;
 
 async function getSupabase() {
   if (_supabase) return _supabase;
@@ -719,7 +704,6 @@ function updateNavAuth() {
     navGuest.style.display = 'flex';
     navUser.style.display = 'none';
   }
-  // Update guest banner visibility on result screen
   const guestBanner = document.getElementById('guest-banner');
   if (guestBanner) {
     const onResult = document.getElementById('result-screen')?.classList.contains('active');
@@ -735,7 +719,6 @@ function goHome() {
   showScreen('landing');
 }
 
-// ---- Show auth tabs ----
 function showAuthTab(tab) {
   ['login','signup','forgot'].forEach(t => {
     document.getElementById('auth-' + t).style.display = (t === tab) ? 'block' : 'none';
@@ -743,22 +726,20 @@ function showAuthTab(tab) {
   showScreen('auth-screen');
 }
 
-// ---- Login ----
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   const btn = document.getElementById('login-btn');
   errEl.classList.remove('show');
-  if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
-  btn.classList.add('btn-loading'); btn.textContent = 'Signing in…';
+  if (!email || !password) { errEl.textContent = t('err.fill_all'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Вхід…' : 'Signing in…';
   const sb = await getSupabase();
   const { error } = await sb.auth.signInWithPassword({ email, password });
-  btn.classList.remove('btn-loading'); btn.textContent = 'Sign in';
+  btn.classList.remove('btn-loading'); btn.textContent = t('nav.signin');
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
 }
 
-// ---- Signup ----
 async function doSignup() {
   const email = document.getElementById('signup-email').value.trim();
   const password = document.getElementById('signup-password').value;
@@ -767,46 +748,43 @@ async function doSignup() {
   const successEl = document.getElementById('signup-success');
   const btn = document.getElementById('signup-btn');
   errEl.classList.remove('show'); successEl.classList.remove('show');
-  if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
-  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
-  if (password !== password2) { errEl.textContent = 'Passwords do not match.'; errEl.classList.add('show'); return; }
-  btn.classList.add('btn-loading'); btn.textContent = 'Creating account…';
+  if (!email || !password) { errEl.textContent = t('err.fill_all'); errEl.classList.add('show'); return; }
+  if (password.length < 6) { errEl.textContent = t('err.pass_length'); errEl.classList.add('show'); return; }
+  if (password !== password2) { errEl.textContent = t('err.pass_match'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Створення…' : 'Creating account…';
   const sb = await getSupabase();
   const { data: signUpData, error } = await sb.auth.signUp({ email, password });
-  btn.classList.remove('btn-loading'); btn.textContent = 'Create account';
+  btn.classList.remove('btn-loading'); btn.textContent = t('auth.signup_btn');
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
-  else if (signUpData?.user && !signUpData.session) { successEl.textContent = 'Check your email to confirm your account, then sign in.'; successEl.classList.add('show'); }
+  else if (signUpData?.user && !signUpData.session) { successEl.textContent = t('err.confirm_email'); successEl.classList.add('show'); }
   else { showScreen('landing'); }
 }
 
-// ---- Forgot password ----
 async function doForgot() {
   const email = document.getElementById('forgot-email').value.trim();
   const errEl = document.getElementById('forgot-error');
   const successEl = document.getElementById('forgot-success');
   const btn = document.getElementById('forgot-btn');
   errEl.classList.remove('show'); successEl.classList.remove('show');
-  if (!email) { errEl.textContent = 'Enter your email address.'; errEl.classList.add('show'); return; }
-  btn.classList.add('btn-loading'); btn.textContent = 'Sending…';
+  if (!email) { errEl.textContent = t('err.enter_email'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Надсилання…' : 'Sending…';
   const sb = await getSupabase();
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
-  btn.classList.remove('btn-loading'); btn.textContent = 'Send reset link';
+  btn.classList.remove('btn-loading'); btn.textContent = t('auth.send_reset');
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
-  else { successEl.textContent = 'Reset link sent! Check your inbox.'; successEl.classList.add('show'); }
+  else { successEl.textContent = t('err.reset_sent'); successEl.classList.add('show'); }
 }
 
-// ---- Sign out ----
 async function signOut() {
   const sb = await getSupabase();
   await sb.auth.signOut();
   showScreen('landing');
 }
 
-// ---- Dashboard: load user's briefs ----
 async function loadDashboard() {
   if (!currentUser) { showScreen('auth-screen'); showAuthTab('login'); return; }
   const container = document.getElementById('briefs-list');
-  container.innerHTML = '<p style="color:var(--ink2);font-size:14px">Loading…</p>';
+  container.innerHTML = `<p style="color:var(--ink2);font-size:14px">${currentLang === 'uk' ? 'Завантаження…' : 'Loading…'}</p>`;
   const sb = await getSupabase();
   const { data, error } = await sb
     .from('briefs')
@@ -814,19 +792,19 @@ async function loadDashboard() {
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
   if (error || !data) {
-    container.innerHTML = '<p style="color:#c0392b;font-size:14px">Failed to load briefs.</p>';
+    container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Не вдалося завантажити брифи.' : 'Failed to load briefs.'}</p>`;
     return;
   }
   if (data.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No briefs yet. Create your first one!</p><button class="btn btn-accent" onclick="startBrief('blank')">Start from scratch</button></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
     return;
   }
   container.innerHTML = data.map(b => {
     const d = b.data || {};
-    const date = new Date(b.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
     const tag = d.type ? `<span class="brief-item-tag">${d.type}</span>` : '';
     return `<div class="brief-item" onclick="window.location='/brief/${b.slug}'">
-      <div class="brief-item-name">${d.name || 'Untitled Brief'}</div>
+      <div class="brief-item-name">${d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief')}</div>
       <div class="brief-item-meta">${date} · ${b.slug}</div>
       ${tag}
     </div>`;
@@ -845,8 +823,7 @@ function showScreen(id) {
 function startBrief(template, fresh) {
   currentTemplate = template || 'blank';
   const tpl = TEMPLATES[currentTemplate];
-  document.getElementById('form-title').textContent = tpl.title;
-
+  
   if (fresh || template) {
     document.querySelectorAll('#form-screen input, #form-screen textarea').forEach(el => el.value = '');
     document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
@@ -858,13 +835,25 @@ function startBrief(template, fresh) {
     document.getElementById('autosave-badge').classList.remove('show');
   }
 
+  // Set title dynamically based on template & lang
+  let titleText = tpl.title;
+  if (currentLang === 'uk') {
+    if (currentTemplate === 'mobile') titleText = 'Бриф мобільного застосунку';
+    else if (currentTemplate === 'saas') titleText = 'Бриф Вебсайту / SaaS';
+    else if (currentTemplate === 'brand') titleText = 'Бриф на брендинг';
+    else if (currentTemplate === 'landing') titleText = 'Бриф лендінгу';
+    else titleText = 'Дизайн-бриф';
+  }
+  document.getElementById('form-title').textContent = titleText;
+
   if (tpl.preselect) {
     Object.entries(tpl.preselect).forEach(([group, vals]) => {
       document.querySelectorAll(`#section-0 .tag, #section-1 .tag`).forEach(tag => {
-        if (vals.includes(tag.textContent)) {
+        if (vals.includes(tag.getAttribute('data-en-val') || tag.textContent)) {
           tag.classList.add('selected');
           if (!selectedTags[group]) selectedTags[group] = [];
-          if (!selectedTags[group].includes(tag.textContent)) selectedTags[group].push(tag.textContent);
+          const actualVal = tag.getAttribute('data-en-val') || tag.textContent;
+          if (!selectedTags[group].includes(actualVal)) selectedTags[group].push(actualVal);
         }
       });
     });
@@ -888,9 +877,9 @@ function updateForm() {
     if (i === currentStep) d.classList.add('active');
   });
   document.getElementById('step-num').textContent = currentStep + 1;
-  document.getElementById('step-name').textContent = stepNames[currentStep];
+  document.getElementById('step-name').textContent = currentLang === 'uk' ? stepNamesUK[currentStep] : stepNamesEN[currentStep];
   document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'inline-flex';
-  document.getElementById('btn-next').textContent = currentStep === totalSteps - 1 ? 'Generate brief →' : 'Continue →';
+  document.getElementById('btn-next').textContent = currentStep === totalSteps - 1 ? (currentLang === 'uk' ? 'Згенерувати бриф →' : 'Generate brief →') : (currentLang === 'uk' ? 'Продовжити →' : 'Continue →');
   clearErrors();
 }
 
@@ -920,7 +909,7 @@ function nextStep() {
 function prevStep() { if (currentStep > 0) { currentStep--; updateForm(); } }
 
 function toggleTag(el, group) {
-  const val = el.textContent;
+  const val = el.getAttribute('data-en-val') || el.textContent;
   el.classList.toggle('selected');
   if (!selectedTags[group]) selectedTags[group] = [];
   if (el.classList.contains('selected')) selectedTags[group].push(val);
@@ -979,7 +968,10 @@ function loadDraft() {
     if (d.budget) {
       selectedBudget = d.budget;
       document.querySelectorAll('.budget-option').forEach(b => {
-        if (b.querySelector('.range').textContent === d.budget) b.classList.add('selected');
+        if (b.querySelector('.range').textContent === d.budget || b.querySelector('.range').getAttribute('data-i18n') === 'budget.under500') {
+           if (d.budget === 'Under $500' && b.querySelector('.range').getAttribute('data-i18n') === 'budget.under500') b.classList.add('selected');
+           else if (b.querySelector('.range').textContent === d.budget) b.classList.add('selected');
+        }
       });
     }
   } catch(e) {}
@@ -1023,7 +1015,7 @@ function removeRef(i) {
 
 // GENERATE RESULT
 async function generateResult() {
-  const name = document.getElementById('f-name').value || 'Untitled project';
+  const name = document.getElementById('f-name').value || (currentLang === 'uk' ? 'Проєкт без назви' : 'Untitled project');
   const task = document.getElementById('f-task').value || '—';
   const type = selectedTags.type.join(', ');
   const audience = document.getElementById('f-audience').value || '—';
@@ -1035,17 +1027,28 @@ async function generateResult() {
   const deadline = document.getElementById('f-deadline').value || '—';
   const notes = document.getElementById('f-notes').value;
 
-  const taskFull = [task, type ? `Type: ${type}` : ''].filter(Boolean).join('\n');
-  const audienceFull = [audience, platforms ? `Platforms: ${platforms}` : ''].filter(Boolean).join('\n');
-  const styleFull = [style, refs ? `References: ${refs}` : '', avoid ? `Avoid: ${avoid}` : ''].filter(Boolean).join('\n');
+  const typeLabel = currentLang === 'uk' ? 'Тип' : 'Type';
+  const platformLabel = currentLang === 'uk' ? 'Платформи' : 'Platforms';
+  const refsLabel = currentLang === 'uk' ? 'Референси' : 'References';
+  const avoidLabel = currentLang === 'uk' ? 'Уникати' : 'Avoid';
+
+  const taskFull = [task, type ? `${typeLabel}: ${type}` : ''].filter(Boolean).join('\n');
+  const audienceFull = [audience, platforms ? `${platformLabel}: ${platforms}` : ''].filter(Boolean).join('\n');
+  const styleFull = [style, refs ? `${refsLabel}: ${refs}` : '', avoid ? `${avoidLabel}: ${avoid}` : ''].filter(Boolean).join('\n');
 
   document.getElementById('res-project-name').textContent = name;
-  document.getElementById('res-date').textContent = 'Generated ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  
+  const genDateText = currentLang === 'uk' ? 'Створено ' : 'Generated ';
+  document.getElementById('res-date').textContent = genDateText + new Date().toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+  
   document.getElementById('res-task').textContent = taskFull;
   document.getElementById('res-audience').textContent = audienceFull;
   document.getElementById('res-goal').textContent = goal;
   document.getElementById('res-style').textContent = styleFull || '—';
-  document.getElementById('res-budget').textContent = selectedBudget || '—';
+  
+  let localizedBudget = selectedBudget || '—';
+  if (currentLang === 'uk' && selectedBudget === 'Under $500') localizedBudget = 'До $500';
+  document.getElementById('res-budget').textContent = localizedBudget;
   document.getElementById('res-deadline').textContent = deadline;
 
   const notesCard = document.getElementById('res-notes-card');
@@ -1062,53 +1065,92 @@ async function generateResult() {
   });
 
   showScreen('result-screen');
-  // Show guest banner if not logged in
+  
   const guestBanner = document.getElementById('guest-banner');
   if (guestBanner) {
     guestBanner.classList.toggle('show', !currentUser);
   }
-  document.getElementById('ai-summary-content').innerHTML = '<div class="ai-loading">Generating summary<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
 
-  // AI SUMMARY via Anthropic API
-  const briefText = `Project: ${name}\nTask: ${task}\nType: ${type || 'not specified'}\nAudience: ${audience}\nUser goal: ${goal}\nStyle: ${style || 'not specified'}\nReferences: ${refs || 'none'}\nAvoid: ${avoid || 'nothing specified'}\nBudget: ${selectedBudget || 'not specified'}\nDeadline: ${deadline}\nNotes: ${notes || 'none'}`;
+  // Reset AI summary section to show button instead of generating automatically
+  aiSummaryText = '';
+  document.getElementById('ai-summary-content').innerHTML = `<button class="btn btn-accent btn-sm" onclick="triggerAiSummary()" id="btn-generate-ai" data-i18n="summary.generate_btn">${t('summary.generate_btn')}</button>`;
+  document.getElementById('pdf-summary-section').style.display = 'none';
+
+  // Keep data prepared for saving later
+  globalBriefData = { name, task, type, audience, goal, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: '' };
+  saveBrief(globalBriefData);
+
+  // PDF fields
+  document.getElementById('pdf-name').textContent = name;
+  document.getElementById('pdf-meta').textContent = (currentLang === 'uk' ? 'Дизайн-бриф · ' : 'Design Brief · ') + new Date().toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pdf-task').textContent = taskFull;
+  document.getElementById('pdf-audience').textContent = audienceFull;
+  document.getElementById('pdf-goal').textContent = goal;
+  document.getElementById('pdf-style').textContent = styleFull || '—';
+  document.getElementById('pdf-budget').textContent = localizedBudget;
+  document.getElementById('pdf-deadline').textContent = deadline;
+  const pdfNotes = document.getElementById('pdf-notes-section');
+  if (notes) { document.getElementById('pdf-notes').textContent = notes; pdfNotes.style.display = 'block'; }
+  else pdfNotes.style.display = 'none';
+}
+
+// Separate function triggered only on Button click
+async function triggerAiSummary() {
+  const name = document.getElementById('f-name').value || 'Project';
+  const task = document.getElementById('f-task').value || '—';
+  const type = selectedTags.type.join(', ');
+  const audience = document.getElementById('f-audience').value || '—';
+  const goal = document.getElementById('f-goal').value || '—';
+  const style = selectedTags.style.join(', ');
+  const refs = document.getElementById('f-refs').value;
+  const avoid = document.getElementById('f-avoid').value;
+  const deadline = document.getElementById('f-deadline').value || '—';
+
+  const loadingText = currentLang === 'uk' ? 'Генерація підсумку' : 'Generating summary';
+  document.getElementById('ai-summary-content').innerHTML = `<div class="ai-loading">${loadingText}<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+
+  const briefText = `Project: ${name}\nTask: ${task}\nType: ${type || 'not specified'}\nAudience: ${audience}\nUser goal: ${goal}\nStyle: ${style || 'not specified'}\nReferences: ${refs || 'none'}\nAvoid: ${avoid || 'nothing specified'}\nBudget: ${selectedBudget || 'not specified'}\nDeadline: ${deadline}\nNotes: ${document.getElementById('f-notes').value || 'none'}`;
+
+  // Strict system instruction to prevent AI from outputting markdown wrap or meta garbage like "*Sentence 1...*"
+  const systemInstruction = `You are an expert design assistant. Summarize this brief into 2-3 clear, professional, cohesive sentences. 
+CRITICAL RULE: Output ONLY the direct summary text itself. Do NOT include any introductory phrases, labels, metadata, blockquotes, markdown headers, bold sentence counters (e.g., "*Sentence 1:*"), or commentary. 
+Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainian' : 'English'} language.`;
 
   try {
     const resp = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ briefText })
+      body: JSON.stringify({ 
+        briefText: briefText,
+        systemInstruction: systemInstruction // sending this instruction to your backend api route
+      })
     });
     const data = await resp.json();
     if (!resp.ok || !data.summary) {
-      console.error('Summarize error:', data);
       throw new Error(data.error || 'Empty summary');
     }
-    aiSummaryText = data.summary;
-    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${data.summary}</div>`;
-    document.getElementById('pdf-summary').textContent = data.summary;
+    
+    // Clean up any potential accidentally leaked placeholders or labels from standard LLM response
+    let cleanSummary = data.summary.replace(/^\s*✦?\s*(AI-підсумок|AI summary|Summary):\s*/i, '');
+    cleanSummary = cleanSummary.replace(/\*?\*?(Sentence|Речення)\s*\d+:?❓?\*?\*?/gi, '');
+    
+    aiSummaryText = cleanSummary;
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${aiSummaryText}</div>`;
+    document.getElementById('pdf-summary').textContent = aiSummaryText;
+    document.getElementById('pdf-summary-section').style.display = 'block';
+    
+    // Resave with updated summary
+    if (globalBriefData) {
+      globalBriefData.aiSummary = aiSummaryText;
+      saveBrief(globalBriefData);
+    }
   } catch(e) {
     console.error('AI summary failed:', e);
     aiSummaryText = '';
-    document.getElementById('ai-summary-content').innerHTML = '<div class="ai-summary-text" style="color:var(--ink2)">Summary unavailable — check your connection and try again.</div>';
+    const errorText = currentLang === 'uk' ? 'Підсумок недоступний — перевірте з\'єднання та спробуйте ще раз.' : 'Summary unavailable — check your connection and try again.';
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text" style="color:var(--ink2)">${errorText}</div>`;
     document.getElementById('pdf-summary-section').style.display = 'none';
   }
-
-  // Save brief AFTER summary is ready so aiSummaryText is included
-  const briefData = { name, task, type, audience, goal, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: aiSummaryText };
-  saveBrief(briefData);
-
-  // PDF fields
-  document.getElementById('pdf-name').textContent = name;
-  document.getElementById('pdf-meta').textContent = 'Design Brief · ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('pdf-task').textContent = taskFull;
-  document.getElementById('pdf-audience').textContent = audienceFull;
-  document.getElementById('pdf-goal').textContent = goal;
-  document.getElementById('pdf-style').textContent = styleFull || '—';
-  document.getElementById('pdf-budget').textContent = selectedBudget || '—';
-  document.getElementById('pdf-deadline').textContent = deadline;
-  const pdfNotes = document.getElementById('pdf-notes-section');
-  if (notes) { document.getElementById('pdf-notes').textContent = notes; pdfNotes.style.display = 'block'; }
-  else pdfNotes.style.display = 'none';
 }
 
 function openExportModal() { document.getElementById('export-modal').classList.add('open'); }
@@ -1133,7 +1175,7 @@ async function saveBrief(briefData) {
     }
   } catch(e) {
     console.error('Failed to save brief:', e);
-    document.getElementById('public-brief-url').textContent = 'Failed to generate link';
+    document.getElementById('public-brief-url').textContent = currentLang === 'uk' ? 'Не вдалося створити посилання' : 'Failed to generate link';
   }
 }
 
@@ -1144,23 +1186,28 @@ function openProfileModal() {
 function copyProfileLink() {
   if (!savedBriefUrl) return;
   navigator.clipboard.writeText(savedBriefUrl).catch(()=>{});
-  showToast('Brief link copied!');
+  showToast(currentLang === 'uk' ? 'Посилання скопійовано!' : 'Brief link copied!');
   closeModal('profile-modal');
 }
 
 function copyLink() {
+  const typeLabel = currentLang === 'uk' ? 'Тип' : 'Type';
+  const budgetLabel = currentLang === 'uk' ? 'Бюджет' : 'Budget';
+  const deadlineLabel = currentLang === 'uk' ? 'Дедлайн' : 'Deadline';
+  const goalLabel = currentLang === 'uk' ? 'Ціль' : 'Goal';
+  
   const parts = [
-    `Design Brief: ${document.getElementById('res-project-name').textContent}`,
-    aiSummaryText ? `\nSummary: ${aiSummaryText}` : '',
-    `\nProject: ${document.getElementById('res-task').textContent}`,
-    `Audience: ${document.getElementById('res-audience').textContent}`,
-    `Goal: ${document.getElementById('res-goal').textContent}`,
-    `Style: ${document.getElementById('res-style').textContent}`,
-    `Budget: ${document.getElementById('res-budget').textContent}`,
-    `Deadline: ${document.getElementById('res-deadline').textContent}`
+    `${currentLang === 'uk' ? 'Дизайн-бриф' : 'Design Brief'}: ${document.getElementById('res-project-name').textContent}`,
+    aiSummaryText ? `${currentLang === 'uk' ? '\nПідсумок' : '\nSummary'}: ${aiSummaryText}` : '',
+    `\n${currentLang === 'uk' ? 'Проєкт' : 'Project'}: ${document.getElementById('res-task').textContent}`,
+    `${currentLang === 'uk' ? 'Аудиторія' : 'Audience'}: ${document.getElementById('res-audience').textContent}`,
+    `${goalLabel}: ${document.getElementById('res-goal').textContent}`,
+    `${currentLang === 'uk' ? 'Стиль' : 'Style'}: ${document.getElementById('res-style').textContent}`,
+    `${budgetLabel}: ${document.getElementById('res-budget').textContent}`,
+    `${deadlineLabel}: ${document.getElementById('res-deadline').textContent}`
   ].filter(Boolean).join('\n');
   navigator.clipboard.writeText(parts).catch(()=>{});
-  showToast('Brief copied to clipboard');
+  showToast(currentLang === 'uk' ? 'Бриф скопійовано в буфер!' : 'Brief copied to clipboard');
 }
 
 function showToast(msg) {
@@ -1178,7 +1225,7 @@ async function loadBriefFromUrl() {
 
   // Show loading state
   showScreen('result-screen');
-  document.getElementById('res-project-name').textContent = 'Loading brief…';
+  document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Завантаження брифу…' : 'Loading brief…';
   document.getElementById('res-task').textContent = '';
   document.getElementById('res-audience').textContent = '';
   document.getElementById('res-goal').textContent = '';
@@ -1190,20 +1237,31 @@ async function loadBriefFromUrl() {
   try {
     const resp = await fetch(`/api/briefs?slug=${encodeURIComponent(slug)}`);
     if (!resp.ok) {
-      document.getElementById('res-project-name').textContent = 'Brief not found';
-      document.getElementById('res-task').textContent = 'This link may be invalid or the brief was deleted.';
+      document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Бриф не знайдено' : 'Brief not found';
+      document.getElementById('res-task').textContent = currentLang === 'uk' ? 'Це посилання недійсне або бриф було видалено.' : 'This link may be invalid or the brief was deleted.';
       return;
     }
     const row = await resp.json();
     const d = row.data || row;
 
-    document.getElementById('res-project-name').textContent = d.name || 'Untitled Brief';
-    document.getElementById('res-date').textContent = 'Generated ' + new Date(row.created_at || Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-    document.getElementById('res-task').textContent = [d.task, d.type ? `Type: ${d.type}` : ''].filter(Boolean).join('\n');
+    document.getElementById('res-project-name').textContent = d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief');
+    
+    const genDateText = currentLang === 'uk' ? 'Створено ' : 'Generated ';
+    document.getElementById('res-date').textContent = genDateText + new Date(row.created_at || Date.now()).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+    
+    const typeLabel = currentLang === 'uk' ? 'Тип' : 'Type';
+    const platformLabel = currentLang === 'uk' ? 'Платформи' : 'Platforms';
+    const refsLabel = currentLang === 'uk' ? 'Референси' : 'References';
+    const avoidLabel = currentLang === 'uk' ? 'Уникати' : 'Avoid';
+
+    document.getElementById('res-task').textContent = [d.task, d.type ? `${typeLabel}: ${d.type}` : ''].filter(Boolean).join('\n');
     document.getElementById('res-audience').textContent = d.audience || '—';
     document.getElementById('res-goal').textContent = d.goal || '—';
-    document.getElementById('res-style').textContent = [d.style, d.refs ? `References: ${d.refs}` : '', d.avoid ? `Avoid: ${d.avoid}` : ''].filter(Boolean).join('\n') || '—';
-    document.getElementById('res-budget').textContent = d.selectedBudget || d.budget || '—';
+    document.getElementById('res-style').textContent = [d.style, d.refs ? `${refsLabel}: ${d.refs}` : '', d.avoid ? `${avoidLabel}: ${d.avoid}` : ''].filter(Boolean).join('\n') || '—';
+    
+    let displayBudget = d.selectedBudget || d.budget || '—';
+    if (currentLang === 'uk' && displayBudget === 'Under $500') displayBudget = 'До $500';
+    document.getElementById('res-budget').textContent = displayBudget;
     document.getElementById('res-deadline').textContent = d.deadline || '—';
 
     if (d.notes) {
@@ -1215,14 +1273,15 @@ async function loadBriefFromUrl() {
       aiSummaryText = d.aiSummary;
       document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${d.aiSummary}</div>`;
       document.getElementById('pdf-summary').textContent = d.aiSummary;
+      document.getElementById('pdf-summary-section').style.display = 'block';
     } else {
-      document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text" style="color:var(--ink2)" data-i18n="summary.na">${t('summary.na')}</div>`;
+      document.getElementById('ai-summary-content').innerHTML = `<button class="btn btn-accent btn-sm" onclick="triggerAiSummary()" id="btn-generate-ai" data-i18n="summary.generate_btn">${t('summary.generate_btn')}</button>`;
     }
     const summaryCard = document.querySelector('.ai-summary-wrap');
     if (summaryCard) summaryCard.style.display = 'block';
   } catch(e) {
-    document.getElementById('res-project-name').textContent = 'Failed to load brief';
-    document.getElementById('res-task').textContent = 'Please check your connection and try again.';
+    document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Помилка завантаження' : 'Failed to load brief';
+    document.getElementById('res-task').textContent = currentLang === 'uk' ? 'Перевірте з\'єднання та спробуйте ще раз.' : 'Please check your connection and try again.';
   }
 }
 
@@ -1235,25 +1294,29 @@ window.addEventListener('DOMContentLoaded', () => {
 function showDemo() {
   startBrief('mobile');
   setTimeout(() => {
-    document.getElementById('f-name').value = 'Delivery app redesign';
-    document.getElementById('f-task').value = 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
-    document.getElementById('f-audience').value = 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
-    document.getElementById('f-goal').value = 'Complete a food order in under 2 minutes';
-    document.getElementById('f-refs').value = 'Bolt Food, Glovo, Airbnb (for clean layout)';
-    document.getElementById('f-avoid').value = 'Heavy stock photography, overly colorful UI';
-    document.getElementById('f-deadline').value = 'End of June 2026';
-    document.getElementById('f-notes').value = 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
+    document.getElementById('f-name').value = currentLang === 'uk' ? 'Редізайн додатку доставки' : 'Delivery app redesign';
+    document.getElementById('f-task').value = currentLang === 'uk' ? 'Редізайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення — він має бути швидким та легким.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
+    document.getElementById('f-audience').value = currentLang === 'uk' ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
+    document.getElementById('f-goal').value = currentLang === 'uk' ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes';
+    document.getElementById('f-refs').value = 'Bolt Food, Glovo, Airbnb';
+    document.getElementById('f-avoid').value = currentLang === 'uk' ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI';
+    document.getElementById('f-deadline').value = currentLang === 'uk' ? 'Кінець червня 2026' : 'End of June 2026';
+    document.getElementById('f-notes').value = currentLang === 'uk' ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип. Пріоритет на iOS.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
     selectedBudget = '$1,200 – $3,000';
     document.querySelectorAll('.budget-option').forEach(b => {
       b.classList.toggle('selected', b.querySelector('.range').textContent === selectedBudget);
     });
-    ['Minimal','Modern'].forEach(s => {
+    
+    const tag1 = currentLang === 'uk' ? 'Мінімалістичний' : 'Minimal';
+    const tag2 = currentLang === 'uk' ? 'Сучасний' : 'Modern';
+    [tag1, tag2].forEach(s => {
       document.querySelectorAll('#section-2 .tag').forEach(t => {
-        if (t.textContent === s) { t.classList.add('selected'); if (!selectedTags.style.includes(s)) selectedTags.style.push(s); }
+        if (t.textContent === s) { t.classList.add('selected'); if (!selectedTags.style.includes(t.getAttribute('data-en-val') || s)) selectedTags.style.push(t.getAttribute('data-en-val') || s); }
       });
     });
   }, 100);
 }
+
 // ============================================================
 // i18n — INTERNATIONALIZATION (EN / UK)
 // ============================================================
@@ -1263,6 +1326,7 @@ const TRANSLATIONS = {
     'nav.signup': 'Sign up',
     'nav.mybriefs': 'My briefs',
     'nav.signout': 'Sign out',
+    'nav.briefurl': 'brief link',
     'landing.tag': '✦ Design Brief Generator',
     'landing.h1': 'Your client fills the brief.',
     'landing.h1em': 'everything',
@@ -1286,21 +1350,112 @@ const TRANSLATIONS = {
     'auth.signup_sub': 'Join Briefify to save and manage your briefs',
     'auth.forgot_title': 'Reset password',
     'auth.forgot_sub': "We'll send a reset link to your email",
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.confirm_password': 'Confirm password',
+    'auth.noaccount': 'No account?',
+    'auth.createone': 'Create one',
+    'auth.forgotlink': 'Forgot password?',
+    'auth.haveaccount': 'Already have an account?',
+    'auth.signup_btn': 'Create account',
+    'auth.send_reset': 'Send reset link',
+    'auth.back_signin': '← Back to sign in',
     'dash.title': 'My Briefs',
     'dash.new': '+ New brief',
     'dash.empty': 'No briefs yet. Create your first one!',
+    'dash.scratch': 'Start from scratch',
+    'form.subtitle': 'Answer honestly — the more specific, the better the outcome',
+    'form.saved': '✓ Draft saved',
+    'form.step': 'Step',
+    'form.of': 'of',
+    'form.back': '← Back',
+    'form.continue': 'Continue →',
+    'section0.title': "What's the project?",
+    'section0.sub': "Give us the basics — we'll help sharpen the details",
+    'fields.project_name': 'Project name',
+    'fields.task': 'What needs to be done?',
+    'fields.type': 'Project type',
+    'fields.audience': 'Target audience',
+    'fields.goal': 'Key user goal — what should they do in 1 sentence?',
+    'fields.platforms': 'Platforms',
+    'fields.style': 'Style',
+    'fields.refs': 'Apps or sites you admire',
+    'fields.upload': 'Upload visual references (optional)',
+    'fields.avoid': 'What to avoid',
+    'fields.budget': 'Budget range',
+    'fields.deadline': 'Deadline',
+    'fields.notes': 'Anything else the designer should know?',
+    'val.name': 'Please give your project a name',
+    'val.task': 'Please describe what needs to be done',
+    'tips.task': 'Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.',
+    'tips.audience': 'Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.',
+    'tags.mobile': 'Mobile app',
+    'tags.saas': 'Web / SaaS',
+    'tags.landing': 'Landing page',
+    'tags.brand': 'Branding',
+    'tags.dashboard': 'Dashboard',
+    'tags.email': 'Email design',
+    'tags.other': 'Other',
+    'tags.web': 'Web browser',
+    'tags.desktop': 'Desktop app',
+    'tags.tablet': 'Tablet',
+    'section1.title': 'Who is this for?',
+    'section1.sub': 'The audience shapes every design decision',
+    'section2.title': 'Look, feel & references',
+    'section2.sub': 'Visuals communicate faster than words',
+    'section3.title': 'Budget & timeline',
+    'section3.sub': 'Help the designer plan the right scope',
+    'style.minimal': 'Minimal',
+    'style.modern': 'Modern',
+    'style.playful': 'Playful',
+    'style.corporate': 'Corporate',
+    'style.bold': 'Bold',
+    'style.elegant': 'Elegant',
+    'style.friendly': 'Friendly',
+    'style.dark': 'Dark / edgy',
+    'budget.under500': 'Under $500',
+    'budget.small': 'Small scope',
+    'budget.mid': 'Mid project',
+    'budget.full': 'Full design cycle',
+    'budget.complex': 'Complex / ongoing',
     'banner.title': "⚠ You're not signed in.",
     'banner.text': "This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.",
+    'banner.signup': 'Create account',
     'result.copy': '⇢ Copy brief',
     'result.pdf': '↓ Export PDF',
     'result.ai_label': '✦ AI summary',
     'result.edit': '← Edit brief',
+    'result.new': '+ New brief',
+    'card.overview': 'Project overview',
+    'card.audience': 'Audience',
+    'card.goal': 'User goal',
+    'card.style': 'Style & references',
+    'card.budget': 'Budget',
+    'card.deadline': 'Deadline',
+    'card.notes': 'Additional notes',
+    'summary.generate_btn': 'Generate AI Summary',
+    'modal.export_title': 'Export as PDF',
+    'modal.export_text': 'Your brief will open in print mode — save it as PDF or send to a printer.',
+    'modal.cancel': 'Cancel',
+    'modal.print_btn': 'Print / Save PDF',
+    'modal.link_title': 'Your public brief link',
+    'modal.link_text': "Share this link with clients — they'll fill your branded brief form and you get the result instantly.",
+    'modal.generating': 'Generating link...',
+    'modal.close': 'Close',
+    'modal.copy_btn': 'Copy link',
+    'err.fill_all': 'Please fill in all fields.',
+    'err.pass_length': 'Password must be at least 6 characters.',
+    'err.pass_match': 'Passwords do not match.',
+    'err.confirm_email': 'Check your email to confirm your account, then sign in.',
+    'err.enter_email': 'Enter your email address.',
+    'err.reset_sent': 'Reset link sent! Check your inbox.'
   },
   uk: {
     'nav.signin': 'Увійти',
     'nav.signup': 'Реєстрація',
     'nav.mybriefs': 'Мої брифи',
     'nav.signout': 'Вийти',
+    'nav.briefurl': 'посилання',
     'landing.tag': '✦ Генератор дизайн-брифів',
     'landing.h1': 'Клієнт заповнює бриф.',
     'landing.h1em': 'все',
@@ -1317,22 +1472,112 @@ const TRANSLATIONS = {
     'tpl.brand': 'Брендинг',
     'tpl.brand_desc': 'Логотип, айдентика, стайлгайд',
     'tpl.landing': 'Лендінг',
-    'tpl.landing_desc': 'Промо, маркетинговий сайт',
+    'tpl.landing_desc': 'Промо, маркетинговый сайт',
     'auth.login_title': 'З поверненням',
-    'auth.login_sub': 'Увійдіть, щоб переглянути свої брифи',
+    'auth.login_sub': 'Увійти, щоб отримати доступ до брифів',
     'auth.signup_title': 'Створити акаунт',
-    'auth.signup_sub': 'Реєструйтесь, щоб зберігати брифи та керувати ними',
+    'auth.signup_sub': 'Реєструйтеся, щоб зберігати бриф та керувати ними',
     'auth.forgot_title': 'Відновити пароль',
     'auth.forgot_sub': 'Ми надішлемо посилання для скидання на вашу пошту',
+    'auth.email': 'Електронна пошта',
+    'auth.password': 'Пароль',
+    'auth.confirm_password': 'Підтвердження паролю',
+    'auth.noaccount': 'Немає акаунту?',
+    'auth.createone': 'Створити акаунт',
+    'auth.forgotlink': 'Забули пароль?',
+    'auth.haveaccount': 'Вже є акаунт?',
+    'auth.signup_btn': 'Зареєструватися',
+    'auth.send_reset': 'Надіслати посилання',
+    'auth.back_signin': '← Назад до входу',
     'dash.title': 'Мої брифи',
     'dash.new': '+ Новий бриф',
     'dash.empty': 'Поки що немає брифів. Створіть перший!',
+    'dash.scratch': 'Почати з нуля',
+    'form.subtitle': 'Відповідайте чесно — чим точніше, тим кращим буде результат',
+    'form.saved': '✓ Чернетку збережено',
+    'form.step': 'Крок',
+    'form.of': 'з',
+    'form.back': '← Назад',
+    'form.continue': 'Продовжити →',
+    'section0.title': 'Що за проєкт?',
+    'section0.sub': 'Вкажіть базові речі — ми допоможемо уточнити деталі',
+    'fields.project_name': 'Назва проєкту',
+    'fields.task': 'Що саме потрібно зробити?',
+    'fields.type': 'Тип проєкту',
+    'fields.audience': 'Цільова аудиторія',
+    'fields.goal': 'Головна ціль користувача — що він має зробити за 1 речення?',
+    'fields.platforms': 'Платформи',
+    'fields.style': 'Стиль UI',
+    'fields.refs': 'Додатки чи сайти, які вам подобаються',
+    'fields.upload': 'Завантажити візуальні референси (опціонально)',
+    'fields.avoid': 'Чого варто уникати',
+    'fields.budget': 'Бюджетний діапазон',
+    'fields.deadline': 'Терміни / Дедлайн',
+    'fields.notes': 'Що ще потрібно знати дизайнеру?',
+    'val.name': 'Будь ласка, вкажіть назву проєкту',
+    'val.task': 'Будь ласка, опишіть завдання проєкту',
+    'tips.task': 'Це оновлення чогось існуючого чи дизайн з нуля? Це змінює весь підхід до роботи.',
+    'tips.audience': 'Опишіть реальну людину. Що вона робить щодня? Що її дратує? Деталі роблять дизайн кращим.',
+    'tags.mobile': 'Мобільний застосунок',
+    'tags.saas': 'Вебсайт / SaaS',
+    'tags.landing': 'Лендінг',
+    'tags.brand': 'Брендинг',
+    'tags.dashboard': 'Дашборд',
+    'tags.email': 'Дизайн email',
+    'tags.other': 'Інше',
+    'tags.web': 'Веб-браузер',
+    'tags.desktop': 'Десктоп додаток',
+    'tags.tablet': 'Планшет',
+    'section1.title': 'Для кого це?',
+    'section1.sub': 'Аудиторія визначає кожне дизайнерське рішення',
+    'section2.title': 'Стиль, емоція та референси',
+    'section2.sub': 'Візуальні образи говорять швидше за слова',
+    'section3.title': 'Бюджет та терміни',
+    'section3.sub': 'Допоможіть дизайнеру правильно розрахувати обсяг роботи',
+    'style.minimal': 'Мінімалістичний',
+    'style.modern': 'Сучасний',
+    'style.playful': 'Грайливый',
+    'style.corporate': 'Корпоративний',
+    'style.bold': 'Сміливий / Яскравий',
+    'style.elegant': 'Елегантний',
+    'style.friendly': 'Дружній',
+    'style.dark': 'Темний / Еджи',
+    'budget.under500': 'До $500',
+    'budget.small': 'Невеликий обсяг',
+    'budget.mid': 'Середній проєкт',
+    'budget.full': 'Повний цикл дизайну',
+    'budget.complex': 'Складний / Постійний',
     'banner.title': '⚠ Ви не авторизовані.',
-    'banner.text': 'Цей бриф не буде збережено у вашому профілі, ви не зможете поділитися посиланням на нього та не зможете редагувати його пізніше.',
+    'banner.text': 'Цей бриф не буде збережено у вашому профілі, ви не зможете поділитися посиланням на нього та редагувати його пізніше.',
+    'banner.signup': 'Створити акаунт',
     'result.copy': '⇢ Скопіювати бриф',
     'result.pdf': '↓ Експорт PDF',
     'result.ai_label': '✦ AI-підсумок',
     'result.edit': '← Редагувати бриф',
+    'result.new': '+ Новий бриф',
+    'card.overview': 'Огляд проєкту',
+    'card.audience': 'Аудиторія',
+    'card.goal': 'Ціль користувача',
+    'card.style': 'Стиль та референси',
+    'card.budget': 'Бюджет',
+    'card.deadline': 'Терміни',
+    'card.notes': 'Додаткові нотатки',
+    'summary.generate_btn': 'Згенерувати AI-підсумок',
+    'modal.export_title': 'Експорт у PDF',
+    'modal.export_text': 'Ваш бриф відкриється в режимі друку — збережіть його як PDF або надішліть на друк.',
+    'modal.cancel': 'Скасувати',
+    'modal.print_btn': 'Друкувати / Зберегти PDF',
+    'modal.link_title': 'Ваше публічне посилання',
+    'modal.link_text': 'Поділіться цим посиланням із клієнтами — вони заповнять бриф, і ви миттєво отримаєте результат.',
+    'modal.generating': 'Створення посилання...',
+    'modal.close': 'Закрити',
+    'modal.copy_btn': 'Скопіювати',
+    'err.fill_all': 'Будь ласка, заповніть усі поля.',
+    'err.pass_length': 'Пароль має містити не менше 6 символів.',
+    'err.pass_match': 'Паролі не збігаються.',
+    'err.confirm_email': 'Перевірте пошту для підтвердження акаунту, а потім увійдіть.',
+    'err.enter_email': 'Введіть вашу електронну адресу.',
+    'err.reset_sent': 'Посилання для скидання надіслано! Перевірте пошту.'
   }
 };
 
@@ -1344,6 +1589,11 @@ function setLang(lang) {
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-uk').classList.toggle('active', lang === 'uk');
   applyTranslations();
+  
+  // Dynamic UI elements refresh based on current visibility state
+  if(document.getElementById('form-screen').classList.contains('active')) {
+    updateForm();
+  }
 }
 
 function t(key) {
@@ -1356,6 +1606,29 @@ function applyTranslations() {
     const val = t(key);
     if (val) el.textContent = val;
   });
+  
+  // Handle text inside placeholders
+  if (currentLang === 'uk') {
+    document.getElementById('f-name').placeholder = 'наприклад, Редизайн додатку доставки';
+    document.getElementById('f-task').placeholder = 'Опишіть своїми словами...';
+    document.getElementById('f-audience').placeholder = 'Вік, інтереси, рівень технологій, болі...';
+    document.getElementById('f-goal').placeholder = 'наприклад, Замовити їжу менш ніж за 2 хвилини';
+    document.getElementById('f-refs').placeholder = 'наприклад, Bolt, Notion, Linear, Airbnb';
+    document.getElementById('f-avoid').placeholder = 'наприклад, Стокові фото, червоний колір, важкі градієнти';
+    document.getElementById('f-deadline').placeholder = 'наприклад, Кінець червня, якомога швидше, гнучкі терміни';
+    document.getElementById('f-notes').placeholder = 'Існуючі активи бренду, розмір команди, технічні обмеження...';
+    document.getElementById('upload-text-container').innerHTML = '<strong>Натисніть для завантаження</strong> або перетягніть<br>PNG, JPG, GIF до 5 МБ кожен';
+  } else {
+    document.getElementById('f-name').placeholder = 'e.g. Delivery app redesign';
+    document.getElementById('f-task').placeholder = 'Describe in your own words...';
+    document.getElementById('f-audience').placeholder = 'Age, interests, tech level, pain points...';
+    document.getElementById('f-goal').placeholder = 'e.g. Order food in under 2 minutes';
+    document.getElementById('f-refs').placeholder = 'e.g. Bolt, Notion, Linear, Airbnb';
+    document.getElementById('f-avoid').placeholder = 'e.g. Stock photos, red color, heavy gradients';
+    document.getElementById('f-deadline').placeholder = 'e.g. End of June, ASAP, flexible';
+    document.getElementById('f-notes').placeholder = 'Existing brand assets, team size, technical constraints...';
+    document.getElementById('upload-text-container').innerHTML = '<strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each';
+  }
 }
 
 // Apply on load
