@@ -334,6 +334,7 @@ h1 em{color:var(--accent);font-style:italic}
       <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn" data-i18n="auth.signup_btn">Create account</button>
       <p class="auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</a></p>
     </div>
+    
     <div id="auth-forgot" style="display:none">
       <h2><span data-i18n="auth.forgot_title">Reset password</span></h2>
       <p class="auth-sub"><span data-i18n="auth.forgot_sub">We'll send a reset link to your email</span></p>
@@ -345,6 +346,17 @@ h1 em{color:var(--accent);font-style:italic}
       </div>
       <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn" data-i18n="auth.send_reset">Send reset link</button>
       <p class="auth-switch"><a onclick="navigateTo('auth-screen', '/login')" data-i18n="auth.back_signin">← Back to sign in</a></p>
+    </div>
+
+    <div id="auth-reset-password" style="display:none">
+      <h2><span data-i18n="auth.reset_title">New password</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.reset_sub">Enter your new secure password to access your account</span></p>
+      <div class="auth-error" id="reset-password-error"></div>
+      <div class="field">
+        <label data-i18n="auth.password">Password</label>
+        <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doResetPassword()" id="reset-password-btn" data-i18n="auth.reset_btn">Save new password</button>
     </div>
   </div>
 </div>
@@ -683,7 +695,6 @@ async function initAuth() {
         if (active && active.id === 'auth-screen') handleInitialRouting();
       }
       if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
-      if (event === 'PASSWORD_RECOVERY') { navigateTo('auth-screen', '/forgot'); }
     });
 
     const { data: { session } } = await _supabase.auth.getSession();
@@ -721,8 +732,9 @@ function goHome() {
 }
 
 function showAuthTab(tab) {
-  ['login','signup','forgot'].forEach(t => {
-    document.getElementById('auth-' + t).style.display = (t === tab) ? 'block' : 'none';
+  ['login','signup','forgot','reset-password'].forEach(t => {
+    const el = document.getElementById('auth-' + t);
+    if(el) el.style.display = (t === tab) ? 'block' : 'none';
   });
   showScreen('auth-screen');
 }
@@ -776,13 +788,50 @@ async function doForgot() {
   else { successEl.textContent = t('err.reset_sent'); successEl.classList.add('show'); }
 }
 
+async function doResetPassword() {
+  const newPassword = document.getElementById('new-password').value;
+  const errEl = document.getElementById('reset-password-error');
+  const btn = document.getElementById('reset-password-btn');
+  
+  errEl.classList.remove('show');
+  if (!newPassword || newPassword.length < 6) {
+    errEl.textContent = t('err.pass_length');
+    errEl.classList.add('show');
+    return;
+  }
+  
+  btn.classList.add('btn-loading');
+  btn.textContent = currentLang === 'uk' ? 'Збереження…' : 'Saving…';
+  
+  try {
+    const sb = await getSupabase();
+    const { error } = await sb.auth.updateUser({ password: newPassword });
+    
+    if (error) throw error;
+    
+    showToast(currentLang === 'uk' ? 'Пароль успішно змінено!' : 'Password updated successfully!');
+    
+    document.getElementById('auth-reset-password').style.display = 'none';
+    document.getElementById('auth-login').style.display = 'block';
+    navigateTo('auth-screen', '/login');
+    window.location.hash = '';
+    
+  } catch (error) {
+    errEl.textContent = error.message;
+    errEl.classList.add('show');
+  } finally {
+    btn.classList.remove('btn-loading');
+    btn.textContent = t('auth.reset_btn');
+  }
+}
+
 async function signOut() {
   const sb = await getSupabase();
   await sb.auth.signOut();
 }
 
 async function loadDashboard() {
-  if (!currentUser) { navigateTo('auth-screen', '/login'); showAuthTab('login'); return; }
+  if (!currentUser) { navigateTo('auth-screen', '/login'); return; }
   const container = document.getElementById('briefs-list');
   container.innerHTML = `<p style="color:var(--ink2);font-size:14px">${currentLang === 'uk' ? 'Завантаження…' : 'Loading…'}</p>`;
   const sb = await getSupabase();
@@ -820,22 +869,8 @@ async function loadDashboard() {
 }
 
 // ============================================================
-// ROUTING & APP MANAGEMENT
+// APP CODE
 // ============================================================
-
-function navigateTo(screenId, urlPath) {
-  showScreen(screenId);
-  if (urlPath) {
-    window.history.pushState({}, '', urlPath);
-  }
-  
-  // Если переходим на форму авторизации, активируем нужную вкладку на базе URL
-  if (screenId === 'auth-screen' && urlPath) {
-    if (urlPath === '/login') showAuthTab('login');
-    if (urlPath === '/signup') showAuthTab('signup');
-    if (urlPath === '/forgot') showAuthTab('forgot');
-  }
-}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -955,7 +990,6 @@ function maybeShowTip(id, val, min) {
   if (tip) tip.classList.toggle('visible', val.length >= min);
 }
 
-// AUTOSAVE
 function autosave() {
   clearTimeout(autosaveTimer);
   autosaveTimer = setTimeout(() => {
@@ -1003,7 +1037,6 @@ function loadDraft() {
   } catch(e) {}
 }
 
-// FILE UPLOAD
 function handleDrag(e, on) {
   e.preventDefault();
   document.getElementById('upload-area').classList.toggle('drag', on);
@@ -1039,7 +1072,6 @@ function removeRef(i) {
   renderPreviews();
 }
 
-// GENERATE RESULT
 async function generateResult() {
   const name = document.getElementById('f-name').value || (currentLang === 'uk' ? 'Проєкт без назви' : 'Untitled project');
   const task = document.getElementById('f-task').value || '—';
@@ -1361,6 +1393,9 @@ const TRANSLATIONS = {
     'auth.signup_sub': 'Join Briefify to save and manage your briefs',
     'auth.forgot_title': 'Reset password',
     'auth.forgot_sub': "We'll send a reset link to your email",
+    'auth.reset_title': 'New password',
+    'auth.reset_sub': 'Enter your new secure password to access your account',
+    'auth.reset_btn': 'Save new password',
     'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.confirm_password': 'Confirm password',
@@ -1484,13 +1519,16 @@ const TRANSLATIONS = {
     'tpl.brand': 'Брендинг',
     'tpl.brand_desc': 'Логотип, айдентика, стайлгайд',
     'tpl.landing': 'Лендінг',
-    'tpl.landing_desc': 'Промо, маркетинговый сайт',
+    'tpl.landing_desc': 'Промо, marketing site',
     'auth.login_title': 'З поверненням',
     'auth.login_sub': 'Увійти, щоб отримати доступ до брифів',
     'auth.signup_title': 'Створити акаунт',
     'auth.signup_sub': 'Реєструйтеся, щоб зберігати бриф та керувати ними',
     'auth.forgot_title': 'Відновити пароль',
     'auth.forgot_sub': 'Ми надішлемо посилання для скидання на вашу пошту',
+    'auth.reset_title': 'Новий пароль',
+    'auth.reset_sub': 'Введіть ваш новий надійний пароль для доступу до акаунту',
+    'auth.reset_btn': 'Зберегти новий пароль',
     'auth.email': 'Електронна пошта',
     'auth.password': 'Пароль',
     'auth.confirm_password': 'Підтвердження паролю',
@@ -1525,7 +1563,7 @@ const TRANSLATIONS = {
     'fields.avoid': 'Чого варто уникати',
     'fields.budget': 'Бюджетний діапазон',
     'fields.deadline': 'Терміни / Дедлайн',
-    'fields.notes': 'Що ще нужно знати дизайнеру?',
+    'fields.notes': 'Що ще потрібно знати дизайнеру?',
     'val.name': 'Будь ласка, вкажіть назву проєкту',
     'val.task': 'Будь ласка, опишіть завдання проєкту',
     'tips.task': 'Це оновлення чогось існуючого чи дизайн з нуля? Це змінює весь підхід до роботи.',
@@ -1624,6 +1662,19 @@ function setLang(lang, updateUrl = true) {
   }
 }
 
+function navigateTo(screenId, urlPath) {
+  showScreen(screenId);
+  if (urlPath) {
+    window.history.pushState({}, '', urlPath);
+  }
+  
+  if (screenId === 'auth-screen' && urlPath) {
+    if (urlPath === '/login') showAuthTab('login');
+    if (urlPath === '/signup') showAuthTab('signup');
+    if (urlPath === '/forgot') showAuthTab('forgot');
+  }
+}
+
 function t(key) {
   return TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS['en'][key] || key;
 }
@@ -1662,7 +1713,6 @@ function handleInitialRouting() {
   const path = window.location.pathname;
   const hash = window.location.hash;
 
-  // 1. Определяем язык
   if (path.startsWith('/ua')) {
     setLang('uk', false);
   } else if (path.startsWith('/en')) {
@@ -1671,14 +1721,16 @@ function handleInitialRouting() {
     setLang(localStorage.getItem('briefify_lang') || 'en', false);
   }
 
-  // 2. ПРОВЕРКА ТОКЕНА ВОССТАНОВЛЕНИЯ ПАРОЛЯ ОТ SUPABASE
+  // ОБРАБОТКА ХЭШ-ТОКЕНА ОТ SUPABASE (ДЛЯ СБРОСА ПАРОЛЯ)
   if (hash && hash.includes('type=recovery')) {
     showScreen('auth-screen');
-    showAuthTab('forgot'); // Или блок сброса, если у вас будет под него отдельное поле
+    document.getElementById('auth-login').style.display = 'none';
+    document.getElementById('auth-signup').style.display = 'none';
+    document.getElementById('auth-forgot').style.display = 'none';
+    document.getElementById('auth-reset-password').style.display = 'block';
     return;
   }
 
-  // 3. Стандартный роутинг по путям
   if (path === '/login') {
     showScreen('auth-screen');
     showAuthTab('login');
