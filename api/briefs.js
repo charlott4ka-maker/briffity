@@ -31,6 +31,20 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'data is required' });
     }
 
+    // ── Лимит: 3 брифа на аккаунт ──────────────────────────
+    const FREE_LIMIT = 3;
+    if (user_id) {
+      const { count, error: countError } = await supabase
+        .from('briefs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user_id);
+
+      if (!countError && count >= FREE_LIMIT) {
+        return res.status(403).json({ error: 'limit_reached', limit: FREE_LIMIT });
+      }
+    }
+    // ────────────────────────────────────────────────────────
+
     const slug = nanoid(8);
 
     const { data, error } = await supabase
