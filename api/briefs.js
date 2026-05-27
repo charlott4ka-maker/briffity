@@ -1,21 +1,34 @@
 // api/briefs.js
-// Сохранение и загрузка брифов из Supabase
+// Сохранение и загрузка брифов из Supabase с поддержкой авторизации пользователей
 
 const { createClient } = require('@supabase/supabase-js');
-// Убрать: const { nanoid } = require('nanoid');
 const { randomBytes } = require('crypto');
+
+// Генерация безопасного и короткого slug для ссылок
 const nanoid = (size = 8) => randomBytes(size).toString('base64url').slice(0, size);
 
+// Инициализация Supabase клиента с правами Service Role для обхода RLS на бэкенде
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // <-- Добавили _ROLE_
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 module.exports = async function handler(req, res) {
+  // Настройка базовых CORS заголовков для бесперебойного общения с фронтендом
+  res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // POST /api/briefs — сохранить бриф
+  // Обработка предварительных CORS-запросов браузера
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // ============================================================
+  // POST: СОХРАНЕНИЕ НОВОГО БРИФА
+  // ============================================================
   if (req.method === 'POST') {
-    const { data: briefData, ownerEmail } = req.body;
+    const { data: briefData, ownerEmail, user_id } = req.body;
 
     if (!briefData) {
       return res.status(400).json({ error: 'data is required' });
@@ -23,12 +36,14 @@ module.exports = async function handler(req, res) {
 
     const slug = nanoid(8);
 
+    // Записываем бриф, привязывая его к UUID пользователя, если он авторизован
     const { data, error } = await supabase
       .from('briefs')
       .insert({
         slug,
         data: briefData,
         owner_email: ownerEmail || null,
+        user_id: user_id || null // Привязка к аккаунту для вкладки "Мої брифи"
       })
       .select('slug')
       .single();
@@ -46,16 +61,17 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // GET /api/briefs?slug=aB3kR9mQ — загрузить бриф
- // GET /api/briefs — загрузить бриф (или список брифов для дашборда)
+  // ============================================================
+  // GET: ПОЛУЧЕНИЕ ДАННЫХ (БРИФ ИЛИ ДАШБОРД)
+  // ============================================================
   if (req.method === 'GET') {
     const { slug, user_id } = req.query;
 
-    // Сценарий 1: Загрузка списка брифов для дашборда
+    // Сценарий 1: Загрузка списка брифов для Личного Кабинета
     if (user_id) {
       const { data, error } = await supabase
         .from('briefs')
-        .select('id, slug, data, created_at') // Запрашиваем только те колонки, которые точно есть в базе
+        .select('id, slug, data, created_at') // Безопасный выбор существующих колонок
         .eq('user_id', user_id)
         .order('created_at', { ascending: false });
 
@@ -67,7 +83,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ data });
     }
 
-    // Сценарий 2: Загрузка одиночного брифа по slug
+    // Сценарий 2: Загрузка одиночного брифа по прямой ссылке для клиента/дизайнера
     if (slug) {
       const { data, error } = await supabase
         .from('briefs')
@@ -84,3 +100,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(400).json({ error: 'Either slug or user_id is required' });
   }
+
+  // От ворот поворот для всех остальных HTTP-методов (PUT и т.д.)
+  return res.status(405).json({ error: 'Method not allowed' });
+};
