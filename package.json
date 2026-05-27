@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "vercel dev",
+    "build": "echo 'Building SPA...'", 
     "deploy": "vercel --prod"
   },
   "engines": {
