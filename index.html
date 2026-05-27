@@ -894,45 +894,44 @@ async function loadDashboard() {
   if (!currentUser) { navigateTo('auth-screen', '/login'); return; }
   const container = document.getElementById('briefs-list');
   container.innerHTML = `<p style="color:var(--ink2);font-size:14px">${currentLang === 'uk' ? 'Завантаження…' : 'Loading…'}</p>`;
-  const sb = await getSupabase();
-  const { data, error } = await sb
-    .from('briefs')
-    .select('id,slug,data,status,created_at,view_count')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false });
+  
+  try {
+    // Делаем запрос к нашему бэкенду Vercel и передаем ID юзера
+    const resp = await fetch(`/api/briefs?user_id=${encodeURIComponent(currentUser.id)}`);
+    
+    if (!resp.ok) {
+      container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Не вдалося завантажити.' : 'Failed to load briefs.'}</p>`;
+      return;
+    }
+    
+    const result = await resp.json();
+    const data = result.data || [];
 
-  if (error || !data) {
-    container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Не вдалося завантажити.' : 'Failed to load briefs.'}</p>`;
-    return;
-  }
+    if (data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
+      return;
+    }
 
-  if (data.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
-    return;
-  }
-
-  const statusColors = { draft:'var(--ink3)', sent:'var(--accent)', filled:'var(--warn)', approved:'var(--success)' };
-
-  container.innerHTML = `<div class="briefs-grid">${data.map(b => {
-    const d = b.data || {};
-    const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
-    const status = b.status || 'draft';
-    const statusColor = statusColors[status] || 'var(--ink3)';
-    const statusLabel = t('status.' + status) || status;
-    const views = b.view_count > 0 ? `· ${b.view_count} ${currentLang === 'uk' ? 'переглядів' : 'views'}` : '';
-    const tag = d.type ? `<span class="brief-item-tag">${d.type}</span>` : '<span></span>';
-    return `<div class="brief-item" onclick="openBrief('${b.slug}')">
-      <div class="brief-item-name">${d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief')}</div>
-      <div class="brief-item-meta">${date} ${views}</div>
-      <div class="brief-item-footer">
-        ${tag}
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;font-weight:500;color:${statusColor}">${statusLabel}</span>
-          <button class="brief-item-delete" onclick="event.stopPropagation();askDelete('${b.slug}')" title="${currentLang === 'uk' ? 'Видалити' : 'Delete'}">🗑</button>
+    container.innerHTML = `<div class="briefs-grid">${data.map(b => {
+      const d = b.data || {};
+      const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
+      const tag = d.type ? `<span class="brief-item-tag">${d.type}</span>` : '<span></span>';
+      return `<div class="brief-item" onclick="openBrief('${b.slug}')">
+        <div class="brief-item-name">${d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief')}</div>
+        <div class="brief-item-meta">${date}</div>
+        <div class="brief-item-footer">
+          ${tag}
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="brief-item-delete" onclick="event.stopPropagation();askDelete('${b.slug}')" title="${currentLang === 'uk' ? 'Видалити' : 'Delete'}">🗑</button>
+          </div>
         </div>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+      </div>`;
+    }).join('')}</div>`;
+
+  } catch(e) {
+    console.error('Dashboard rendering error:', e);
+    container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Помилка завантаження.' : 'Error loading briefs.'}</p>`;
+  }
 }
 
 function openBrief(slug) {
