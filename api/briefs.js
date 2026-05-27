@@ -4,6 +4,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { randomBytes } = require('crypto');
 
+// Безопасная генерация slug без использования устаревших модулей
 const nanoid = (size = 8) => randomBytes(size).toString('base64url').slice(0, size);
 
 const supabase = createClient(
@@ -48,16 +49,16 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save brief' });
     }
 
-    // ИСКУССТВЕННЫЙ ИСПРАВЛЕННЫЙ БЛОК: Безопасное формирование URL без url.parse()
-    let appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) {
+    // ИСПРАВЛЕНО: Безопасное формирование URL по стандарту WHATWG
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!baseUrl) {
       const host = req.headers.host || 'localhost';
       const protocol = host.startsWith('localhost') ? 'http:' : 'https:';
-      appUrl = `${protocol}//${host}`;
+      baseUrl = `${protocol}//${host}`;
     }
     
-    // Гарантируем валидность через современный конструктор URL
-    const finalUrl = new URL(`/brief/${data.slug}`, appUrl).toString();
+    // Создаем объект URL с помощью нативного конструктора Node.js
+    const finalUrl = new URL(`/brief/${data.slug}`, baseUrl).toString();
 
     return res.status(200).json({
       slug: data.slug,
