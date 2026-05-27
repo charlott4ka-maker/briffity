@@ -690,9 +690,22 @@ async function initAuth() {
     _supabase.auth.onAuthStateChange(async (event, session) => {
       currentUser = session?.user || null;
       updateNavAuth();
+      
+      // НАДЕЖНЫЙ ПЕРЕХВАТ СОБЫТИЯ СБРОСА ПАРОЛЯ ОТ SUPABASE
+      if (event === 'PASSWORD_RECOVERY') {
+        showScreen('auth-screen');
+        document.getElementById('auth-login').style.display = 'none';
+        document.getElementById('auth-signup').style.display = 'none';
+        document.getElementById('auth-forgot').style.display = 'none';
+        document.getElementById('auth-reset-password').style.display = 'block';
+        return;
+      }
+
       if (event === 'SIGNED_IN') {
         const active = document.querySelector('.screen.active');
-        if (active && active.id === 'auth-screen') handleInitialRouting();
+        if (active && active.id === 'auth-screen' && !window.location.hash.includes('type=recovery')) {
+          handleInitialRouting();
+        }
       }
       if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
     });
@@ -1721,8 +1734,9 @@ function handleInitialRouting() {
     setLang(localStorage.getItem('briefify_lang') || 'en', false);
   }
 
-  // ОБРАБОТКА ХЭШ-ТОКЕНА ОТ SUPABASE (ДЛЯ СБРОСА ПАРОЛЯ)
-  if (hash && hash.includes('type=recovery')) {
+  // Если в ссылке есть токен восстановления, прерываем обычный роутинг путей,
+  // так как onAuthStateChange (вызов выше) сам включит нужный экран пароля.
+  if (hash && (hash.includes('type=recovery') || hash.includes('access_token='))) {
     showScreen('auth-screen');
     document.getElementById('auth-login').style.display = 'none';
     document.getElementById('auth-signup').style.display = 'none';
