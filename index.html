@@ -801,7 +801,11 @@ async function loadDashboard() {
     return;
   }
   if (data.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>${t('dash.empty')}</p>
+      <button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button>
+    </div>`;
     return;
   }
   container.innerHTML = data.map(b => {
