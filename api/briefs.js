@@ -48,11 +48,20 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save brief' });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${req.headers.host}`;
+    // ИСКУССТВЕННЫЙ ИСПРАВЛЕННЫЙ БЛОК: Безопасное формирование URL без url.parse()
+    let appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      const host = req.headers.host || 'localhost';
+      const protocol = host.startsWith('localhost') ? 'http:' : 'https:';
+      appUrl = `${protocol}//${host}`;
+    }
+    
+    // Гарантируем валидность через современный конструктор URL
+    const finalUrl = new URL(`/brief/${data.slug}`, appUrl).toString();
 
     return res.status(200).json({
       slug: data.slug,
-      url: `${appUrl}/brief/${data.slug}`
+      url: finalUrl
     });
   }
 
@@ -104,7 +113,6 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'slug is required' });
     }
 
-    // Собираем поля, которые фронтенд прислал на обновление
     const updateData = {};
     if (ai_summary !== undefined) updateData.ai_summary = ai_summary;
     if (status !== undefined) updateData.status = status;
