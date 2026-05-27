@@ -1,46 +1,10 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/brief/([a-z0-9_\\-]+)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/signup",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/forgot",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/mybriefs",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/ua",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/en",
-      "dest": "/index.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "status": 404,
-      "dest": "/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }
