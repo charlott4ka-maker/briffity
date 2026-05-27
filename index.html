@@ -1660,7 +1660,9 @@ function applyTranslations() {
 
 function handleInitialRouting() {
   const path = window.location.pathname;
+  const hash = window.location.hash;
 
+  // 1. Определяем язык
   if (path.startsWith('/ua')) {
     setLang('uk', false);
   } else if (path.startsWith('/en')) {
@@ -1669,6 +1671,14 @@ function handleInitialRouting() {
     setLang(localStorage.getItem('briefify_lang') || 'en', false);
   }
 
+  // 2. ПРОВЕРКА ТОКЕНА ВОССТАНОВЛЕНИЯ ПАРОЛЯ ОТ SUPABASE
+  if (hash && hash.includes('type=recovery')) {
+    showScreen('auth-screen');
+    showAuthTab('forgot'); // Или блок сброса, если у вас будет под него отдельное поле
+    return;
+  }
+
+  // 3. Стандартный роутинг по путям
   if (path === '/login') {
     showScreen('auth-screen');
     showAuthTab('login');
