@@ -8,9 +8,9 @@
     "nanoid": "^5.0.7"
   },
   "scripts": {
-    "dev": "vercel dev",
-    "build": "mkdir -p .vercel/output/static && cp index.html .vercel/output/static/index.html"
-  },
+    "start": "vercel dev",
+    "build": "echo 'No build needed for static HTML'"
+  }
   "engines": {
     "node": ">=18.x"
   }
