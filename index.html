@@ -1703,8 +1703,8 @@ function handleInitialRouting() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-  await initAuth(); // Сначала дожидаемся проверки сессии Supabase
-  handleInitialRouting(); // Только потом включаем нужный экран
+  await initAuth(); // Гарантированно дожидаемся загрузки сессии Supabase из сети
+  handleInitialRouting(); // Только теперь переключаем экран, зная точный статус юзера
 });
   
 window.addEventListener('popstate', handleInitialRouting);
