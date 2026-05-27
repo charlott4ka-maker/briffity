@@ -1370,7 +1370,7 @@ document.addEventListener('click', e => {
 // LOAD BRIEF FROM /brief/:slug
 // ============================================================
 async function loadBriefFromUrl() {
-  const match = window.location.pathname.match(/^\/brief\/([a-zA-Z0-9_-]+)$/);
+  const match = window.location.pathname.match(/^\/brief\/([a-zA-Z0-9_\-]+)$/);
   if (!match) return;
   const slug = match[1];
   isViewOnly = true;
@@ -1692,7 +1692,7 @@ function handleInitialRouting() {
   else if (path === '/signup') { showScreen('auth-screen'); showAuthTab('signup'); }
   else if (path === '/forgot') { showScreen('auth-screen'); showAuthTab('forgot'); }
   else if (path === '/mybriefs') showScreen('dashboard-screen');
-  else if (path.match(/^\/brief\/([a-zA-Z0-9_-]+)$/)) loadBriefFromUrl();
+  else if (path.match(/^\/brief\/([a-zA-Z0-9_\-]+)$/)) loadBriefFromUrl();
   else showScreen('landing');
 }
 
