@@ -47,25 +47,40 @@ module.exports = async function handler(req, res) {
   }
 
   // GET /api/briefs?slug=aB3kR9mQ — загрузить бриф
+ // GET /api/briefs — загрузить бриф (или список брифов для дашборда)
   if (req.method === 'GET') {
-    const { slug } = req.query;
+    const { slug, user_id } = req.query;
 
-    if (!slug) {
-      return res.status(400).json({ error: 'slug is required' });
+    // Сценарий 1: Загрузка списка брифов для дашборда
+    if (user_id) {
+      const { data, error } = await supabase
+        .from('briefs')
+        .select('id, slug, data, created_at') // Запрашиваем только те колонки, которые точно есть в базе
+        .eq('user_id', user_id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Supabase fetch dashboard error:', error);
+        return res.status(500).json({ error: 'Failed to fetch briefs' });
+      }
+
+      return res.status(200).json({ data });
     }
 
-    const { data, error } = await supabase
-      .from('briefs')
-      .select('*')
-      .eq('slug', slug)
-      .single();
+    // Сценарий 2: Загрузка одиночного брифа по slug
+    if (slug) {
+      const { data, error } = await supabase
+        .from('briefs')
+        .select('*')
+        .eq('slug', slug)
+        .single();
 
-    if (error || !data) {
-      return res.status(404).json({ error: 'Brief not found' });
+      if (error || !data) {
+        return res.status(404).json({ error: 'Brief not found' });
+      }
+
+      return res.status(200).json(data);
     }
 
-    return res.status(200).json(data);
+    return res.status(400).json({ error: 'Either slug or user_id is required' });
   }
-
-  return res.status(405).json({ error: 'Method not allowed' });
-}
