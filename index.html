@@ -197,7 +197,7 @@ h1 em{color:var(--accent);font-style:italic}
 .auth-switch a:hover{text-decoration:underline}
 .auth-error{background:#FFF0F0;border:1px solid #fcc;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
 .auth-error.show{display:block}
-.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;colorvar(--success);margin-bottom:16px;display:none}
+.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--success);margin-bottom:16px;display:none}
 .auth-success.show{display:block}
 .btn-full{width:100%;justify-content:center}
 .btn-loading{opacity:.7;pointer-events:none}
@@ -235,19 +235,19 @@ h1 em{color:var(--accent);font-style:italic}
 <body>
 
 <nav>
-  <div class="logo" onclick="goHome()" style="cursor:pointer">Brie<span>fi</span>fy</div>
+  <div class="logo" onclick="navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en')" style="cursor:pointer">Brie<span>fi</span>fy</div>
   <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
     <div class="lang-switcher">
       <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
       <button class="lang-btn" id="lang-uk" onclick="setLang('uk')">УК</button>
     </div>
     <div class="nav-right" id="nav-guest">
-      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
-      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="showScreen('auth-screen');showAuthTab('signup')">Sign up</button>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="navigateTo('auth-screen', '/login');showAuthTab('login')">Sign in</button>
+      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="navigateTo('auth-screen', '/signup');showAuthTab('signup')">Sign up</button>
     </div>
     <div class="nav-right user-menu" id="nav-user" style="display:none">
       <span class="user-email" id="nav-user-email"></span>
-      <button class="btn btn-secondary btn-sm" data-i18n="nav.mybriefs" onclick="showScreen('dashboard-screen');loadDashboard()">My briefs</button>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.mybriefs" onclick="navigateTo('dashboard-screen', '/mybriefs')">My briefs</button>
       <div class="profile-badge" onclick="openProfileModal()">
         <div class="avatar" id="nav-avatar">?</div>
         <span id="nav-brief-url" data-i18n="nav.briefurl">brief link</span>
@@ -400,13 +400,13 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="field">
       <label data-i18n="fields.type">Project type</label>
       <div class="tag-grid" id="tags-type">
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.mobile">Mobile app</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.saas">Web / SaaS</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.landing">Landing page</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.brand">Branding</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.dashboard">Dashboard</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.email">Email design</span>
-        <span class="tag" onclick="toggleTag(this,'type')" data-i18n="tags.other">Other</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Mobile app" data-i18n="tags.mobile">Mobile app</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Web / SaaS" data-i18n="tags.saas">Web / SaaS</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Landing page" data-i18n="tags.landing">Landing page</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Branding" data-i18n="tags.brand">Branding</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Dashboard" data-i18n="tags.dashboard">Dashboard</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Email design" data-i18n="tags.email">Email design</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Other" data-i18n="tags.other">Other</span>
       </div>
     </div>
   </div>
@@ -429,11 +429,11 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="field">
       <label data-i18n="fields.platforms">Platforms</label>
       <div class="tag-grid">
-        <span class="tag" onclick="toggleTag(this,'platform')">iOS</span>
-        <span class="tag" onclick="toggleTag(this,'platform')">Android</span>
-        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.web">Web browser</span>
-        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.desktop">Desktop app</span>
-        <span class="tag" onclick="toggleTag(this,'platform')" data-i18n="tags.tablet">Tablet</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="iOS">iOS</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Android">Android</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Web browser" data-i18n="tags.web">Web browser</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Desktop app" data-i18n="tags.desktop">Desktop app</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Tablet" data-i18n="tags.tablet">Tablet</span>
       </div>
     </div>
   </div>
@@ -444,14 +444,14 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="field">
       <label data-i18n="fields.style">Style</label>
       <div class="tag-grid">
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.minimal">Minimal</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.modern">Modern</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.playful">Playful</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.corporate">Corporate</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.bold">Bold</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.elegant">Elegant</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.friendly">Friendly</span>
-        <span class="tag" onclick="toggleTag(this,'style')" data-i18n="style.dark">Dark / edgy</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Minimal" data-i18n="style.minimal">Minimal</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Modern" data-i18n="style.modern">Modern</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Playful" data-i18n="style.playful">Playful</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Corporate" data-i18n="style.corporate">Corporate</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Bold" data-i18n="style.bold">Bold</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Elegant" data-i18n="style.elegant">Elegant</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Friendly" data-i18n="style.friendly">Friendly</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Dark / edgy" data-i18n="style.dark">Dark / edgy</span>
       </div>
     </div>
     <div class="field">
@@ -519,8 +519,8 @@ h1 em{color:var(--accent);font-style:italic}
       <strong><span data-i18n="banner.title">⚠ You're not signed in.</span></strong> <span data-i18n="banner.text">This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.</span>
     </div>
     <div class="guest-banner-actions">
-      <button class="btn btn-secondary btn-xs" onclick="showScreen('auth-screen');showAuthTab('login')" data-i18n="nav.signin">Sign in</button>
-      <button class="btn btn-accent btn-xs" onclick="showScreen('auth-screen');showAuthTab('signup')" data-i18n="banner.signup">Create account</button>
+      <button class="btn btn-secondary btn-xs" onclick="navigateTo('auth-screen', '/login');showAuthTab('login')" data-i18n="nav.signin">Sign in</button>
+      <button class="btn btn-accent btn-xs" onclick="navigateTo('auth-screen', '/signup');showAuthTab('signup')" data-i18n="banner.signup">Create account</button>
     </div>
   </div>
 
@@ -652,7 +652,7 @@ let refImages = [];
 let autosaveTimer = null;
 let aiSummaryText = '';
 let savedBriefUrl = '';
-let globalBriefData = null; // Store data to save with AI summary later
+let globalBriefData = null;
 
 // ============================================================
 // SUPABASE AUTH
@@ -680,9 +680,9 @@ async function initAuth() {
       updateNavAuth();
       if (event === 'SIGNED_IN') {
         const active = document.querySelector('.screen.active');
-        if (active && active.id === 'auth-screen') showScreen('landing');
+        if (active && active.id === 'auth-screen') handleInitialRouting();
       }
-      if (event === 'SIGNED_OUT') showScreen('landing');
+      if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
       if (event === 'PASSWORD_RECOVERY') { showScreen('auth-screen'); showAuthTab('reset'); }
     });
 
@@ -717,11 +717,7 @@ function updateNavAuth() {
 }
 
 function goHome() {
-  if (window.location.pathname !== '/') {
-    window.location.href = '/';
-    return;
-  }
-  showScreen('landing');
+  navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
 }
 
 function showAuthTab(tab) {
@@ -762,7 +758,7 @@ async function doSignup() {
   btn.classList.remove('btn-loading'); btn.textContent = t('auth.signup_btn');
   if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
   else if (signUpData?.user && !signUpData.session) { successEl.textContent = t('err.confirm_email'); successEl.classList.add('show'); }
-  else { showScreen('landing'); }
+  else { navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en'); }
 }
 
 async function doForgot() {
@@ -783,11 +779,10 @@ async function doForgot() {
 async function signOut() {
   const sb = await getSupabase();
   await sb.auth.signOut();
-  showScreen('landing');
 }
 
 async function loadDashboard() {
-  if (!currentUser) { showScreen('auth-screen'); showAuthTab('login'); return; }
+  if (!currentUser) { navigateTo('auth-screen', '/login'); showAuthTab('login'); return; }
   const container = document.getElementById('briefs-list');
   container.innerHTML = `<p style="color:var(--ink2);font-size:14px">${currentLang === 'uk' ? 'Завантаження…' : 'Loading…'}</p>`;
   const sb = await getSupabase();
@@ -801,7 +796,6 @@ async function loadDashboard() {
     return;
   }
   
-  // ЕСЛИ БРИФОВ НЕТ: Генерируем разметку, которая динамически берет язык из объекта TRANSLATIONS
   if (data.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -813,7 +807,6 @@ async function loadDashboard() {
     return;
   }
   
-  // Если брифы есть: выводим список
   container.innerHTML = data.map(b => {
     const d = b.data || {};
     const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -827,12 +820,24 @@ async function loadDashboard() {
 }
 
 // ============================================================
-// APP CODE
+// ROUTING & APP MANAGEMENT
 // ============================================================
+
+function navigateTo(screenId, urlPath) {
+  showScreen(screenId);
+  if (urlPath) {
+    window.history.pushState({}, '', urlPath);
+  }
+}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id === 'landing' ? 'landing' : id).classList.add('active');
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  
+  if (id === 'dashboard-screen') {
+    loadDashboard();
+  }
 }
 
 function startBrief(template, fresh) {
@@ -850,7 +855,6 @@ function startBrief(template, fresh) {
     document.getElementById('autosave-badge').classList.remove('show');
   }
 
-  // Set title dynamically based on template & lang
   let titleText = tpl.title;
   if (currentLang === 'uk') {
     if (currentTemplate === 'mobile') titleText = 'Бриф мобільного застосунку';
@@ -1086,16 +1090,13 @@ async function generateResult() {
     guestBanner.classList.toggle('show', !currentUser);
   }
 
-  // Reset AI summary section to show button instead of generating automatically
   aiSummaryText = '';
   document.getElementById('ai-summary-content').innerHTML = `<button class="btn btn-accent btn-sm" onclick="triggerAiSummary()" id="btn-generate-ai" data-i18n="summary.generate_btn">${t('summary.generate_btn')}</button>`;
   document.getElementById('pdf-summary-section').style.display = 'none';
 
-  // Keep data prepared for saving later
   globalBriefData = { name, task, type, audience, goal, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: '' };
   saveBrief(globalBriefData);
 
-  // PDF fields
   document.getElementById('pdf-name').textContent = name;
   document.getElementById('pdf-meta').textContent = (currentLang === 'uk' ? 'Дизайн-бриф · ' : 'Design Brief · ') + new Date().toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('pdf-task').textContent = taskFull;
@@ -1109,7 +1110,6 @@ async function generateResult() {
   else pdfNotes.style.display = 'none';
 }
 
-// Separate function triggered only on Button click
 async function triggerAiSummary() {
   const name = document.getElementById('f-name').value || 'Project';
   const task = document.getElementById('f-task').value || '—';
@@ -1126,7 +1126,6 @@ async function triggerAiSummary() {
 
   const briefText = `Project: ${name}\nTask: ${task}\nType: ${type || 'not specified'}\nAudience: ${audience}\nUser goal: ${goal}\nStyle: ${style || 'not specified'}\nReferences: ${refs || 'none'}\nAvoid: ${avoid || 'nothing specified'}\nBudget: ${selectedBudget || 'not specified'}\nDeadline: ${deadline}\nNotes: ${document.getElementById('f-notes').value || 'none'}`;
 
-  // Strict system instruction to prevent AI from outputting markdown wrap or meta garbage like "*Sentence 1...*"
   const systemInstruction = `You are an expert design assistant. Summarize this brief into 2-3 clear, professional, cohesive sentences. 
 CRITICAL RULE: Output ONLY the direct summary text itself. Do NOT include any introductory phrases, labels, metadata, blockquotes, markdown headers, bold sentence counters (e.g., "*Sentence 1:*"), or commentary. 
 Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainian' : 'English'} language.`;
@@ -1137,7 +1136,7 @@ Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainia
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         briefText: briefText,
-        systemInstruction: systemInstruction // sending this instruction to your backend api route
+        systemInstruction: systemInstruction
       })
     });
     const data = await resp.json();
@@ -1145,7 +1144,6 @@ Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainia
       throw new Error(data.error || 'Empty summary');
     }
     
-    // Clean up any potential accidentally leaked placeholders or labels from standard LLM response
     let cleanSummary = data.summary.replace(/^\s*✦?\s*(AI-підсумок|AI summary|Summary):\s*/i, '');
     cleanSummary = cleanSummary.replace(/\*?\*?(Sentence|Речення)\s*\d+:?❓?\*?\*?/gi, '');
     
@@ -1154,7 +1152,6 @@ Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainia
     document.getElementById('pdf-summary').textContent = aiSummaryText;
     document.getElementById('pdf-summary-section').style.display = 'block';
     
-    // Resave with updated summary
     if (globalBriefData) {
       globalBriefData.aiSummary = aiSummaryText;
       saveBrief(globalBriefData);
@@ -1171,7 +1168,6 @@ Language requirement: Respond strictly in the ${currentLang === 'uk' ? 'Ukrainia
 function openExportModal() { document.getElementById('export-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function exportPDF() { closeModal('export-modal'); window.print(); }
-
 
 async function saveBrief(briefData) {
   if (currentUser) {
@@ -1232,13 +1228,11 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// Load shared brief from URL: /brief/{slug}
 async function loadBriefFromUrl() {
   const match = window.location.pathname.match(/^\/brief\/([a-zA-Z0-9_-]+)$/);
   if (!match) return;
   const slug = match[1];
 
-  // Show loading state
   showScreen('result-screen');
   document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Завантаження брифу…' : 'Loading brief…';
   document.getElementById('res-task').textContent = '';
@@ -1300,17 +1294,11 @@ async function loadBriefFromUrl() {
   }
 }
 
-// Run on page load
-window.addEventListener('DOMContentLoaded', () => {
-  initAuth();
-  loadBriefFromUrl();
-});
-
 function showDemo() {
   startBrief('mobile');
   setTimeout(() => {
     document.getElementById('f-name').value = currentLang === 'uk' ? 'Редізайн додатку доставки' : 'Delivery app redesign';
-    document.getElementById('f-task').value = currentLang === 'uk' ? 'Редізайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення — він має бути швидким та легким.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
+    document.getElementById('f-task').value = currentLang === 'uk' ? 'Редізайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення — він має быть швидким та легким.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
     document.getElementById('f-audience').value = currentLang === 'uk' ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
     document.getElementById('f-goal').value = currentLang === 'uk' ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes';
     document.getElementById('f-refs').value = 'Bolt Food, Glovo, Airbnb';
@@ -1554,7 +1542,7 @@ const TRANSLATIONS = {
     'style.minimal': 'Мінімалістичний',
     'style.modern': 'Сучасний',
     'style.playful': 'Грайливый',
-    'style.corporate': 'Корпоративний',
+    'style.corporate': 'Corporate',
     'style.bold': 'Сміливий / Яскравий',
     'style.elegant': 'Елегантний',
     'style.friendly': 'Дружній',
@@ -1571,7 +1559,7 @@ const TRANSLATIONS = {
     'result.pdf': '↓ Експорт PDF',
     'result.ai_label': '✦ AI-підсумок',
     'result.edit': '← Редагувати бриф',
-    'result.new': '+ Новий бриф',
+    'result.new': '+ New brief',
     'card.overview': 'Огляд проєкту',
     'card.audience': 'Аудиторія',
     'card.goal': 'Ціль користувача',
@@ -1581,7 +1569,7 @@ const TRANSLATIONS = {
     'card.notes': 'Додаткові нотатки',
     'summary.generate_btn': 'Згенерувати AI-підсумок',
     'modal.export_title': 'Експорт у PDF',
-    'modal.export_text': 'Ваш бриф відкриється в режимі друку — збережіть його як PDF або надішліть на друк.',
+    'modal.export_text': 'Ваш бриф відкриється в режимі друку — збережіть його как PDF або надішліть на друк.',
     'modal.cancel': 'Скасувати',
     'modal.print_btn': 'Друкувати / Зберегти PDF',
     'modal.link_title': 'Ваше публічне посилання',
@@ -1598,21 +1586,41 @@ const TRANSLATIONS = {
   }
 };
 
-let currentLang = localStorage.getItem('briefify_lang') || 'en';
+let currentLang = 'en';
+if (window.location.pathname.startsWith('/uk') || window.location.pathname.startsWith('/ua')) {
+  currentLang = 'uk';
+} else {
+  currentLang = localStorage.getItem('briefify_lang') || 'en';
+}
 
-function setLang(lang) {
+function setLang(lang, updateUrl = true) {
   currentLang = lang;
   localStorage.setItem('briefify_lang', lang);
+  
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-uk').classList.toggle('active', lang === 'uk');
+  
   applyTranslations();
   
-  // Добавьте вот это условие, чтобы обновлять дашборд при смене языка на лету:
+  if (updateUrl) {
+    const currentPath = window.location.pathname;
+    if (currentPath === '/' || currentPath === '/en' || currentPath === '/ua') {
+      window.history.pushState({}, '', lang === 'uk' ? '/ua' : '/en');
+    }
+  }
+  
   if (document.getElementById('dashboard-screen').classList.contains('active')) {
     loadDashboard();
   }
   if (document.getElementById('form-screen').classList.contains('active')) {
     updateForm();
+  }
+}
+
+function navigateTo(screenId, urlPath) {
+  showScreen(screenId);
+  if (urlPath) {
+    window.history.pushState({}, '', urlPath);
   }
 }
 
@@ -1627,7 +1635,6 @@ function applyTranslations() {
     if (val) el.textContent = val;
   });
   
-  // Handle text inside placeholders
   if (currentLang === 'uk') {
     document.getElementById('f-name').placeholder = 'наприклад, Редизайн додатку доставки';
     document.getElementById('f-task').placeholder = 'Опишіть своїми словами...';
@@ -1636,7 +1643,7 @@ function applyTranslations() {
     document.getElementById('f-refs').placeholder = 'наприклад, Bolt, Notion, Linear, Airbnb';
     document.getElementById('f-avoid').placeholder = 'наприклад, Стокові фото, червоний колір, важкі градієнти';
     document.getElementById('f-deadline').placeholder = 'наприклад, Кінець червня, якомога швидше, гнучкі терміни';
-    document.getElementById('f-notes').placeholder = 'Існуючі активи бренду, розмір команди, технічні обмеження...';
+    document.getElementById('f-notes').placeholder = 'Існуючі активи бренду, розмір команди, техничні обмеження...';
     document.getElementById('upload-text-container').innerHTML = '<strong>Натисніть для завантаження</strong> або перетягніть<br>PNG, JPG, GIF до 5 МБ кожен';
   } else {
     document.getElementById('f-name').placeholder = 'e.g. Delivery app redesign';
@@ -1651,9 +1658,35 @@ function applyTranslations() {
   }
 }
 
-// Apply on load
-document.addEventListener('DOMContentLoaded', () => {
-  setLang(currentLang);
+function handleInitialRouting() {
+  const path = window.location.pathname;
+
+  if (path.startsWith('/ua')) {
+    setLang('uk', false);
+  } else if (path.startsWith('/en')) {
+    setLang('en', false);
+  } else {
+    setLang(localStorage.getItem('briefify_lang') || 'en', false);
+  }
+
+  if (path === '/login') {
+    showScreen('auth-screen');
+    showAuthTab('login');
+  } else if (path === '/signup') {
+    showScreen('auth-screen');
+    showAuthTab('signup');
+  } else if (path === '/mybriefs') {
+    showScreen('dashboard-screen');
+  } else if (path.match(/^\/brief\/([a-zA-Z0-9_-]+)$/)) {
+    loadBriefFromUrl();
+  } else {
+    showScreen('landing');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+  handleInitialRouting();
 });
 
 </script>
