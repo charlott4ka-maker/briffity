@@ -1691,15 +1691,22 @@ function handleInitialRouting() {
   if (path === '/login') { showScreen('auth-screen'); showAuthTab('login'); }
   else if (path === '/signup') { showScreen('auth-screen'); showAuthTab('signup'); }
   else if (path === '/forgot') { showScreen('auth-screen'); showAuthTab('forgot'); }
-  else if (path === '/mybriefs') showScreen('dashboard-screen');
+  else if (path === '/mybriefs') {
+    if (!currentUser) {
+      navigateTo('auth-screen', '/login');
+    } else {
+      showScreen('dashboard-screen');
+    }
+  }
   else if (path.match(/^\/brief\/([a-zA-Z0-9_\-]+)$/)) loadBriefFromUrl();
   else showScreen('landing');
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  initAuth();
-  handleInitialRouting();
+window.addEventListener('DOMContentLoaded', async () => {
+  await initAuth(); // Сначала дожидаемся проверки сессии Supabase
+  handleInitialRouting(); // Только потом включаем нужный экран
 });
+  
 window.addEventListener('popstate', handleInitialRouting);
 </script>
 </body>
