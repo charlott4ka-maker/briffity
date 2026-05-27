@@ -242,8 +242,8 @@ h1 em{color:var(--accent);font-style:italic}
       <button class="lang-btn" id="lang-uk" onclick="setLang('uk')">УК</button>
     </div>
     <div class="nav-right" id="nav-guest">
-      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="navigateTo('auth-screen', '/login');showAuthTab('login')">Sign in</button>
-      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="navigateTo('auth-screen', '/signup');showAuthTab('signup')">Sign up</button>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="navigateTo('auth-screen', '/login')">Sign in</button>
+      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="navigateTo('auth-screen', '/signup')">Sign up</button>
     </div>
     <div class="nav-right user-menu" id="nav-user" style="display:none">
       <span class="user-email" id="nav-user-email"></span>
@@ -311,8 +311,8 @@ h1 em{color:var(--accent);font-style:italic}
         <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
       </div>
       <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn" data-i18n="nav.signin">Sign in</button>
-      <p class="auth-switch"><span data-i18n="auth.noaccount">No account?</span> <a onclick="showAuthTab('signup')" data-i18n="auth.createone">Create one</a></p>
-      <p class="auth-switch" style="margin-top:8px"><a onclick="showAuthTab('forgot')" data-i18n="auth.forgotlink">Forgot password?</a></p>
+      <p class="auth-switch"><span data-i18n="auth.noaccount">No account?</span> <a onclick="navigateTo('auth-screen', '/signup')" data-i18n="auth.createone">Create one</a></p>
+      <p class="auth-switch" style="margin-top:8px"><a onclick="navigateTo('auth-screen', '/forgot')" data-i18n="auth.forgotlink">Forgot password?</a></p>
     </div>
     <div id="auth-signup" style="display:none">
       <h2><span data-i18n="auth.signup_title">Create account</span></h2>
@@ -332,7 +332,7 @@ h1 em{color:var(--accent);font-style:italic}
         <input type="password" id="signup-password2" placeholder="Repeat password" autocomplete="new-password">
       </div>
       <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn" data-i18n="auth.signup_btn">Create account</button>
-      <p class="auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a onclick="showAuthTab('login')" data-i18n="nav.signin">Sign in</a></p>
+      <p class="auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</a></p>
     </div>
     <div id="auth-forgot" style="display:none">
       <h2><span data-i18n="auth.forgot_title">Reset password</span></h2>
@@ -344,7 +344,7 @@ h1 em{color:var(--accent);font-style:italic}
         <input type="email" id="forgot-email" placeholder="you@example.com">
       </div>
       <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn" data-i18n="auth.send_reset">Send reset link</button>
-      <p class="auth-switch"><a onclick="showAuthTab('login')" data-i18n="auth.back_signin">← Back to sign in</a></p>
+      <p class="auth-switch"><a onclick="navigateTo('auth-screen', '/login')" data-i18n="auth.back_signin">← Back to sign in</a></p>
     </div>
   </div>
 </div>
@@ -519,8 +519,8 @@ h1 em{color:var(--accent);font-style:italic}
       <strong><span data-i18n="banner.title">⚠ You're not signed in.</span></strong> <span data-i18n="banner.text">This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.</span>
     </div>
     <div class="guest-banner-actions">
-      <button class="btn btn-secondary btn-xs" onclick="navigateTo('auth-screen', '/login');showAuthTab('login')" data-i18n="nav.signin">Sign in</button>
-      <button class="btn btn-accent btn-xs" onclick="navigateTo('auth-screen', '/signup');showAuthTab('signup')" data-i18n="banner.signup">Create account</button>
+      <button class="btn btn-secondary btn-xs" onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</button>
+      <button class="btn btn-accent btn-xs" onclick="navigateTo('auth-screen', '/signup')" data-i18n="banner.signup">Create account</button>
     </div>
   </div>
 
@@ -683,7 +683,7 @@ async function initAuth() {
         if (active && active.id === 'auth-screen') handleInitialRouting();
       }
       if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
-      if (event === 'PASSWORD_RECOVERY') { showScreen('auth-screen'); showAuthTab('reset'); }
+      if (event === 'PASSWORD_RECOVERY') { navigateTo('auth-screen', '/forgot'); }
     });
 
     const { data: { session } } = await _supabase.auth.getSession();
@@ -827,6 +827,13 @@ function navigateTo(screenId, urlPath) {
   showScreen(screenId);
   if (urlPath) {
     window.history.pushState({}, '', urlPath);
+  }
+  
+  // Если переходим на форму авторизации, активируем нужную вкладку на базе URL
+  if (screenId === 'auth-screen' && urlPath) {
+    if (urlPath === '/login') showAuthTab('login');
+    if (urlPath === '/signup') showAuthTab('signup');
+    if (urlPath === '/forgot') showAuthTab('forgot');
   }
 }
 
@@ -1471,7 +1478,7 @@ const TRANSLATIONS = {
     'landing.demo': 'Приклад',
     'landing.templates': 'Або оберіть шаблон',
     'tpl.mobile': 'Мобільний застосунок',
-    'tpl.mobile_desc': 'iOS / Android дизайн',
+    'tpl.mobile_desc': 'iOS / Android design',
     'tpl.saas': 'Вебсайт / SaaS',
     'tpl.saas_desc': 'Дашборд, продуктовий UI',
     'tpl.brand': 'Брендинг',
@@ -1518,7 +1525,7 @@ const TRANSLATIONS = {
     'fields.avoid': 'Чого варто уникати',
     'fields.budget': 'Бюджетний діапазон',
     'fields.deadline': 'Терміни / Дедлайн',
-    'fields.notes': 'Що ще потрібно знати дизайнеру?',
+    'fields.notes': 'Що ще нужно знати дизайнеру?',
     'val.name': 'Будь ласка, вкажіть назву проєкту',
     'val.task': 'Будь ласка, опишіть завдання проєкту',
     'tips.task': 'Це оновлення чогось існуючого чи дизайн з нуля? Це змінює весь підхід до роботи.',
@@ -1553,7 +1560,7 @@ const TRANSLATIONS = {
     'budget.full': 'Повний цикл дизайну',
     'budget.complex': 'Складний / Постійний',
     'banner.title': '⚠ Ви не авторизовані.',
-    'banner.text': 'Цей бриф не буде збережено у вашому профілі, ви не зможете поділитися посиланням на нього та редагувати його пізніше.',
+    'banner.text': 'Цей бриф не буде збережено у вашому профілі, ви не зможете поділитися посиланням на нього та не зможете редагувати його пізніше.',
     'banner.signup': 'Створити акаунт',
     'result.copy': '⇢ Скопіювати бриф',
     'result.pdf': '↓ Експорт PDF',
@@ -1569,7 +1576,7 @@ const TRANSLATIONS = {
     'card.notes': 'Додаткові нотатки',
     'summary.generate_btn': 'Згенерувати AI-підсумок',
     'modal.export_title': 'Експорт у PDF',
-    'modal.export_text': 'Ваш бриф відкриється в режимі друку — збережіть його как PDF або надішліть на друк.',
+    'modal.export_text': 'Ваш бриф відкриється в режимі друку — збережіть його як PDF або надішліть на друк.',
     'modal.cancel': 'Скасувати',
     'modal.print_btn': 'Друкувати / Зберегти PDF',
     'modal.link_title': 'Ваше публічне посилання',
@@ -1617,13 +1624,6 @@ function setLang(lang, updateUrl = true) {
   }
 }
 
-function navigateTo(screenId, urlPath) {
-  showScreen(screenId);
-  if (urlPath) {
-    window.history.pushState({}, '', urlPath);
-  }
-}
-
 function t(key) {
   return TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS['en'][key] || key;
 }
@@ -1643,7 +1643,7 @@ function applyTranslations() {
     document.getElementById('f-refs').placeholder = 'наприклад, Bolt, Notion, Linear, Airbnb';
     document.getElementById('f-avoid').placeholder = 'наприклад, Стокові фото, червоний колір, важкі градієнти';
     document.getElementById('f-deadline').placeholder = 'наприклад, Кінець червня, якомога швидше, гнучкі терміни';
-    document.getElementById('f-notes').placeholder = 'Існуючі активи бренду, розмір команди, техничні обмеження...';
+    document.getElementById('f-notes').placeholder = 'Існуючі активи бренду, розмір команди, технічні обмеження...';
     document.getElementById('upload-text-container').innerHTML = '<strong>Натисніть для завантаження</strong> або перетягніть<br>PNG, JPG, GIF до 5 МБ кожен';
   } else {
     document.getElementById('f-name').placeholder = 'e.g. Delivery app redesign';
@@ -1675,6 +1675,9 @@ function handleInitialRouting() {
   } else if (path === '/signup') {
     showScreen('auth-screen');
     showAuthTab('signup');
+  } else if (path === '/forgot') {
+    showScreen('auth-screen');
+    showAuthTab('forgot');
   } else if (path === '/mybriefs') {
     showScreen('dashboard-screen');
   } else if (path.match(/^\/brief\/([a-zA-Z0-9_-]+)$/)) {
