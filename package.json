@@ -7,11 +7,9 @@
     "@supabase/supabase-js": "^2.43.0",
     "nanoid": "^5.0.7"
   },
-  "devDependencies": {},
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'Building SPA...'", 
-    "deploy": "vercel --prod"
+    "build": "mkdir -p .vercel/output/static && cp index.html .vercel/output/static/index.html"
   },
   "engines": {
     "node": ">=18.x"
