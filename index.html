@@ -219,7 +219,7 @@ h1 em{color:var(--accent);font-style:italic}
 .user-menu .user-email{font-size:13px;color:var(--ink2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* GUEST BANNER */
-.guest-banner{display:none;background:var(--warn-light);border:1px solid rgba(184,92,0,.2);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.guest-banner{display:none;background:var(--warn-light);border:1px solid rgba(184,92,0,.2);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .guest-banner.show{display:flex}
 .guest-banner-text{font-size:13px;color:var(--warn);line-height:1.5}
 .guest-banner-text strong{font-weight:600}
@@ -384,8 +384,8 @@ h1 em{color:var(--accent);font-style:italic}
 
   <!-- Section 0: Project -->
   <div class="form-section active" id="section-0">
-    <div class="section-title">What's the project?</div>
-    <div class="section-sub">Give us the basics — we'll help sharpen the details</div>
+    <div class="section-title" data-i18n="section0.title">What's the project?</div>
+    <div class="section-sub" data-i18n="section0.sub">Give us the basics — we'll help sharpen the details</div>
     <div class="field" id="field-name">
       <label>Project name</label>
       <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
@@ -416,8 +416,8 @@ h1 em{color:var(--accent);font-style:italic}
 
   <!-- Section 1: Audience -->
   <div class="form-section" id="section-1">
-    <div class="section-title">Who is this for?</div>
-    <div class="section-sub">The audience shapes every design decision</div>
+    <div class="section-title" data-i18n="section1.title">Who is this for?</div>
+    <div class="section-sub" data-i18n="section1.sub">The audience shapes every design decision</div>
     <div class="field">
       <label>Target audience</label>
       <textarea id="f-audience" placeholder="Age, interests, tech level, pain points..." oninput="autosave();maybeShowTip('tip-audience',this.value,15)"></textarea>
@@ -502,9 +502,9 @@ h1 em{color:var(--accent);font-style:italic}
   </div>
 
   <div class="form-nav">
-    <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none">← Back</button>
+    <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none" data-i18n="form.back">← Back</button>
     <div></div>
-    <button class="btn btn-accent" id="btn-next" onclick="nextStep()">Continue →</button>
+    <button class="btn btn-accent" id="btn-next" onclick="nextStep()" data-i18n="form.continue">Continue →</button>
   </div>
 </div>
 
@@ -527,8 +527,8 @@ h1 em{color:var(--accent);font-style:italic}
       <strong><span data-i18n="banner.title">⚠ You're not signed in.</span></strong> <span data-i18n="banner.text">This brief won't be saved to your profile, you won't be able to share it with a link, and you won't be able to edit it later.</span>
     </div>
     <div class="guest-banner-actions">
-      <button class="btn btn-secondary btn-xs" onclick="showScreen('auth-screen');showAuthTab('login')">Sign in</button>
-      <button class="btn btn-accent btn-xs" onclick="showScreen('auth-screen');showAuthTab('signup')">Create account</button>
+      <button class="btn btn-secondary btn-xs" onclick="showScreen('auth-screen');showAuthTab('login')" data-i18n="nav.signin">Sign in</button>
+      <button class="btn btn-accent btn-xs" onclick="showScreen('auth-screen');showAuthTab('signup')" data-i18n="banner.signup">Create account</button>
     </div>
   </div>
 
@@ -536,26 +536,26 @@ h1 em{color:var(--accent);font-style:italic}
   <div class="ai-summary-wrap">
     <div class="ai-summary-label"><span data-i18n="result.ai_label">✦ AI summary</span></div>
     <div id="ai-summary-content">
-      <div class="ai-loading">Generating summary<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <div class="ai-loading"><span data-i18n="summary.generating">Generating summary</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
     </div>
   </div>
 
   <div class="brief-card">
-    <div class="brief-card-header"><div class="brief-card-icon" style="background:#EBF0FD">📋</div><div class="brief-card-label">Project overview</div></div>
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#EBF0FD">📋</div><div class="brief-card-label" data-i18n="card.overview">Project overview</div></div>
     <div class="brief-card-body"><p id="res-task"></p></div>
   </div>
   <div class="brief-grid">
     <div class="brief-card">
-      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">👥</div><div class="brief-card-label">Audience</div></div>
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">👥</div><div class="brief-card-label" data-i18n="card.audience">Audience</div></div>
       <div class="brief-card-body"><p id="res-audience"></p></div>
     </div>
     <div class="brief-card">
-      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FEF3E2">🎯</div><div class="brief-card-label">User goal</div></div>
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FEF3E2">🎯</div><div class="brief-card-label" data-i18n="card.goal">User goal</div></div>
       <div class="brief-card-body"><p id="res-goal"></p></div>
     </div>
   </div>
   <div class="brief-card">
-    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5EEFF">🎨</div><div class="brief-card-label">Style & references</div></div>
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5EEFF">🎨</div><div class="brief-card-label" data-i18n="card.style">Style & references</div></div>
     <div class="brief-card-body">
       <p id="res-style"></p>
       <div class="ref-result-grid" id="res-refs-imgs"></div>
@@ -563,21 +563,21 @@ h1 em{color:var(--accent);font-style:italic}
   </div>
   <div class="brief-grid">
     <div class="brief-card">
-      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FFF0F0">💰</div><div class="brief-card-label">Budget</div></div>
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FFF0F0">💰</div><div class="brief-card-label" data-i18n="card.budget">Budget</div></div>
       <div class="brief-card-body"><p id="res-budget"></p></div>
     </div>
     <div class="brief-card">
-      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">📅</div><div class="brief-card-label">Deadline</div></div>
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">📅</div><div class="brief-card-label" data-i18n="card.deadline">Deadline</div></div>
       <div class="brief-card-body"><p id="res-deadline"></p></div>
     </div>
   </div>
   <div class="brief-card" id="res-notes-card">
-    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5F2EC">📝</div><div class="brief-card-label">Additional notes</div></div>
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5F2EC">📝</div><div class="brief-card-label" data-i18n="card.notes">Additional notes</div></div>
     <div class="brief-card-body"><p id="res-notes"></p></div>
   </div>
   <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border2);display:flex;gap:10px">
     <button class="btn btn-secondary" onclick="goToStep(0)"><span data-i18n="result.edit">← Edit brief</span></button>
-    <button class="btn btn-primary" onclick="startBrief('blank',true)">+ New brief</button>
+    <button class="btn btn-primary" onclick="startBrief('blank',true)"><span data-i18n="result.new">+ New brief</span></button>
   </div>
 </div>
 
@@ -728,6 +728,10 @@ function updateNavAuth() {
 }
 
 function goHome() {
+  if (window.location.pathname !== '/') {
+    window.location.href = '/';
+    return;
+  }
   showScreen('landing');
 }
 
@@ -1209,11 +1213,13 @@ async function loadBriefFromUrl() {
 
     if (d.aiSummary) {
       aiSummaryText = d.aiSummary;
-      const summaryEl = document.getElementById('ai-summary-text');
-      if (summaryEl) summaryEl.textContent = d.aiSummary;
-      const summaryCard = document.getElementById('ai-summary-card');
-      if (summaryCard) summaryCard.style.display = 'block';
+      document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${d.aiSummary}</div>`;
+      document.getElementById('pdf-summary').textContent = d.aiSummary;
+    } else {
+      document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text" style="color:var(--ink2)" data-i18n="summary.na">${t('summary.na')}</div>`;
     }
+    const summaryCard = document.querySelector('.ai-summary-wrap');
+    if (summaryCard) summaryCard.style.display = 'block';
   } catch(e) {
     document.getElementById('res-project-name').textContent = 'Failed to load brief';
     document.getElementById('res-task').textContent = 'Please check your connection and try again.';
