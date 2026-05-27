@@ -7,7 +7,19 @@
       "destination": "/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ua",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/brief/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!js|css|assets|api).*)",
       "destination": "/index.html"
     }
   ]
