@@ -21,7 +21,8 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please wait a minute.' });
   }
 
-  const { briefText } = req.body;
+  // 1. Принимаем systemInstruction из запроса фронтенда
+  const { briefText, systemInstruction } = req.body;
   if (!briefText || typeof briefText !== 'string') {
     return res.status(400).json({ error: 'briefText is required' });
   }
@@ -32,6 +33,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'AI summarization is not configured' });
   }
 
+  // 2. Формируем дефолтную системную инструкцию, если фронтенд её вдруг не прислал
+  const defaultInstruction = "You are a senior UX designer reviewing a client design brief. Write a concise professional summary of 3 complete sentences. Cover: (1) the core project goal and audience, (2) key style and technical constraints, (3) one important risk or thing to watch out for. Always finish all 3 sentences completely. Be direct and useful.";
+  const activeSystemInstruction = systemInstruction || defaultInstruction;
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -39,14 +44,18 @@ module.exports = async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Передаем системные инструкции в правильном для Gemini API формате
+          systemInstruction: {
+            parts: [{ text: activeSystemInstruction }]
+          },
           contents: [{
             parts: [{
-              text: `You are a senior UX designer reviewing a client design brief. Write a concise professional summary of 3 complete sentences. Cover: (1) the core project goal and audience, (2) key style and technical constraints, (3) one important risk or thing to watch out for. Always finish all 3 sentences completely. Be direct and useful.\n\nBrief:\n${trimmed}`
+              text: `Brief:\n${trimmed}`
             }]
           }],
           generationConfig: {
             maxOutputTokens: 500,
-            temperature: 0.4,
+            temperature: 0.3, // Немного снизил для большей точности выполнения инструкций
             stopSequences: []
           }
         })
