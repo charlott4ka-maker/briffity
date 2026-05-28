@@ -362,11 +362,12 @@ h1 em{color:var(--accent);font-style:italic}
   flex-shrink: 0;
 }
 
-/* Десктопная обертка */
+/* Десктопная обертка точек */
 .brief-item-menu-wrap {
   position: relative;
   display: inline-block;
 }
+
 .brief-item-dots {
   background: none;
   border: 1px solid transparent;
@@ -379,16 +380,19 @@ h1 em{color:var(--accent);font-style:italic}
   transition: all .15s;
   opacity: 0;
 }
+
+/* На десктопе показываем точки при наведении на карточку */
 .brief-item:hover .brief-item-dots {
   opacity: 1;
 }
+
 .brief-item-dots:hover {
   background: var(--bg);
   border-color: var(--border);
   color: var(--ink);
 }
 
-/* Стили выпадающего меню на десктопе */
+/* ФИКС НАЛОЖЕНИЯ: Стили выпадающего меню на десктопе */
 .card-menu {
   position: absolute;
   top: calc(100% + 4px);
@@ -398,12 +402,16 @@ h1 em{color:var(--accent);font-style:italic}
   border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  z-index: 160;
+  z-index: 9999 !important; /* Максимальный приоритет */
   min-width: 160px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.13);
+  box-shadow: 0 10px 30px rgba(26,24,20,0.15); /* Более глубокая тень, чтобы приподнять меню */
   display: none;
 }
-.card-menu.open { display: block; }
+
+.card-menu.open { 
+  display: block; 
+}
+
 .card-menu-item {
   display: flex;
   align-items: center;
@@ -414,6 +422,7 @@ h1 em{color:var(--accent);font-style:italic}
   transition: background .12s;
   color: var(--ink);
 }
+
 .card-menu-item:hover { background: var(--bg); }
 .card-menu-item.danger { color: #c0392b; }
 .card-menu-item.danger:hover { background: #fff0f0; }
@@ -426,31 +435,27 @@ h1 em{color:var(--accent);font-style:italic}
 
 /* АДАПТИВ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
 @media(max-width: 768px) {
-  nav { padding: 14px 20px; }
-  .nav-right, .user-menu { display: none !important; }
-  .burger-btn { display: flex; }
-
-  /* 1. Скрываем десктопное троеточие полностью */
+  /* Скрываем десктопное троеточие полностью */
   .desktop-only-actions {
     display: none !important;
   }
 
-  /* 2. Показываем мобильные кнопки в ряд */
+  /* Показываем мобильные кнопки в ряд */
   .mobile-card-actions {
     display: flex !important;
   }
 
-  /* 3. Красивые стили для мобильных иконок */
+  /* Стили для мобильных иконок-кнопок */
   .action-icon-btn {
     background: var(--surface);
-    border: 1px solid var(--border2);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 14px;
     cursor: pointer;
     transition: background 0.1s, transform 0.1s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
@@ -460,15 +465,14 @@ h1 em{color:var(--accent);font-style:italic}
     transform: scale(0.95);
   }
 
-  /* Стили для кнопки редактирования */
   .action-icon-btn.edit-btn:active {
     background: var(--bg);
   }
 
-  /* Стили для кнопки удаления (подсвечиваем легким красным при клике) */
   .action-icon-btn.delete-btn {
     border-color: rgba(192, 57, 43, 0.2);
   }
+  
   .action-icon-btn.delete-btn:active {
     background: #fff0f0;
     border-color: #c0392b;
@@ -1978,23 +1982,23 @@ async function editBriefFromDash(slug) {
 
 // toggleCardMenu for dots button
 function toggleCardMenu(menuId, e) {
-  if (e && typeof e.stopPropagation === 'function') {
-    e.stopPropagation(); // Отменяем переход по ссылке самой карточки при клике на точки
-  }
-  
+  e.stopPropagation();
+  const btn = e.currentTarget;
   const menu = document.getElementById(menuId);
   if (!menu) return;
-  
   const wasOpen = menu.classList.contains('open');
-  closeAllCardMenus(); // Закрываем остальные открытые менюшки
+  
+  closeAllCardMenus();
   
   if (!wasOpen) {
+    // Находим родительскую карточку и поднимаем её z-index над остальными
+    const card = btn.closest('.brief-item');
+    if (card) card.style.zIndex = '999';
+
     menu.classList.add('open');
     
-    // Небольшая проверка на случай, если карточка находится в самом низу экрана:
-    // Если меню не влезает вниз, открываем его наверх (bottom: 100%)
     const rect = menu.getBoundingClientRect();
-    if (rect.bottom > window.innerHeight) {
+    if (rect.bottom > window.innerHeight - 8) {
       menu.style.top = 'auto';
       menu.style.bottom = 'calc(100% + 4px)';
     } else {
@@ -2005,6 +2009,8 @@ function toggleCardMenu(menuId, e) {
 }
 function closeAllCardMenus() {
   document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
+  // Сбрасываем z-index у всех карточек панели
+  document.querySelectorAll('.brief-item').forEach(card => card.style.zIndex = '');
 }
 
 // toggleMobileMenu
