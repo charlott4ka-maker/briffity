@@ -110,9 +110,9 @@ h1 em{color:var(--accent);font-style:italic}
 .ai-tip.visible{opacity:1;max-height:80px}
 
 .tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
-.tag{padding:7px 14px;border-radius:100px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--ink2);user-select:none}
-.tag:hover{border-color:var(--accent);color:var(--accent)}
-.tag.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag{padding:7px 14px;border-radius:100px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:background 0s,border-color .12s,color 0s;background:var(--surface);color:var(--ink2);user-select:none}
+.tag:hover:not(.selected){border-color:var(--accent);color:var(--accent)}
+.tag.selected{background:var(--accent);border-color:var(--accent);color:#fff;transition:none}
 
 .budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .budget-option{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .15s;background:var(--surface)}
@@ -344,7 +344,7 @@ h1 em{color:var(--accent);font-style:italic}
 .brief-item-dots{background:none;border:1px solid transparent;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:16px;color:var(--ink3);line-height:1;transition:all .15s;opacity:0}
 .brief-item:hover .brief-item-dots{opacity:1}
 .brief-item-dots:hover{background:var(--bg);border-color:var(--border);color:var(--ink)}
-.card-menu{position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:50;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,.1);display:none}
+.card-menu{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:160;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,.13);display:none}
 .card-menu.open{display:block}
 .card-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;color:var(--ink)}
 .card-menu-item:hover{background:var(--bg)}
@@ -1090,10 +1090,10 @@ async function loadDashboard() {
             <span class="brief-item-status ${statusClass}">${statusLabel}</span>
           </div>
           <div class="brief-item-menu-wrap" onclick="event.stopPropagation()">
-            <button class="brief-item-dots" onclick="toggleCardMenu('menu-${b.slug}')" aria-label="Options">⋯</button>
+            <button class="brief-item-dots" onclick="toggleCardMenu('menu-${b.slug}',this)" aria-label="Options">⋯</button>
             <div class="card-menu" id="menu-${b.slug}">
-              <div class="card-menu-item" onclick="editBriefFromDash('${b.slug}')">✏️ ${isUk ? 'Редагувати' : 'Edit'}</div>
-              <div class="card-menu-item danger" onclick="askDelete('${b.slug}')">🗑 ${isUk ? 'Видалити' : 'Delete'}</div>
+              <div class="card-menu-item" onclick="closeAllCardMenus();editBriefFromDash('${b.slug}')">✏️ ${isUk ? 'Редагувати' : 'Edit'}</div>
+              <div class="card-menu-item danger" onclick="closeAllCardMenus();askDelete('${b.slug}')">🗑 ${isUk ? 'Видалити' : 'Delete'}</div>
             </div>
           </div>
         </div>
@@ -1591,7 +1591,7 @@ document.addEventListener('click', e => {
     menu.classList.remove('open');
   }
   if (!e.target.closest('.brief-item-menu-wrap')) {
-    document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
+    closeAllCardMenus();
   }
   if (!e.target.closest('.mobile-menu') && !e.target.closest('.burger-btn')) {
     closeMobileMenu();
@@ -1834,13 +1834,20 @@ async function editBriefFromDash(slug) {
 }
 
 // toggleCardMenu for dots button
-function toggleCardMenu(menuId) {
+function toggleCardMenu(menuId, btn) {
   const menu = document.getElementById(menuId);
   if (!menu) return;
   const wasOpen = menu.classList.contains('open');
-  // Close all
+  closeAllCardMenus();
+  if (!wasOpen) {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.classList.add('open');
+  }
+}
+function closeAllCardMenus() {
   document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
-  if (!wasOpen) menu.classList.add('open');
 }
 
 // toggleMobileMenu
