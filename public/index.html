@@ -337,18 +337,23 @@ h1 em{color:var(--accent);font-style:italic}
 .mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:10px;z-index:150;box-shadow:0 8px 24px rgba(26,24,20,.12);animation:slideDown .2s ease}
 .mobile-menu.open{display:flex}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.mobile-menu > div[style*="display: block"], 
-.mobile-menu > div:not([style*="display: none"]) {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
+.mobile-menu #mobile-guest, 
+.mobile-menu #mobile-user {
+  display: none;
+  flex-direction: column;
+  gap: 0;
   width: 100%;
 }
+
+.mobile-menu .active-block {
+  display: flex !important;
+}
+
 .mobile-menu .btn{display:flex!important;justify-content:center;width:100%!important;padding:14px 20px!important;font-size:15px;margin-bottom:10px!important}
 .mobile-menu .btn:last-child{margin-bottom:0!important}
 .mobile-menu .user-email-mobile+.btn{margin-top:2px}
 .mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
+  
 /* CARD CONTEXT MENU (⋯) */
 .brief-item-menu-wrap{position:relative;flex-shrink:0}
 .brief-item-dots{background:none;border:1px solid transparent;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:16px;color:var(--ink3);line-height:1;transition:all .15s;opacity:0}
@@ -396,7 +401,7 @@ h1 em{color:var(--accent);font-style:italic}
     <button class="btn btn-secondary" onclick="closeMobileMenu();navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</button>
     <button class="btn btn-accent" onclick="closeMobileMenu();navigateTo('auth-screen', '/signup')" data-i18n="nav.signup">Sign up</button>
   </div>
-  <div id="mobile-user" style="display:none">
+  <div id="mobile-user">
     <div class="user-email-mobile" id="mobile-user-email"></div>
     <button class="btn btn-secondary" onclick="closeMobileMenu();navigateTo('dashboard-screen', '/mybriefs')" data-i18n="nav.mybriefs">My briefs</button>
     <button class="btn btn-secondary" onclick="closeMobileMenu();signOut()" data-i18n="nav.signout">Sign out</button>
@@ -917,18 +922,28 @@ function updateNavAuth() {
   const navUser = document.getElementById('nav-user');
   const mobileGuest = document.getElementById('mobile-guest');
   const mobileUser = document.getElementById('mobile-user');
+  
   if (currentUser) {
+    // Десктоп
     navGuest.style.display = 'none';
     navUser.style.display = 'flex';
     const email = currentUser.email || '';
     document.getElementById('nav-user-email').textContent = email;
-    if (mobileGuest) mobileGuest.style.display = 'none';
-    if (mobileUser) { mobileUser.style.display = 'block'; document.getElementById('mobile-user-email').textContent = email; }
+    
+    // Мобилка (Фикс переключения классов)
+    if (mobileGuest) mobileGuest.classList.remove('active-block');
+    if (mobileUser) { 
+      mobileUser.classList.add('active-block'); 
+      document.getElementById('mobile-user-email').textContent = email; 
+    }
   } else {
+    // Десктоп
     navGuest.style.display = 'flex';
     navUser.style.display = 'none';
-    if (mobileGuest) mobileGuest.style.display = 'block';
-    if (mobileUser) mobileUser.style.display = 'none';
+    
+    // Мобилка (Фикс переключения классов)
+    if (mobileGuest) mobileGuest.classList.add('active-block');
+    if (mobileUser) mobileUser.classList.remove('active-block');
   }
 }
 
