@@ -336,7 +336,8 @@ h1 em{color:var(--accent);font-style:italic}
 .mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:10px;z-index:150;box-shadow:0 8px 24px rgba(26,24,20,.12);animation:slideDown .2s ease}
 .mobile-menu.open{display:flex}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.mobile-menu .btn{justify-content:center;width:100%}
+.mobile-menu .btn{justify-content:center;width:100%;padding-top:12px;padding-bottom:12px}
+.mobile-menu > div{display:flex;flex-direction:column;gap:10px;width:100%}
 .mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* CARD CONTEXT MENU (⋯) */
@@ -1840,9 +1841,25 @@ function toggleCardMenu(menuId, btn) {
   const wasOpen = menu.classList.contains('open');
   closeAllCardMenus();
   if (!wasOpen) {
+    // First make visible off-screen to measure width
+    menu.style.visibility = 'hidden';
+    menu.style.display = 'block';
+    const menuW = menu.offsetWidth;
+    menu.style.display = '';
+    menu.style.visibility = '';
+
     const rect = btn.getBoundingClientRect();
-    menu.style.top = (rect.bottom + 6) + 'px';
-    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    let top = rect.bottom + 6;
+    let left = rect.right - menuW;
+
+    // Keep inside viewport
+    if (left < 8) left = 8;
+    if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+    if (top + 100 > window.innerHeight) top = rect.top - 100 - 6;
+
+    menu.style.top = top + 'px';
+    menu.style.left = left + 'px';
+    menu.style.right = 'auto';
     menu.classList.add('open');
   }
 }
