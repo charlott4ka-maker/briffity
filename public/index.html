@@ -837,19 +837,14 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
   </div>
 
-  <!-- AI Summary — Premium -->
-  <div class="ai-summary-wrap" style="position:relative;overflow:hidden;">
-    <div class="ai-summary-label">✦ AI summary</div>
-    <div style="filter:blur(4px);pointer-events:none;user-select:none;color:var(--ink2);font-size:15px;line-height:1.7;">
-      This is a mobile app redesign project focused on improving the ordering flow for urban professionals aged 25–38. The goal is to reduce order completion time to under 2 minutes with a minimal and modern aesthetic.
-    </div>
-    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.7);backdrop-filter:blur(2px);border-radius:var(--radius);gap:10px;">
-      <div style="font-size:18px;">✦</div>
-      <div style="font-weight:600;font-size:15px;color:var(--ink);" data-i18n="premium.summary_title">AI summary — Premium</div>
-      <div style="font-size:13px;color:var(--ink2);text-align:center;max-width:240px;" data-i18n="premium.summary_sub">Upgrade to get an instant AI-generated brief summary</div>
-      <button class="btn btn-primary btn-sm" style="margin-top:4px;" data-i18n="premium.upgrade_btn">Upgrade to Pro</button>
+  <!-- AI Summary — hidden until Premium is ready
+  <div class="ai-summary-wrap">
+    <div class="ai-summary-label"><span data-i18n="result.ai_label">✦ AI summary</span></div>
+    <div id="ai-summary-content">
+      <div class="ai-loading" id="ai-auto-loading"><span data-i18n="ai.generating">Generating summary</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
     </div>
   </div>
+  -->
 
   <div class="brief-card">
     <div class="brief-card-header"><div class="brief-card-icon" style="background:#EBF0FD">📋</div><div class="brief-card-label" data-i18n="card.overview">Project overview</div></div>
