@@ -89,7 +89,7 @@ module.exports = async function handler(req, res) {
     if (user_id) {
       const { data, error } = await supabase
         .from('briefs')
-        .select('id, slug, data, created_at')
+        .select('id, slug, data, created_at, status, ai_summary')
         .eq('user_id', user_id)
         .order('created_at', { ascending: false });
 
