@@ -4,8 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Briffity — Design Brief Generator</title>
+<meta name="description" content="AI-powered design brief generator. Fill a smart form — get a professional brief with AI summary, shareable link and PDF export in 2 minutes.">
+<meta name="theme-color" content="#F5F2EC">
+<meta property="og:title" content="Briffity — Design Brief Generator">
+<meta property="og:description" content="Stop chasing client info. Generate a professional design brief in 2 minutes with AI hints, reference uploads and PDF export.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   --bg: #F5F2EC;
@@ -91,7 +100,8 @@ h1 em{color:var(--accent);font-style:italic}
 .section-sub{font-size:14px;color:var(--ink2);margin-bottom:26px}
 
 .field{margin-bottom:20px}
-.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.field label{display:block;font-size:12px;font-weight:500;color:#5A5652;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.required-mark{color:#c0392b;margin-left:2px}
 .field input,.field textarea,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;transition:border-color .2s;resize:none}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
 .field textarea{height:96px}
@@ -159,10 +169,10 @@ h1 em{color:var(--accent);font-style:italic}
 .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 .brief-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
-.brief-card-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border2);background:var(--bg)}
-.brief-card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
-.brief-card-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2)}
-.brief-card-body{padding:14px 16px}
+.brief-card-header{display:flex;align-items:center;gap:10px;padding:14px 16px 8px;background:var(--surface)}
+.brief-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.brief-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.brief-card-body{padding:4px 16px 16px 54px}
 .brief-card-body p{font-size:15px;color:var(--ink);line-height:1.65;white-space:pre-wrap}
 .brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 
@@ -272,21 +282,43 @@ h1 em{color:var(--accent);font-style:italic}
 .dashboard-header h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px}
 .briefs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .brief-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:all .18s;position:relative}
-.brief-item:hover{border-color:var(--accent);transform:translateY(-2px)}
-.brief-item-name{font-weight:500;font-size:15px;margin-bottom:4px}
-.brief-item-meta{font-size:12px;color:var(--ink3);margin-bottom:10px}
-.brief-item-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brief-item-tag{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
-.brief-item-delete{opacity:0;transition:opacity .15s;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:16px;padding:2px 6px;border-radius:4px}
+.brief-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 16px rgba(45,91,227,.08)}
+.brief-item-name{font-weight:500;font-size:15px;margin-bottom:3px}
+.brief-item-meta{font-size:12px;color:#7A7672;margin-bottom:10px}
+.brief-item-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.brief-item-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.brief-item-tag{display:inline-flex;align-items:center;gap:4px;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
+.brief-item-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
+.brief-item-status.s-draft{background:var(--bg);color:#7A7672;border:1px solid var(--border)}
+.brief-item-status.s-sent{background:#EBF0FD;color:var(--accent)}
+.brief-item-status.s-filled{background:var(--warn-light);color:var(--warn)}
+.brief-item-status.s-approved{background:var(--success-light);color:var(--success)}
+.brief-item-delete{opacity:0;transition:opacity .15s;background:none;border:none;cursor:pointer;color:#7A7672;font-size:16px;padding:2px 6px;border-radius:4px}
 .brief-item:hover .brief-item-delete{opacity:1}
 .brief-item-delete:hover{color:#c0392b}
+
+/* SKELETON LOADER */
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.skeleton-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px}
+.skeleton-line{background:linear-gradient(90deg,var(--border) 25%,rgba(26,24,20,.04) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;height:14px;margin-bottom:8px}
+.skeleton-line.short{width:40%}
+.skeleton-line.medium{width:65%}
+.skeleton-line.full{width:100%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .empty-state{text-align:center;padding:60px 20px;color:var(--ink2);max-width:340px;margin:0 auto}
 .empty-state .empty-icon{font-size:36px;margin-bottom:12px}
 .empty-state p{margin-bottom:20px;font-size:15px}
 .user-menu{position:relative;display:flex;align-items:center;gap:8px}
 .user-menu .user-email{font-size:13px;color:var(--ink2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* LANG SWITCHER */
+/* QUOTA BANNER */
+.quota-banner{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px}
+.quota-banner.quota-full{border-color:rgba(184,92,0,.3);background:var(--warn-light)}
+.quota-banner-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap}
+.quota-banner-text{font-size:13px;color:var(--ink2)}
+.quota-banner-count{font-size:12px;font-weight:500}
+.quota-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.quota-bar-fill{height:100%;border-radius:2px;transition:width .4s}
 .lang-switcher{display:flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:3px;gap:2px}
 .lang-btn{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
 .lang-btn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -465,12 +497,12 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="section-title" data-i18n="section0.title">What's the project?</div>
     <div class="section-sub" data-i18n="section0.sub">Give us the basics — we'll help sharpen the details</div>
     <div class="field" id="field-name">
-      <label data-i18n="fields.project_name">Project name</label>
-      <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
+      <label data-i18n="fields.project_name">Project name<span class="required-mark">*</span></label>
+      <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" autocomplete="off" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
       <div class="validation-msg" data-i18n="val.name">Please give your project a name</div>
     </div>
     <div class="field" id="field-task">
-      <label data-i18n="fields.task">What needs to be done?</label>
+      <label data-i18n="fields.task">What needs to be done?<span class="required-mark">*</span></label>
       <textarea id="f-task" placeholder="Describe in your own words..." oninput="autosave();maybeShowTip('tip-task',this.value,20)"></textarea>
       <div class="ai-tip" id="tip-task">
         <span style="flex-shrink:0">✦</span>
@@ -506,7 +538,7 @@ h1 em{color:var(--accent);font-style:italic}
     </div>
     <div class="field">
       <label data-i18n="fields.goal">Key user goal — what should they do in 1 sentence?</label>
-      <input type="text" id="f-goal" placeholder="e.g. Order food in under 2 minutes" oninput="autosave()">
+      <input type="text" id="f-goal" placeholder="e.g. Order food in under 2 minutes" autocomplete="off" oninput="autosave()">
     </div>
     <div class="field">
       <label data-i18n="fields.competitors">Competitors or similar products</label>
@@ -625,7 +657,7 @@ h1 em{color:var(--accent);font-style:italic}
   <!-- Save wall for guests — shown after brief is generated -->
   <div class="save-wall" id="save-wall" style="display:none">
     <h3 data-i18n="savewall.title">Save your brief</h3>
-    <p data-i18n="savewall.text">Create a free account to save this brief, get a shareable link, and track its status — takes 30 seconds.</p>
+    <p data-i18n="savewall.text">Create a free account to save this brief and get a shareable link. Free plan includes 3 briefs. Pro plan — coming soon 🚀</p>
     <div class="save-wall-btns">
       <button class="btn btn-secondary" onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</button>
       <button class="btn btn-accent" onclick="navigateTo('auth-screen', '/signup')" data-i18n="savewall.cta">Create free account →</button>
@@ -688,12 +720,12 @@ h1 em{color:var(--accent);font-style:italic}
 <!-- EXPORT MODAL -->
 <div class="modal-overlay" id="export-modal">
   <div class="modal">
-    <div class="modal-icon" style="background:var(--success-light)">✓</div>
+    <div class="modal-icon" style="background:var(--success-light)">↓</div>
     <h3 data-i18n="modal.export_title">Export as PDF</h3>
-    <p data-i18n="modal.export_text">Your brief will open in print mode — save it as PDF or send to a printer.</p>
+    <p data-i18n="modal.export_text">Your brief will be downloaded as a PDF file directly to your device.</p>
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeModal('export-modal')" data-i18n="modal.cancel">Cancel</button>
-      <button class="btn btn-accent" onclick="exportPDF()" data-i18n="modal.print_btn">Print / Save PDF</button>
+      <button class="btn btn-accent" onclick="exportPDF()" id="export-pdf-btn" data-i18n="modal.print_btn">↓ Download PDF</button>
     </div>
   </div>
 </div>
@@ -932,10 +964,15 @@ async function signOut() {
 async function loadDashboard() {
   if (!currentUser) { navigateTo('auth-screen', '/login'); return; }
   const container = document.getElementById('briefs-list');
-  container.innerHTML = `<p style="color:var(--ink2);font-size:14px">${currentLang === 'uk' ? 'Завантаження…' : 'Loading…'}</p>`;
+  // Show skeleton loader
+  container.innerHTML = `<div class="skeleton-grid">${[1,2,3].map(()=>`
+    <div class="skeleton-card">
+      <div class="skeleton-line medium" style="margin-bottom:10px"></div>
+      <div class="skeleton-line short" style="margin-bottom:14px"></div>
+      <div class="skeleton-line short"></div>
+    </div>`).join('')}</div>`;
   
   try {
-    // Делаем запрос к нашему бэкенду Vercel и передаем ID юзера
     const resp = await fetch(`/api/briefs?user_id=${encodeURIComponent(currentUser.id)}`);
     
     if (!resp.ok) {
@@ -948,40 +985,61 @@ async function loadDashboard() {
     const FREE_LIMIT = 3;
     const used = data.length;
     const quotaEl = document.getElementById('briefs-quota');
-    if (used < FREE_LIMIT) {
-      const left = FREE_LIMIT - used;
-      const isUk = currentLang === 'uk';
-      const pct = Math.round((used / FREE_LIMIT) * 100);
-      quotaEl.style.display = 'block';
-      quotaEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:13px;color:var(--ink2)">${isUk ? `Використано ${used} з ${FREE_LIMIT} безкоштовних брифів` : `${used} of ${FREE_LIMIT} free briefs used`}</span>
-          <span style="font-size:12px;color:${left===1?'var(--warn)':'var(--ink3)'};">${isUk ? `Залишилось: ${left}` : `${left} left`}</span>
+    const isUk = currentLang === 'uk';
+    const pct = Math.min(100, Math.round((used / FREE_LIMIT) * 100));
+    const left = Math.max(0, FREE_LIMIT - used);
+
+    // BUG FIX: always show quota; show warning when limit reached
+    quotaEl.style.display = 'block';
+    if (used >= FREE_LIMIT) {
+      // Limit reached — show actionable banner
+      quotaEl.innerHTML = `<div class="quota-banner quota-full">
+        <div class="quota-banner-row">
+          <span class="quota-banner-text">⚠️ ${isUk ? 'Ви використали всі 3 безкоштовні брифи' : 'You\'ve used all 3 free briefs'}</span>
+          <span class="quota-banner-count" style="color:var(--warn)">${isUk ? 'Pro — незабаром' : 'Pro — coming soon'}</span>
         </div>
-        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${pct>=66?'var(--warn)':'var(--accent)'};border-radius:2px;transition:width .4s"></div>
-        </div>
+        <div class="quota-bar"><div class="quota-bar-fill" style="width:100%;background:var(--warn)"></div></div>
+        <p style="font-size:12px;color:var(--warn);margin-top:8px">${isUk ? '💡 Видаліть один бриф, щоб створити новий' : '💡 Delete a brief to create a new one'}</p>
       </div>`;
     } else {
-      quotaEl.style.display = 'none';
+      quotaEl.innerHTML = `<div class="quota-banner">
+        <div class="quota-banner-row">
+          <span class="quota-banner-text">${isUk ? `Використано ${used} з ${FREE_LIMIT} безкоштовних брифів` : `${used} of ${FREE_LIMIT} free briefs used`}</span>
+          <span class="quota-banner-count" style="color:${left===1?'var(--warn)':'#7A7672'}">${isUk ? `Залишилось: ${left}` : `${left} left`}</span>
+        </div>
+        <div class="quota-bar"><div class="quota-bar-fill" style="width:${pct}%;background:${pct>=66?'var(--warn)':'var(--accent)'}"></div></div>
+      </div>`;
     }
 
     if (data.length === 0) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
       return;
     }
+
+    const statusLabels = {
+      en: { draft:'Draft', sent:'Sent', filled:'Filled', approved:'Approved' },
+      uk: { draft:'Чернетка', sent:'Надіслано', filled:'Заповнено', approved:'Затверджено' }
+    };
+
     container.innerHTML = `<div class="briefs-grid">${data.map(b => {
       const d = b.data || {};
-      const date = new Date(b.created_at).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'short',year:'numeric'});
-      const tag = d.type ? `<span class="brief-item-tag">${d.type}</span>` : '<span></span>';
+      // FIX: date with time
+      const dateTime = new Date(b.created_at).toLocaleString(isUk ? 'uk-UA' : 'en-GB', {
+        day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+      });
+      const typeTag = d.type ? `<span class="brief-item-tag">📁 ${d.type}</span>` : '';
+      const status = b.status || 'draft';
+      const statusLabel = statusLabels[currentLang]?.[status] || status;
+      const statusClass = `s-${status}`;
       return `<div class="brief-item" onclick="openBrief('${b.slug}')">
-        <div class="brief-item-name">${d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief')}</div>
-        <div class="brief-item-meta">${date}</div>
+        <div class="brief-item-name">${d.name || (isUk ? 'Бриф без назви' : 'Untitled Brief')}</div>
+        <div class="brief-item-meta">${dateTime}</div>
         <div class="brief-item-footer">
-          ${tag}
-          <div style="display:flex;align-items:center;gap:8px">
-            <button class="brief-item-delete" onclick="event.stopPropagation();askDelete('${b.slug}')" title="${currentLang === 'uk' ? 'Видалити' : 'Delete'}">🗑</button>
+          <div class="brief-item-tags">
+            ${typeTag}
+            <span class="brief-item-status ${statusClass}">${statusLabel}</span>
           </div>
+          <button class="brief-item-delete" onclick="event.stopPropagation();askDelete('${b.slug}')" aria-label="${isUk ? 'Видалити бриф' : 'Delete brief'}">🗑</button>
         </div>
       </div>`;
     }).join('')}</div>`;
@@ -1047,7 +1105,10 @@ function startBrief(template, fresh) {
   currentTemplate = template || 'blank';
   const tpl = TEMPLATES[currentTemplate];
 
+  // Always reset form for new brief or template
   if (fresh || template) {
+    // BUG FIX: clear draft so old data doesn't bleed into new brief
+    try { localStorage.removeItem('briffity_draft'); } catch(e) {}
     document.querySelectorAll('#form-screen input, #form-screen textarea').forEach(el => el.value = '');
     document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
     document.querySelectorAll('.budget-option.selected').forEach(b => b.classList.remove('selected'));
@@ -1147,7 +1208,13 @@ function selectBudget(el, val) {
 
 function maybeShowTip(id, val, min) {
   const tip = document.getElementById(id);
-  if (tip) tip.classList.toggle('visible', val.length >= min);
+  if (tip) {
+    if (val.length >= min) {
+      tip.classList.add('visible');
+    } else {
+      tip.classList.remove('visible');
+    }
+  }
 }
 
 function autosave() {
@@ -1552,7 +1619,33 @@ async function loadBriefFromUrl() {
 // ============================================================
 function openExportModal() { document.getElementById('export-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function exportPDF() { closeModal('export-modal'); window.print(); }
+async function exportPDF() {
+  closeModal('export-modal');
+  const btn = document.getElementById('export-pdf-btn');
+  const el = document.getElementById('pdf-content');
+  el.style.display = 'block';
+  const projectName = document.getElementById('pdf-name').textContent || 'brief';
+  const filename = projectName.toLowerCase().replace(/[^a-zа-яёіїєa-z0-9]+/gi,'_').slice(0,40) + '_brief.pdf';
+  if (btn) { btn.textContent = currentLang === 'uk' ? '⏳ Генерація…' : '⏳ Generating…'; btn.classList.add('btn-loading'); }
+  try {
+    await html2pdf().set({
+      margin: [15, 15, 15, 15],
+      filename,
+      image: { type: 'jpeg', quality: 0.96 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all'] }
+    }).from(el).save();
+  } catch(err) {
+    console.error('PDF error:', err);
+    // fallback to print
+    window.print();
+  } finally {
+    el.style.display = 'none';
+    if (btn) { btn.textContent = currentLang === 'uk' ? '↓ Завантажити PDF' : '↓ Download PDF'; btn.classList.remove('btn-loading'); }
+    showToast(currentLang === 'uk' ? '✓ PDF завантажується' : '✓ PDF downloading');
+  }
+}
 
 function copyShareLink() {
   const url = savedBriefUrl || window.location.href;
@@ -1651,10 +1744,10 @@ const TRANSLATIONS = {
     'card.style':'Style & references','card.budget':'Budget','card.deadline':'Deadline','card.notes':'Additional notes',
     'ai.generating':'Generating summary',
     'share.label':'🔗 Share link:','share.copy':'Copy',
-    'savewall.title':'Save your brief','savewall.text':'Create a free account to save this brief, get a shareable link, and track its status — takes 30 seconds.','savewall.cta':'Create free account →',
+    'savewall.title':'Save your brief','savewall.text':'Create a free account to save this brief and get a shareable link. Free plan includes 3 briefs. Pro plan — coming soon 🚀','savewall.cta':'Create free account →',
     'status.draft':'Draft','status.sent':'Sent to client','status.filled':'Client filled','status.approved':'Approved',
-    'modal.export_title':'Export as PDF','modal.export_text':'Your brief will open in print mode — save it as PDF or send to a printer.',
-    'modal.cancel':'Cancel','modal.print_btn':'Print / Save PDF',
+    'modal.export_title':'Export as PDF','modal.export_text':'Your brief will be downloaded as a PDF file directly to your device.',
+    'modal.cancel':'Cancel','modal.print_btn':'↓ Download PDF',
     'modal.delete_title':'Delete brief?','modal.delete_text':'This action cannot be undone.','modal.delete_confirm':'Delete',
     'viewbar.text':'👁 You\'re viewing a shared brief','viewbar.cta':'Create your own →',
     'err.fill_all':'Please fill in all fields.','err.pass_length':'Password must be at least 6 characters.',
@@ -1701,7 +1794,7 @@ const TRANSLATIONS = {
     'card.style':'Стиль та референси','card.budget':'Бюджет','card.deadline':'Терміни','card.notes':'Додаткові нотатки',
     'ai.generating':'Генерація підсумку',
     'share.label':'🔗 Посилання:','share.copy':'Копіювати',
-    'savewall.title':'Збережіть бриф','savewall.text':'Створіть безкоштовний акаунт, щоб зберегти цей бриф, отримати посилання для шерінгу та відстежувати статус — займе 30 секунд.','savewall.cta':'Створити акаунт →',
+    'savewall.title':'Збережіть бриф','savewall.text':'Створіть безкоштовний акаунт, щоб зберегти бриф та отримати посилання для шерінгу. Безкоштовний план — 3 брифи. Pro — незабаром 🚀','savewall.cta':'Створити акаунт →',
     'status.draft':'Чернетка','status.sent':'Надіслано клієнту','status.filled':'Клієнт заповнив','status.approved':'Затверджено',
     'modal.export_title':'Експорт у PDF','modal.export_text':'Ваш бриф відкриється в режимі друку — збережіть його як PDF або надішліть на друк.',
     'modal.cancel':'Скасувати','modal.print_btn':'Друкувати / Зберегти PDF',
