@@ -155,7 +155,7 @@ h1 em{color:var(--accent);font-style:italic}
 
 /* STATUS BADGE */
 .status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:100px;cursor:pointer;transition:all .15s}
-.status-draft{background:var(--bg);color:var(--ink3);border:1px solid var(--border)}
+.status-draft{background:var(--bg);color:var(--ink2);border:1.5px solid rgba(26,24,20,0.22);font-weight:500}
 .status-sent{background:#EBF0FD;color:var(--accent)}
 .status-filled{background:#FEF3E2;color:var(--warn)}
 .status-approved{background:var(--success-light);color:var(--success)}
@@ -289,7 +289,7 @@ h1 em{color:var(--accent);font-style:italic}
 .brief-item-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .brief-item-tag{display:inline-flex;align-items:center;gap:4px;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
 .brief-item-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
-.brief-item-status.s-draft{background:var(--bg);color:#7A7672;border:1px solid var(--border)}
+.brief-item-status.s-draft{background:var(--bg);color:var(--ink2);border:1.5px solid rgba(26,24,20,0.22);font-weight:500}
 .brief-item-status.s-sent{background:#EBF0FD;color:var(--accent)}
 .brief-item-status.s-filled{background:var(--warn-light);color:var(--warn)}
 .brief-item-status.s-approved{background:var(--success-light);color:var(--success)}
@@ -333,7 +333,7 @@ h1 em{color:var(--accent);font-style:italic}
 .burger-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
 .burger-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
 .burger-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
-.mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:8px;z-index:90;box-shadow:0 8px 24px rgba(26,24,20,.08);animation:slideDown .2s ease}
+.mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:10px;z-index:150;box-shadow:0 8px 24px rgba(26,24,20,.12);animation:slideDown .2s ease}
 .mobile-menu.open{display:flex}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .mobile-menu .btn{justify-content:center;width:100%}
