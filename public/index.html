@@ -354,6 +354,12 @@ h1 em{color:var(--accent);font-style:italic}
 .mobile-menu .user-email-mobile+.btn{margin-top:2px}
 .mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   
+/* MOBILE NAV VISIBILITY */
+@media(max-width: 768px) {
+  .burger-btn { display: flex !important; }
+  #nav-guest, #nav-user { display: none !important; }
+}
+
 /* CARD CONTEXT MENU & MOBILE ACTIONS */
 .brief-actions-container {
   display: flex;
