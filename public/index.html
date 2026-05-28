@@ -255,6 +255,26 @@ h1 em{color:var(--accent);font-style:italic}
 @media(max-width:600px){.limit-plans{grid-template-columns:1fr}.limit-modal{padding:28px 20px}}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* FOOTER */
+.site-footer{border-top:1px solid var(--border2);background:var(--surface);padding:32px 40px;margin-top:auto}
+.footer-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.footer-left{display:flex;flex-direction:column;gap:4px}
+.footer-logo{font-family:'DM Serif Display',serif;font-size:18px;letter-spacing:-.4px}
+.footer-logo span{color:var(--accent)}
+.footer-tagline{font-size:12px;color:var(--ink3)}
+.footer-links{display:flex;align-items:center;gap:8px}
+.footer-link{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;border:1px solid var(--border);font-size:13px;color:var(--ink2);text-decoration:none;background:var(--bg);transition:all .15s;font-weight:500}
+.footer-link:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.footer-link svg{flex-shrink:0}
+.footer-donate{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:100px;font-size:13px;font-weight:500;color:#fff;background:linear-gradient(135deg,#f7931a,#e8870f);border:none;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(247,147,26,.25)}
+.footer-donate:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(247,147,26,.35)}
+.footer-copy{font-size:11px;color:var(--ink3);text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border2)}
+@media(max-width:600px){
+  .site-footer{padding:24px 16px}
+  .footer-inner{flex-direction:column;align-items:flex-start;gap:16px}
+  .footer-links{flex-wrap:wrap}
+}
+
 .validation-msg{font-size:12px;color:#c0392b;margin-top:5px;display:none}
 .field.error input,.field.error textarea{border-color:#e74c3c}
 .field.error .validation-msg{display:block}
@@ -2411,6 +2431,32 @@ window.addEventListener('popstate', handleInitialRouting);
     </div>
   </div>
 </div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="footer-logo">Bri<span>ff</span>ity</div>
+      <div class="footer-tagline">AI-powered design brief generator</div>
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" href="https://www.linkedin.com/in/charlot4k/" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a class="footer-link" href="https://t.me/charlot4k_ui" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Telegram
+      </a>
+      <a class="footer-donate" href="https://send.monobank.ua/jar/9Yuk6Y5UxH" target="_blank" rel="noopener">
+        ☕ Buy me a coffee
+      </a>
+    </div>
+  </div>
+  <div class="footer-copy">
+    Made with ✦ by Charlotte · If Briffity saves you time, consider supporting the project
+  </div>
+</footer>
 
 </body>
 </html>
