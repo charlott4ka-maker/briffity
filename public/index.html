@@ -1373,6 +1373,7 @@ async function startBrief(template, fresh) {
     if (tip) { tip.querySelector('span:last-child').textContent = tpl.hints.task; }
   }
 
+  adaptFormToType();
   loadDraft();
   goToStep(0);
   showScreen('form-screen');
@@ -1421,7 +1422,48 @@ function toggleTag(el, group) {
   if (!selectedTags[group]) selectedTags[group] = [];
   if (el.classList.contains('selected')) selectedTags[group].push(val);
   else selectedTags[group] = selectedTags[group].filter(v => v !== val);
+  if (group === 'type') adaptFormToType();
   autosave();
+}
+
+function adaptFormToType() {
+  const types = selectedTags.type || [];
+  const isBranding = types.includes('Branding') && !types.includes('Mobile app') && !types.includes('Web / SaaS') && !types.includes('Landing page');
+  const isUk = currentLang === 'uk';
+
+  // Platform field — hide for branding-only
+  const platformField = document.querySelector('#section-1 .field:has(.tag[data-en-val="iOS"])');
+  if (platformField) platformField.style.display = isBranding ? 'none' : '';
+
+  // Competitors placeholder — adapt for branding
+  const compInput = document.getElementById('f-competitors');
+  if (compInput) {
+    if (isBranding) {
+      compInput.placeholder = isUk ? 'напр. Nike, Apple, місцевий конкурент — що вони роблять добре?' : 'e.g. Nike, Apple, local competitor — what are they doing right?';
+    } else {
+      compInput.placeholder = isUk ? 'напр. Figma, Notion, Linear — що вони роблять добре?' : 'e.g. Figma, Notion, Linear — what are they doing right?';
+    }
+  }
+
+  // Refs placeholder — adapt for branding
+  const refsInput = document.getElementById('f-refs');
+  if (refsInput) {
+    if (isBranding) {
+      refsInput.placeholder = isUk ? 'напр. Stripe, Airbnb, Apple — бренди, що вас надихають' : 'e.g. Stripe, Airbnb, Apple — brands that inspire you';
+    } else {
+      refsInput.placeholder = isUk ? 'напр. Bolt, Notion, Linear, Airbnb' : 'e.g. Bolt, Notion, Linear, Airbnb';
+    }
+  }
+
+  // Goal label — adapt for branding
+  const goalLabel = document.querySelector('label[for="f-goal"], #section-1 .field label');
+  if (goalLabel) {
+    if (isBranding) {
+      goalLabel.textContent = isUk ? 'Яке враження має справляти бренд?' : 'What feeling should the brand communicate?';
+    } else {
+      goalLabel.setAttribute('data-i18n', 'fields.goal');
+    }
+  }
 }
 
 function selectBudget(el, val) {
@@ -1810,23 +1852,18 @@ async function loadBriefFromUrl() {
 
     if (d.notes) { document.getElementById('res-notes').textContent = d.notes; document.getElementById('res-notes-card').style.display = 'block'; }
 
-    // AI summary
+    // AI summary — Premium (disabled)
+    const summaryEl = document.getElementById('ai-summary-content');
     const summaryToShow = row.ai_summary || d.aiSummary;
-    if (summaryToShow) {
+    if (summaryToShow && summaryEl) {
       aiSummaryText = summaryToShow;
-      document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${summaryToShow}</div>`;
-      document.getElementById('pdf-summary').textContent = summaryToShow;
-      document.getElementById('pdf-summary-section').style.display = 'block';
-    } else {
-      // Auto-generate if no cached summary
-      savedBriefSlug = slug;
-      document.getElementById('f-name') && (document.getElementById('f-name').value = d.name || '');
-      document.getElementById('f-task') && (document.getElementById('f-task').value = d.task || '');
-      document.getElementById('f-audience') && (document.getElementById('f-audience').value = d.audience || '');
-      document.getElementById('f-goal') && (document.getElementById('f-goal').value = d.goal || '');
-      selectedBudget = d.selectedBudget || d.budget || '';
-      triggerAiSummary();
+      summaryEl.innerHTML = `<div class="ai-summary-text">${summaryToShow}</div>`;
+      const pdfSum = document.getElementById('pdf-summary');
+      const pdfSumSec = document.getElementById('pdf-summary-section');
+      if (pdfSum) pdfSum.textContent = summaryToShow;
+      if (pdfSumSec) pdfSumSec.style.display = 'block';
     }
+    // triggerAiSummary() — disabled until Premium
 
     // If current user is owner, show share + status controls
     if (currentUser && row.user_id === currentUser.id) {
@@ -2321,8 +2358,8 @@ window.addEventListener('popstate', handleInitialRouting);
         <div class="plan-price">$0</div>
         <div class="plan-features">
           <span>✓ 3 briefs</span>
+          <span>✓ AI summary</span>
           <span>✓ PDF export</span>
-          <span style="color:var(--ink3)">✗ AI summary</span>
           <span style="color:var(--ink3)">✗ Unlimited briefs</span>
         </div>
       </div>
@@ -2332,8 +2369,8 @@ window.addEventListener('popstate', handleInitialRouting);
         <div class="plan-price">—</div>
         <div class="plan-features">
           <span>✓ Unlimited briefs</span>
-          <span>✓ PDF export</span>
           <span>✓ AI summary</span>
+          <span>✓ PDF export</span>
           <span>✓ Priority support</span>
         </div>
       </div>
