@@ -1060,27 +1060,23 @@ function updateNavAuth() {
   const mobileUser = document.getElementById('mobile-user');
   
   if (currentUser) {
-    // Десктоп
     navGuest.style.display = 'none';
     navUser.style.display = 'flex';
     const email = currentUser.email || '';
     document.getElementById('nav-user-email').textContent = email;
-    
-    // Мобилка (Фикс переключения классов)
     if (mobileGuest) mobileGuest.classList.remove('active-block');
     if (mobileUser) { 
       mobileUser.classList.add('active-block'); 
       document.getElementById('mobile-user-email').textContent = email; 
     }
   } else {
-    // Десктоп
     navGuest.style.display = 'flex';
     navUser.style.display = 'none';
-    
-    // Мобилка (Фикс переключения классов)
     if (mobileGuest) mobileGuest.classList.add('active-block');
     if (mobileUser) mobileUser.classList.remove('active-block');
   }
+
+  closeMobileMenu(); // ← добавь эту строку
 }
 
 function showAuthTab(tab) {
