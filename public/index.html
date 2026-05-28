@@ -355,11 +355,33 @@ h1 em{color:var(--accent);font-style:italic}
 .mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   
 /* CARD CONTEXT MENU (⋯) */
-.brief-item-menu-wrap{position:relative;flex-shrink:0}
+.brief-item-menu-wrap{
+  position: relative; /* Важно: теперь меню позиционируется относительно этой обёртки */
+  flex-shrink: 0;
+  display: inline-block;
+}
 .brief-item-dots{background:none;border:1px solid transparent;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:16px;color:var(--ink3);line-height:1;transition:all .15s;opacity:0}
-.brief-item:hover .brief-item-dots{opacity:1}
+
+/* На мобилках точки видны всегда, на десктопе — при ховере */
+.brief-item:hover .brief-item-dots,
+.brief-item-dots { opacity: 1; } 
+
 .brief-item-dots:hover{background:var(--bg);border-color:var(--border);color:var(--ink)}
-.card-menu{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:160;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,.13);display:none}
+
+.card-menu{
+  position: absolute;          /* Изменено с fixed на absolute */
+  top: calc(100% + 4px);       /* Строго под троеточием */
+  right: 0;                    /* Выравниваем по правому краю точек */
+  left: auto;                  /* Сбрасываем левую привязку */
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  z-index: 1000;               /* Поднимаем повыше, чтобы не перекрывалось другими карточками */
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.13);
+  display: none;
+}
 .card-menu.open{display:block}
 .card-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;color:var(--ink)}
 .card-menu-item:hover{background:var(--bg)}
@@ -370,7 +392,13 @@ h1 em{color:var(--accent);font-style:italic}
   nav{padding:14px 20px}
   .nav-right,.user-menu{display:none!important}
   .burger-btn{display:flex}
+  
+  /* Фикс для мобильной версии, чтобы точки на карточках не скрывались */
+  .brief-item .brief-item-dots {
+    opacity: 1 !important;
+  }
 }
+  
 </style>
 </head>
 <body>
@@ -1860,33 +1888,29 @@ async function editBriefFromDash(slug) {
 
 // toggleCardMenu for dots button
 function toggleCardMenu(menuId, e) {
-  e.stopPropagation();
-  const btn = e.currentTarget;
+  if (e && typeof e.stopPropagation === 'function') {
+    e.stopPropagation(); // Отменяем переход по ссылке самой карточки при клике на точки
+  }
+  
   const menu = document.getElementById(menuId);
   if (!menu) return;
+  
   const wasOpen = menu.classList.contains('open');
-  closeAllCardMenus();
+  closeAllCardMenus(); // Закрываем остальные открытые менюшки
+  
   if (!wasOpen) {
-    const rect = btn.getBoundingClientRect();
-    // Temporarily show to measure
-    menu.style.visibility = 'hidden';
-    menu.style.display = 'block';
-    const menuW = menu.offsetWidth;
-    const menuH = menu.offsetHeight;
-    menu.style.display = '';
-    menu.style.visibility = '';
-
-    let top = rect.bottom + 6;
-    let left = rect.right - menuW;
-
-    if (left < 8) left = 8;
-    if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
-    if (top + menuH > window.innerHeight - 8) top = rect.top - menuH - 6;
-
-    menu.style.top = top + 'px';
-    menu.style.left = left + 'px';
-    menu.style.right = 'auto';
     menu.classList.add('open');
+    
+    // Небольшая проверка на случай, если карточка находится в самом низу экрана:
+    // Если меню не влезает вниз, открываем его наверх (bottom: 100%)
+    const rect = menu.getBoundingClientRect();
+    if (rect.bottom > window.innerHeight) {
+      menu.style.top = 'auto';
+      menu.style.bottom = 'calc(100% + 4px)';
+    } else {
+      menu.style.top = 'calc(100% + 4px)';
+      menu.style.bottom = 'auto';
+    }
   }
 }
 function closeAllCardMenus() {
