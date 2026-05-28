@@ -333,10 +333,17 @@ h1 em{color:var(--accent);font-style:italic}
 .burger-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
 .burger-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
 .burger-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+/* MOBILE MENU FIXED */
 .mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:10px;z-index:150;box-shadow:0 8px 24px rgba(26,24,20,.12);animation:slideDown .2s ease}
 .mobile-menu.open{display:flex}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-.mobile-menu > div{display:flex!important;flex-direction:column!important;gap:0!important;width:100%}
+.mobile-menu > div[style*="display: block"], 
+.mobile-menu > div:not([style*="display: none"]) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  width: 100%;
+}
 .mobile-menu .btn{display:flex!important;justify-content:center;width:100%!important;padding:14px 20px!important;font-size:15px;margin-bottom:10px!important}
 .mobile-menu .btn:last-child{margin-bottom:0!important}
 .mobile-menu .user-email-mobile+.btn{margin-top:2px}
