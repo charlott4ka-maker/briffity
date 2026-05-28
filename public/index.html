@@ -2026,63 +2026,72 @@ function closeMobileMenu() {
   document.getElementById('burger-btn').classList.remove('open');
 }
 
+
 // ============================================================
-// DEMO — ИСПРАВЛЕННАЯ ГЕНЕРАЦИЯ ПРИМЕРА
+// DEMO — ПОЛНОСТЬЮ НАДЕЖНАЯ ПРЯМАЯ ИНИЦИАЛИЗАЦИЯ ПРИМЕРА
 // ============================================================
 function showDemo() {
   const isUk = currentLang === 'uk';
   
-  // Создаем объект с демонстрационными данными
-  const demoData = {
-    name: isUk ? 'Редизайн додатку доставки' : 'Delivery app redesign',
-    task: isUk ? 'Редизайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.',
-    audience: isUk ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.',
-    goal: isUk ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes',
-    competitors: 'Glovo, Bolt Food, Wolt',
-    refs: 'Bolt Food, Airbnb, Notion',
-    avoid: isUk ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI',
-    deadline: isUk ? 'Кінець червня 2026' : 'End of June 2026',
-    notes: isUk ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.',
-    tags: { type: ['Mobile app'], platform: ['iOS', 'Android'], style: ['Minimal', 'Modern'] },
-    budget: '$1,200 – $3,000'
-  };
+  // 1. Сначала просто запускаем пустую форму, пусть отработает вся её внутренняя логика очистки
+  startBrief('mobile', true);
 
-  // Записываем демонстрационный бриф в localStorage как черновик, чтобы startBrief подтянул его
-  try { 
-    localStorage.setItem('briffity_draft', JSON.stringify(demoData)); 
-  } catch(e) {
-    console.error('Demo localStorage error:', e);
-  }
-
-  // Запускаем бриф без флага fresh, чтобы сработал loadDraft()
-  startBrief('mobile', false);
-
-  // Дополнительно форсируем визуальное заполнение полей для 100% надежности
+  // 2. Даем форме 150 миллисекунд, чтобы полностью открыться и очиститься, и только ПОТОМ заполняем поля
   setTimeout(() => {
-    const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-    setVal('f-name', demoData.name); 
-    setVal('f-task', demoData.task); 
-    setVal('f-audience', demoData.audience);
-    setVal('f-goal', demoData.goal); 
-    setVal('f-competitors', demoData.competitors); 
-    setVal('f-refs', demoData.refs);
-    setVal('f-avoid', demoData.avoid); 
-    setVal('f-deadline', demoData.deadline); 
-    setVal('f-notes', demoData.notes);
+    // Данные для заполнения
+    const demoName = isUk ? 'Редизайн додатку доставки' : 'Delivery app redesign';
+    const demoTask = isUk ? 'Редизайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
+    const demoAudience = isUk ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
+    const demoGoal = isUk ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes';
+    const demoCompetitors = 'Glovo, Bolt Food, Wolt';
+    const demoRefs = 'Bolt Food, Airbnb, Notion';
+    const demoAvoid = isUk ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI';
+    const demoDeadline = isUk ? 'Кінець червня 2026' : 'End of June 2026';
+    const demoNotes = isUk ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
 
-    // Подсвечиваем выбранный бюджет
-    selectedBudget = demoData.budget;
+    // Прямая запись в DOM-элементы в обход любых кэшей
+    const setElementValue = (id, val) => { 
+      const el = document.getElementById(id); 
+      if (el) {
+        el.value = val;
+        // Триггерим событие ввода, чтобы сработал автосейв формы, если нужно
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+
+    setElementValue('f-name', demoName); 
+    setElementValue('f-task', demoTask); 
+    setElementValue('f-audience', demoAudience);
+    setElementValue('f-goal', demoGoal); 
+    setElementValue('f-competitors', demoCompetitors); 
+    setElementValue('f-refs', demoRefs);
+    setElementValue('f-avoid', demoAvoid); 
+    setElementValue('f-deadline', demoDeadline); 
+    setElementValue('f-notes', demoNotes);
+
+    // Выбираем бюджет range
+    selectedBudget = '$1,200 – $3,000';
     document.querySelectorAll('.budget-option').forEach(b => {
-      b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === selectedBudget);
+      const rangeText = b.querySelector('.range')?.textContent.trim();
+      b.classList.toggle('selected', rangeText === selectedBudget);
     });
 
-    // Очищаем и заново подсвечиваем теги стиля
-    selectedTags.style = [...demoData.tags.style];
+    // Выбираем теги стилей (Minimal, Modern)
+    selectedTags.style = ['Minimal', 'Modern'];
     document.querySelectorAll('#section-2 .tag').forEach(tag => {
       const s = tag.getAttribute('data-en-val') || tag.textContent.trim();
-      tag.classList.toggle('selected', demoData.tags.style.includes(s));
+      tag.classList.toggle('selected', selectedTags.style.includes(s));
     });
-  }, 50);
+
+    // Сохраняем это состояние в localStorage, чтобы при случайной перезагрузке данные остались
+    const savedState = {
+      name: demoName, task: demoTask, audience: demoAudience, goal: demoGoal,
+      competitors: demoCompetitors, refs: demoRefs, avoid: demoAvoid,
+      deadline: demoDeadline, notes: demoNotes, tags: selectedTags, budget: selectedBudget
+    };
+    try { localStorage.setItem('briffity_draft', JSON.stringify(savedState)); } catch(e) {}
+
+  }, 150);
 }
 
 // ============================================================
