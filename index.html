@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Briffity — Design Brief Generator</title>
+<meta name="description" content="AI-powered design brief generator. Fill a smart form — get a professional brief with AI summary, shareable link and PDF export in 2 minutes.">
+<meta name="theme-color" content="#F5F2EC">
+<meta property="og:title" content="Briffity — Design Brief Generator">
+<meta property="og:description" content="Stop chasing client info. Generate a professional design brief in 2 minutes with AI hints, reference uploads and PDF export.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root {
+  --bg: #F5F2EC;
+  --surface: #FDFCF9;
+  --ink: #1A1814;
+  --ink2: #6B6760;
+  --ink3: #A8A49E;
+  --accent: #2D5BE3;
+  --accent-light: #EBF0FD;
+  --success: #1A7F5A;
+  --success-light: #E6F5EF;
+  --warn: #B85C00;
+  --warn-light: #FEF3E2;
+  --border: rgba(26,24,20,0.1);
+  --border2: rgba(26,24,20,0.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border2);background:var(--surface)}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-0.5px}
+.logo span{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.profile-badge{display:flex;align-items:center;gap:8px;background:var(--accent-light);border-radius:100px;padding:6px 14px 6px 8px;font-size:13px;color:var(--accent);cursor:pointer;font-weight:500}
+.profile-badge .avatar{width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:500}
+
+.screen{display:none;min-height:calc(100vh - 65px)}
+.screen.active{display:block}
+#landing{display:none;flex-direction:column;align-items:center;justify-content:center;padding:70px 40px;text-align:center}
+#landing.active{display:flex}
+
+.hero-tag{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:28px}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(34px,5vw,56px);line-height:1.1;letter-spacing:-1px;max-width:660px;margin-bottom:20px}
+h1 em{color:var(--accent);font-style:italic}
+.hero-sub{font-size:17px;color:var(--ink2);max-width:460px;margin-bottom:40px;line-height:1.7}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
+
+.templates-label{font-size:12px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
+.template-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:720px;width:100%}
+.tpl-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:all .18s;text-align:left}
+.tpl-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tpl-icon{font-size:22px;margin-bottom:10px}
+.tpl-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.tpl-desc{font-size:12px;color:var(--ink2)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;font-size:15px;font-weight:500;cursor:pointer;border:none;transition:all .18s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:#333;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:#2450cc;transform:translateY(-1px)}
+.btn-danger{background:transparent;color:#c0392b;border:1px solid rgba(192,57,43,.25)}
+.btn-danger:hover{background:#fff0f0}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn-xs{padding:6px 12px;font-size:12px}
+
+/* FORM */
+#form-screen{display:none;padding:40px;max-width:700px;margin:0 auto}
+#form-screen.active{display:block}
+.form-header{margin-bottom:28px}
+.form-header h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+.form-header p{color:var(--ink2);font-size:13px}
+
+.autosave-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--success);background:var(--success-light);padding:4px 10px;border-radius:100px;margin-top:8px;opacity:0;transition:opacity .3s}
+.autosave-badge.show{opacity:1}
+
+.progress-wrap{margin-bottom:32px}
+.progress-steps{display:flex;gap:5px;margin-bottom:6px}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s}
+.step-dot.done{background:var(--success)}
+.step-dot.active{background:var(--accent)}
+.progress-label{font-size:12px;color:var(--ink3)}
+.progress-label span{color:var(--ink);font-weight:500}
+
+.form-section{display:none}
+.form-section.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.section-title{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px;letter-spacing:-.3px}
+.section-sub{font-size:14px;color:var(--ink2);margin-bottom:26px}
+
+.field{margin-bottom:20px}
+.field label{display:block;font-size:12px;font-weight:500;color:#5A5652;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.required-mark{color:#c0392b;margin-left:2px}
+.field input,.field textarea,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;transition:border-color .2s;resize:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field textarea{height:96px}
+
+.ai-tip{display:flex;gap:8px;align-items:flex-start;background:var(--accent-light);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;font-size:13px;color:var(--accent);line-height:1.5;opacity:0;transition:opacity .4s;max-height:0;overflow:hidden}
+.ai-tip.visible{opacity:1;max-height:80px}
+
+.tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.tag{padding:7px 14px;border-radius:100px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:background 0s,border-color .12s,color 0s;background:var(--surface);color:var(--ink2);user-select:none}
+.tag:hover:not(.selected){border-color:var(--accent);color:var(--accent)}
+.tag.selected{background:var(--accent);border-color:var(--accent);color:#fff;transition:none}
+
+.budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.budget-option{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .15s;background:var(--surface)}
+.budget-option:hover{border-color:var(--accent)}
+.budget-option.selected{border-color:var(--accent);background:var(--accent-light)}
+.budget-option .range{font-weight:500;font-size:14px}
+.budget-option .label{font-size:12px;color:var(--ink2)}
+
+/* REFERENCE UPLOAD */
+.upload-area{border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);position:relative}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:var(--accent-light)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:24px;margin-bottom:8px}
+.upload-text{font-size:13px;color:var(--ink2)}
+.upload-text strong{color:var(--accent)}
+.ref-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ref-thumb{position:relative;width:72px;height:72px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.ref-thumb img{width:100%;height:100%;object-fit:cover}
+.ref-thumb .remove{position:absolute;top:3px;right:3px;width:18px;height:18px;background:rgba(26,24,20,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:#fff}
+
+.form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border2)}
+
+/* AI SUMMARY */
+.ai-summary-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:20px;position:relative}
+.ai-summary-label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:10px}
+.ai-summary-text{font-size:15px;line-height:1.7;color:var(--ink)}
+.ai-loading{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
+.dots span{animation:blink 1.2s infinite;opacity:0}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* RESULT */
+#result-screen{display:none;padding:40px;max-width:700px;margin:0 auto}
+#result-screen.active{display:block;animation:fadeIn .4s ease}
+.result-header{display:flex;flex-direction:column;margin-bottom:24px;gap:12px}
+.result-title h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+.result-title p{font-size:13px;color:var(--ink3)}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:100px;cursor:pointer;transition:all .15s}
+.status-draft{background:var(--bg);color:var(--ink2);border:1.5px solid rgba(26,24,20,0.22);font-weight:500}
+.status-sent{background:#EBF0FD;color:var(--accent)}
+.status-filled{background:#FEF3E2;color:var(--warn)}
+.status-approved{background:var(--success-light);color:var(--success)}
+
+/* STATUS DROPDOWN */
+.status-dropdown{position:relative;display:inline-block}
+.status-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:50;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.status-menu.open{display:block}
+.status-menu-item{padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:8px}
+.status-menu-item:hover{background:var(--bg)}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+.brief-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.brief-card-header{display:flex;align-items:center;gap:10px;padding:14px 16px 8px;background:var(--surface)}
+.brief-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.brief-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.brief-card-body{padding:4px 16px 16px 54px}
+.brief-card-body p{font-size:15px;color:var(--ink);line-height:1.65;white-space:pre-wrap}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+.ref-result-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.ref-result-thumb{width:64px;height:64px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+.ref-result-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* SHARE BOX */
+.share-box{background:var(--accent-light);border:1px solid rgba(45,91,227,.15);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.share-box-url{flex:1;font-size:13px;color:var(--accent);font-weight:500;word-break:break-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.share-box-copy{flex-shrink:0}
+
+/* SAVE WALL (auth prompt after result) */
+.save-wall{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:20px}
+.save-wall h3{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:6px}
+.save-wall p{font-size:14px;color:var(--ink2);margin-bottom:18px;line-height:1.6}
+.save-wall-btns{display:flex;gap:10px;justify-content:center}
+
+/* PROFILE MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,24,20,.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);padding:32px;max-width:420px;width:90%;text-align:center}
+.modal-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px}
+.modal h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px}
+.modal p{font-size:14px;color:var(--ink2);margin-bottom:20px;line-height:1.6}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+
+.profile-link-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;font-family:monospace;color:var(--accent);margin-bottom:20px;word-break:break-all}
+
+/* PDF */
+#pdf-content{display:none;padding:60px;font-family:'DM Sans',sans-serif;background:white}
+#pdf-content h1{font-family:'DM Serif Display',serif;font-size:32px;letter-spacing:-.5px;margin-bottom:6px}
+#pdf-content .pdf-meta{font-size:13px;color:#888;margin-bottom:40px}
+#pdf-content .pdf-section{margin-bottom:28px}
+#pdf-content .pdf-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-weight:500;margin-bottom:8px;font-family:'DM Sans',sans-serif}
+#pdf-content .pdf-section p{font-size:15px;color:#222;line-height:1.65;border-left:2px solid #2D5BE3;padding-left:14px;white-space:pre-wrap}
+#pdf-content .pdf-summary{background:#EBF0FD;border-radius:8px;padding:16px 18px;margin-bottom:32px}
+#pdf-content .pdf-summary h3{color:#2D5BE3;margin-bottom:6px}
+#pdf-content .pdf-summary p{border:none;padding:0;color:#1A1814}
+@media print{body>*:not(#pdf-content){display:none!important}#pdf-content{display:block!important}}
+
+@media(max-width:600px){
+  .result-header{gap:10px}
+  .result-title h2{font-size:22px}
+  .result-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .result-actions .status-dropdown{grid-column:1/-1}
+  .result-actions .status-dropdown .status-badge{width:100%;justify-content:center;border-radius:var(--radius-sm);padding:8px 14px;font-size:12px}
+  .result-actions .btn{width:100%;justify-content:center;font-size:13px}
+  .link-box{flex-direction:column;gap:10px;align-items:flex-start}
+  .link-box .btn{width:100%}
+  .share-box{flex-direction:column;align-items:flex-start;gap:10px}
+  .share-box-url{white-space:normal;text-overflow:unset}
+  .share-box-copy{width:100%}
+  .brief-grid{grid-template-columns:1fr!important}
+  .template-grid{grid-template-columns:1fr 1fr!important}
+  .tpl-card{padding:14px 12px}
+  .container{padding:0 14px}
+  #result-screen{padding:24px 16px}
+  .screen{padding:20px 0}
+}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:200}
+
+/* LIMIT MODAL */
+.limit-overlay{position:fixed;inset:0;background:rgba(26,24,20,.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.limit-modal{background:var(--surface);border-radius:var(--radius);padding:36px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.15)}
+.limit-icon{font-size:40px;margin-bottom:16px}
+.limit-modal h3{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.4px;margin-bottom:8px}
+.limit-modal p{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:24px}
+.limit-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.plan-card{border:1px solid var(--border2);border-radius:var(--radius-sm);padding:16px 14px;text-align:left}
+.plan-card.active{border-color:var(--accent);background:var(--accent-light)}
+.plan-name{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:6px}
+.plan-card.active .plan-name{color:var(--accent)}
+.plan-price{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
+.plan-features{font-size:12px;color:var(--ink2);line-height:1.8}
+.plan-features span{display:block}
+.plan-badge{display:inline-block;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;background:var(--warn-light);color:var(--warn);padding:3px 8px;border-radius:100px;margin-bottom:8px}
+.limit-modal-actions{display:flex;flex-direction:column;gap:8px}
+@media(max-width:600px){.limit-plans{grid-template-columns:1fr}.limit-modal{padding:28px 20px}}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.validation-msg{font-size:12px;color:#c0392b;margin-top:5px;display:none}
+.field.error input,.field.error textarea{border-color:#e74c3c}
+.field.error .validation-msg{display:block}
+
+/* AUTH SCREENS */
+#auth-screen{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 65px);padding:40px 20px}
+#auth-screen.active{display:flex}
+.auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:36px 40px;width:100%;max-width:420px}
+.auth-box h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px;margin-bottom:6px}
+.auth-box .auth-sub{font-size:14px;color:var(--ink2);margin-bottom:28px}
+.auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--ink2)}
+.auth-switch a{color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.auth-error{background:#FFF0F0;border:1px solid #fcc;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--success-light);border:1px solid #b2dfc9;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--success);margin-bottom:16px;display:none}
+.auth-success.show{display:block}
+.btn-full{width:100%;justify-content:center}
+.btn-loading{opacity:.7;pointer-events:none}
+
+/* DASHBOARD */
+#dashboard-screen{display:none;padding:40px;max-width:900px;margin:0 auto}
+#dashboard-screen.active{display:block}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.dashboard-header h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-.5px}
+.briefs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.brief-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:all .18s;position:relative}
+.brief-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 16px rgba(45,91,227,.08)}
+.brief-item-name{font-weight:500;font-size:15px;margin-bottom:3px}
+.brief-item-meta{font-size:12px;color:#7A7672;margin-bottom:10px}
+.brief-item-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.brief-item-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.brief-item-tag{display:inline-flex;align-items:center;gap:4px;background:var(--accent-light);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
+.brief-item-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500}
+.brief-item-status.s-draft{background:var(--bg);color:var(--ink2);border:1.5px solid rgba(26,24,20,0.22);font-weight:500}
+.brief-item-status.s-sent{background:#EBF0FD;color:var(--accent)}
+.brief-item-status.s-filled{background:var(--warn-light);color:var(--warn)}
+.brief-item-status.s-approved{background:var(--success-light);color:var(--success)}
+.brief-item-delete{opacity:0;transition:opacity .15s;background:none;border:none;cursor:pointer;color:#7A7672;font-size:16px;padding:2px 6px;border-radius:4px}
+.brief-item:hover .brief-item-delete{opacity:1}
+.brief-item-delete:hover{color:#c0392b}
+
+/* SKELETON LOADER */
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.skeleton-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px}
+.skeleton-line{background:linear-gradient(90deg,var(--border) 25%,rgba(26,24,20,.04) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;height:14px;margin-bottom:8px}
+.skeleton-line.short{width:40%}
+.skeleton-line.medium{width:65%}
+.skeleton-line.full{width:100%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink2);max-width:340px;margin:0 auto}
+.empty-state .empty-icon{font-size:36px;margin-bottom:12px}
+.empty-state p{margin-bottom:20px;font-size:15px}
+.user-menu{position:relative;display:flex;align-items:center;gap:8px}
+.user-menu .user-email{font-size:13px;color:var(--ink2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* QUOTA BANNER */
+.quota-banner{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px}
+.quota-banner.quota-full{border-color:rgba(184,92,0,.3);background:var(--warn-light)}
+.quota-banner-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap}
+.quota-banner-text{font-size:13px;color:var(--ink2)}
+.quota-banner-count{font-size:12px;font-weight:500}
+.quota-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.quota-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.lang-switcher{display:flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:3px;gap:2px}
+.lang-btn{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* VIEW-ONLY BADGE for /brief/ pages */
+.view-only-bar{background:var(--surface);border-bottom:1px solid var(--border2);padding:10px 40px;display:none;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--ink2)}
+.view-only-bar.show{display:flex}
+
+/* MOBILE NAV */
+.burger-btn{display:none;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;cursor:pointer;flex-direction:column;gap:4px;align-items:center;justify-content:center}
+.burger-btn span{display:block;width:18px;height:2px;background:var(--ink);border-radius:2px;transition:all .25s}
+.burger-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:65px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border2);padding:16px 20px;flex-direction:column;gap:10px;z-index:150;box-shadow:0 8px 24px rgba(26,24,20,.12);animation:slideDown .2s ease}
+.mobile-menu.open{display:flex}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.mobile-menu .btn{justify-content:center;width:100%;padding:14px 20px;font-size:15px}
+.mobile-menu > div{display:flex;flex-direction:column;gap:12px;width:100%}
+.mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* CARD CONTEXT MENU (⋯) */
+.brief-item-menu-wrap{position:relative;flex-shrink:0}
+.brief-item-dots{background:none;border:1px solid transparent;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:16px;color:var(--ink3);line-height:1;transition:all .15s;opacity:0}
+.brief-item:hover .brief-item-dots{opacity:1}
+.brief-item-dots:hover{background:var(--bg);border-color:var(--border);color:var(--ink)}
+.card-menu{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:160;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,.13);display:none}
+.card-menu.open{display:block}
+.card-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;color:var(--ink)}
+.card-menu-item:hover{background:var(--bg)}
+.card-menu-item.danger{color:#c0392b}
+.card-menu-item.danger:hover{background:#fff0f0}
+
+@media(max-width:768px){
+  nav{padding:14px 20px}
+  .nav-right,.user-menu{display:none!important}
+  .burger-btn{display:flex}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en')" style="cursor:pointer">Bri<span>ff</span>ity</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="lang-uk" onclick="setLang('uk')">УК</button>
+    </div>
+    <div class="nav-right" id="nav-guest">
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signin" onclick="navigateTo('auth-screen', '/login')">Sign in</button>
+      <button class="btn btn-accent btn-sm" data-i18n="nav.signup" onclick="navigateTo('auth-screen', '/signup')">Sign up</button>
+    </div>
+    <div class="nav-right user-menu" id="nav-user" style="display:none">
+      <span class="user-email" id="nav-user-email"></span>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.mybriefs" onclick="navigateTo('dashboard-screen', '/mybriefs')">My briefs</button>
+      <button class="btn btn-secondary btn-sm" data-i18n="nav.signout" onclick="signOut()">Sign out</button>
+    </div>
+    <button class="burger-btn" id="burger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <div id="mobile-guest">
+    <button class="btn btn-secondary" onclick="closeMobileMenu();navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</button>
+    <button class="btn btn-accent" onclick="closeMobileMenu();navigateTo('auth-screen', '/signup')" data-i18n="nav.signup">Sign up</button>
+  </div>
+  <div id="mobile-user" style="display:none">
+    <div class="user-email-mobile" id="mobile-user-email"></div>
+    <button class="btn btn-secondary" onclick="closeMobileMenu();navigateTo('dashboard-screen', '/mybriefs')" data-i18n="nav.mybriefs">My briefs</button>
+    <button class="btn btn-secondary" onclick="closeMobileMenu();signOut()" data-i18n="nav.signout">Sign out</button>
+  </div>
+</div>
+
+<!-- View-only bar shown on /brief/:slug pages -->
+<div class="view-only-bar" id="view-only-bar">
+  <span data-i18n="viewbar.text">👁 You're viewing a shared brief</span>
+  <button class="btn btn-accent btn-sm" onclick="navigateTo('landing', '/en')" data-i18n="viewbar.cta">Create your own →</button>
+</div>
+
+<!-- LANDING -->
+<div id="landing" class="screen active">
+  <div class="hero-tag"><span data-i18n="landing.tag">✦ Design Brief Generator</span></div>
+  <h1>
+    <span data-i18n="landing.h1">Your client fills the brief.</span><br>
+    <span data-i18n="landing.h1youget">You get</span> 
+    <em data-i18n="landing.h1em">everything</em> 
+    <span data-i18n="landing.h1b">you need.</span>
+  </h1>
+  <p class="hero-sub"><span data-i18n="landing.sub">AI hints, reference uploads, niche templates — so you stop chasing information and start designing.</span></p>
+  <div class="hero-btns">
+    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="landing.start">Start from scratch →</span></button>
+    <button class="btn btn-secondary" onclick="showDemo()"><span data-i18n="landing.demo">See example</span></button>
+  </div>
+  <p class="templates-label"><span data-i18n="landing.templates">Or start with a template</span></p>
+  <div class="template-grid">
+    <div class="tpl-card" onclick="startBrief('mobile')">
+      <div class="tpl-icon">📱</div>
+      <div class="tpl-name"><span data-i18n="tpl.mobile">Mobile app</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.mobile_desc">iOS / Android design</span></div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('saas')">
+      <div class="tpl-icon">🖥️</div>
+      <div class="tpl-name"><span data-i18n="tpl.saas">Web / SaaS</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.saas_desc">Dashboard, product UI</span></div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('brand')">
+      <div class="tpl-icon">✦</div>
+      <div class="tpl-name"><span data-i18n="tpl.brand">Branding</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.brand_desc">Logo, identity, style guide</span></div>
+    </div>
+    <div class="tpl-card" onclick="startBrief('landing')">
+      <div class="tpl-icon">⇢</div>
+      <div class="tpl-name"><span data-i18n="tpl.landing">Landing page</span></div>
+      <div class="tpl-desc"><span data-i18n="tpl.landing_desc">Promo, marketing site</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen" class="screen">
+  <div class="auth-box">
+    <div id="auth-login">
+      <h2><span data-i18n="auth.login_title">Welcome back</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.login_sub">Sign in to access your briefs</span></p>
+      <div class="auth-error" id="login-error"></div>
+      <div class="field">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label data-i18n="auth.password">Password</label>
+        <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn" data-i18n="nav.signin">Sign in</button>
+      <p class="auth-switch"><span data-i18n="auth.noaccount">No account?</span> <a onclick="navigateTo('auth-screen', '/signup')" data-i18n="auth.createone">Create one</a></p>
+      <p class="auth-switch" style="margin-top:8px"><a onclick="navigateTo('auth-screen', '/forgot')" data-i18n="auth.forgotlink">Forgot password?</a></p>
+    </div>
+    <div id="auth-signup" style="display:none">
+      <h2><span data-i18n="auth.signup_title">Create account</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.signup_sub">Join Briffity to save and manage your briefs</span></p>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="auth-success" id="signup-success"></div>
+      <div class="field">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label data-i18n="auth.password">Password</label>
+        <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label data-i18n="auth.confirm_password">Confirm password</label>
+        <input type="password" id="signup-password2" placeholder="Repeat password" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doSignup()" id="signup-btn" data-i18n="auth.signup_btn">Create account</button>
+      <p class="auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</a></p>
+    </div>
+    <div id="auth-forgot" style="display:none">
+      <h2><span data-i18n="auth.forgot_title">Reset password</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.forgot_sub">We'll send a reset link to your email</span></p>
+      <div class="auth-error" id="forgot-error"></div>
+      <div class="auth-success" id="forgot-success"></div>
+      <div class="field">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doForgot()" id="forgot-btn" data-i18n="auth.send_reset">Send reset link</button>
+      <p class="auth-switch"><a onclick="navigateTo('auth-screen', '/login')" data-i18n="auth.back_signin">← Back to sign in</a></p>
+    </div>
+    <div id="auth-reset-password" style="display:none">
+      <h2><span data-i18n="auth.reset_title">New password</span></h2>
+      <p class="auth-sub"><span data-i18n="auth.reset_sub">Enter your new secure password</span></p>
+      <div class="auth-error" id="reset-password-error"></div>
+      <div class="field">
+        <label data-i18n="auth.password">Password</label>
+        <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doResetPassword()" id="reset-password-btn" data-i18n="auth.reset_btn">Save new password</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen" class="screen">
+  <div class="dashboard-header">
+    <h2><span data-i18n="dash.title">My Briefs</span></h2>
+    <button class="btn btn-primary" onclick="startBrief('blank')"><span data-i18n="dash.new">+ New brief</span></button>
+  </div>
+  <div id="briefs-quota" style="display:none;margin-bottom:20px"></div>
+  <div id="briefs-list" style="display:block">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p><span data-i18n="dash.empty">No briefs yet. Create your first one!</span></p>
+      <button class="btn btn-accent" onclick="startBrief('blank')" data-i18n="dash.scratch">Start from scratch</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div id="form-screen" class="screen">
+  <div class="form-header">
+    <h2 id="form-title">Design Brief</h2>
+    <p data-i18n="form.subtitle">Answer honestly — the more specific, the better the outcome</p>
+    <div class="autosave-badge" id="autosave-badge" data-i18n="form.saved">✓ Draft saved</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+    <div class="progress-label"><span data-i18n="form.step">Step</span> <span id="step-num">1</span> <span data-i18n="form.of">of</span> 4 — <span id="step-name">Project overview</span></div>
+  </div>
+
+  <!-- SECTION 0: Project -->
+  <div class="form-section active" id="section-0">
+    <div class="section-title" data-i18n="section0.title">What's the project?</div>
+    <div class="section-sub" data-i18n="section0.sub">Give us the basics — we'll help sharpen the details</div>
+    <div class="field" id="field-name">
+      <label data-i18n="fields.project_name">Project name<span class="required-mark">*</span></label>
+      <input type="text" id="f-name" placeholder="e.g. Delivery app redesign" autocomplete="off" oninput="autosave();maybeShowTip('tip-name',this.value,2)">
+      <div class="validation-msg" data-i18n="val.name">Please give your project a name</div>
+    </div>
+    <div class="field" id="field-task">
+      <label data-i18n="fields.task">What needs to be done?<span class="required-mark">*</span></label>
+      <textarea id="f-task" placeholder="Describe in your own words..." oninput="autosave();maybeShowTip('tip-task',this.value,20)"></textarea>
+      <div class="ai-tip" id="tip-task">
+        <span style="flex-shrink:0">✦</span>
+        <span data-i18n="tips.task">Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.</span>
+      </div>
+      <div class="validation-msg" data-i18n="val.task">Please describe what needs to be done</div>
+    </div>
+    <div class="field">
+      <label data-i18n="fields.type">Project type</label>
+      <div class="tag-grid" id="tags-type">
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Mobile app" data-i18n="tags.mobile">Mobile app</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Web / SaaS" data-i18n="tags.saas">Web / SaaS</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Landing page" data-i18n="tags.landing">Landing page</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Branding" data-i18n="tags.brand">Branding</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Dashboard" data-i18n="tags.dashboard">Dashboard</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Email design" data-i18n="tags.email">Email design</span>
+        <span class="tag" onclick="toggleTag(this,'type')" data-en-val="Other" data-i18n="tags.other">Other</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Audience -->
+  <div class="form-section" id="section-1">
+    <div class="section-title" data-i18n="section1.title">Who is this for?</div>
+    <div class="section-sub" data-i18n="section1.sub">The audience shapes every design decision</div>
+    <div class="field">
+      <label data-i18n="fields.audience">Target audience</label>
+      <textarea id="f-audience" placeholder="Age, interests, tech level, pain points..." oninput="autosave();maybeShowTip('tip-audience',this.value,15)"></textarea>
+      <div class="ai-tip" id="tip-audience">
+        <span style="flex-shrink:0">✦</span>
+        <span data-i18n="tips.audience">Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.</span>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="fields.goal">Key user goal — what should they do in 1 sentence?</label>
+      <input type="text" id="f-goal" placeholder="e.g. Order food in under 2 minutes" autocomplete="off" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label data-i18n="fields.competitors">Competitors or similar products</label>
+      <input type="text" id="f-competitors" placeholder="e.g. Figma, Notion, Linear — what are they doing right?" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label data-i18n="fields.platforms">Platforms</label>
+      <div class="tag-grid">
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="iOS">iOS</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Android">Android</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Web browser" data-i18n="tags.web">Web browser</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Desktop app" data-i18n="tags.desktop">Desktop app</span>
+        <span class="tag" onclick="toggleTag(this,'platform')" data-en-val="Tablet" data-i18n="tags.tablet">Tablet</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Look & feel -->
+  <div class="form-section" id="section-2">
+    <div class="section-title" data-i18n="section2.title">Look, feel & references</div>
+    <div class="section-sub" data-i18n="section2.sub">Visuals communicate faster than words</div>
+    <div class="field">
+      <label data-i18n="fields.style">Style</label>
+      <div class="tag-grid">
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Minimal" data-i18n="style.minimal">Minimal</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Modern" data-i18n="style.modern">Modern</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Playful" data-i18n="style.playful">Playful</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Corporate" data-i18n="style.corporate">Corporate</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Bold" data-i18n="style.bold">Bold</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Elegant" data-i18n="style.elegant">Elegant</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Friendly" data-i18n="style.friendly">Friendly</span>
+        <span class="tag" onclick="toggleTag(this,'style')" data-en-val="Dark / edgy" data-i18n="style.dark">Dark / edgy</span>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="fields.refs">Apps or sites you admire</label>
+      <input type="text" id="f-refs" placeholder="e.g. Bolt, Notion, Linear, Airbnb" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label data-i18n="fields.upload">Upload visual references (optional)</label>
+      <div class="upload-area" id="upload-area" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+        <input type="file" id="ref-upload" accept="image/*" multiple onchange="handleFiles(this.files)">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-text" id="upload-text-container"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each</div>
+      </div>
+      <div class="ref-previews" id="ref-previews"></div>
+    </div>
+    <div class="field">
+      <label data-i18n="fields.avoid">What to avoid</label>
+      <input type="text" id="f-avoid" placeholder="e.g. Stock photos, red color, heavy gradients" oninput="autosave()">
+    </div>
+  </div>
+
+  <!-- SECTION 3: Budget -->
+  <div class="form-section" id="section-3">
+    <div class="section-title" data-i18n="section3.title">Budget & timeline</div>
+    <div class="section-sub" data-i18n="section3.sub">Help the designer plan the right scope</div>
+    <div class="field">
+      <label data-i18n="fields.budget">Budget range</label>
+      <div class="budget-grid">
+        <div class="budget-option" onclick="selectBudget(this,'Under $500')"><div class="range" data-i18n="budget.under500">Under $500</div><div class="label" data-i18n="budget.small">Small scope</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$500 – $1,200')"><div class="range">$500 – $1,200</div><div class="label" data-i18n="budget.mid">Mid project</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$1,200 – $3,000')"><div class="range">$1,200 – $3,000</div><div class="label" data-i18n="budget.full">Full design cycle</div></div>
+        <div class="budget-option" onclick="selectBudget(this,'$3,000+')"><div class="range">$3,000+</div><div class="label" data-i18n="budget.complex">Complex / ongoing</div></div>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="fields.deadline">Deadline</label>
+      <input type="text" id="f-deadline" placeholder="e.g. End of June, ASAP, flexible" oninput="autosave()">
+    </div>
+    <div class="field">
+      <label data-i18n="fields.notes">Anything else the designer should know?</label>
+      <textarea id="f-notes" placeholder="Existing brand assets, team size, technical constraints..." oninput="autosave()"></textarea>
+    </div>
+  </div>
+
+  <div class="form-nav">
+    <button class="btn btn-secondary" id="btn-back" onclick="prevStep()" style="display:none" data-i18n="form.back">← Back</button>
+    <div></div>
+    <button class="btn btn-accent" id="btn-next" onclick="nextStep()" data-i18n="form.continue">Continue →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen">
+  <div class="result-header">
+    <div class="result-title">
+      <h2 id="res-project-name">Project Brief</h2>
+      <p id="res-date"></p>
+    </div>
+    <div class="result-actions">
+      <!-- Status dropdown — only for logged in owners -->
+      <div class="status-dropdown" id="status-dropdown" style="display:none">
+        <div class="status-badge status-draft" id="status-badge" onclick="toggleStatusMenu()">
+          <span id="status-label">Draft</span> ▾
+        </div>
+        <div class="status-menu" id="status-menu">
+          <div class="status-menu-item" onclick="setStatus('draft')"><span class="status-dot" style="background:var(--ink3)"></span><span data-i18n="status.draft">Draft</span></div>
+          <div class="status-menu-item" onclick="setStatus('sent')"><span class="status-dot" style="background:var(--accent)"></span><span data-i18n="status.sent">Sent to client</span></div>
+          <div class="status-menu-item" onclick="setStatus('filled')"><span class="status-dot" style="background:var(--warn)"></span><span data-i18n="status.filled">Client filled</span></div>
+          <div class="status-menu-item" onclick="setStatus('approved')"><span class="status-dot" style="background:var(--success)"></span><span data-i18n="status.approved">Approved</span></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="copyBriefText()"><span data-i18n="result.copy">⇢ Copy text</span></button>
+      <button class="btn btn-accent btn-sm" onclick="openExportModal()"><span data-i18n="result.pdf">↓ Export PDF</span></button>
+    </div>
+  </div>
+
+  <!-- Share box: shown when brief has a URL -->
+  <div class="share-box" id="share-box" style="display:none">
+    <span style="font-size:13px;color:var(--ink2);flex-shrink:0" data-i18n="share.label">🔗 Share link:</span>
+    <span class="share-box-url" id="share-box-url"></span>
+    <button class="btn btn-accent btn-sm share-box-copy" onclick="copyShareLink()" data-i18n="share.copy">Copy</button>
+  </div>
+
+  <!-- Save wall for guests — shown after brief is generated -->
+  <div class="save-wall" id="save-wall" style="display:none">
+    <h3 data-i18n="savewall.title">Save your brief</h3>
+    <p data-i18n="savewall.text">Create a free account to save this brief and get a shareable link. Free plan includes 3 briefs. Pro plan — coming soon 🚀</p>
+    <div class="save-wall-btns">
+      <button class="btn btn-secondary" onclick="navigateTo('auth-screen', '/login')" data-i18n="nav.signin">Sign in</button>
+      <button class="btn btn-accent" onclick="navigateTo('auth-screen', '/signup')" data-i18n="savewall.cta">Create free account →</button>
+    </div>
+  </div>
+
+  <!-- AI Summary -->
+  <div class="ai-summary-wrap">
+    <div class="ai-summary-label"><span data-i18n="result.ai_label">✦ AI summary</span></div>
+    <div id="ai-summary-content">
+      <div class="ai-loading" id="ai-auto-loading"><span data-i18n="ai.generating">Generating summary</span><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+  </div>
+
+  <div class="brief-card">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#EBF0FD">📋</div><div class="brief-card-label" data-i18n="card.overview">Project overview</div></div>
+    <div class="brief-card-body"><p id="res-task"></p></div>
+  </div>
+  <div class="brief-grid">
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">👥</div><div class="brief-card-label" data-i18n="card.audience">Audience</div></div>
+      <div class="brief-card-body"><p id="res-audience"></p></div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FEF3E2">🎯</div><div class="brief-card-label" data-i18n="card.goal">User goal</div></div>
+      <div class="brief-card-body"><p id="res-goal"></p></div>
+    </div>
+  </div>
+  <div class="brief-card" id="res-competitors-card" style="display:none">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5EEFF">⚡</div><div class="brief-card-label" data-i18n="card.competitors">Competitors</div></div>
+    <div class="brief-card-body"><p id="res-competitors"></p></div>
+  </div>
+  <div class="brief-card">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5EEFF">🎨</div><div class="brief-card-label" data-i18n="card.style">Style & references</div></div>
+    <div class="brief-card-body">
+      <p id="res-style"></p>
+      <div class="ref-result-grid" id="res-refs-imgs"></div>
+    </div>
+  </div>
+  <div class="brief-grid">
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#FFF0F0">💰</div><div class="brief-card-label" data-i18n="card.budget">Budget</div></div>
+      <div class="brief-card-body"><p id="res-budget"></p></div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-header"><div class="brief-card-icon" style="background:#E6F5EF">📅</div><div class="brief-card-label" data-i18n="card.deadline">Deadline</div></div>
+      <div class="brief-card-body"><p id="res-deadline"></p></div>
+    </div>
+  </div>
+  <div class="brief-card" id="res-notes-card" style="display:none">
+    <div class="brief-card-header"><div class="brief-card-icon" style="background:#F5F2EC">📝</div><div class="brief-card-label" data-i18n="card.notes">Additional notes</div></div>
+    <div class="brief-card-body"><p id="res-notes"></p></div>
+  </div>
+  <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap" id="result-bottom-actions">
+    <button class="btn btn-secondary" onclick="editBrief()" id="btn-edit-brief"><span data-i18n="result.edit">← Edit brief</span></button>
+    <button class="btn btn-primary" onclick="startBrief('blank',true)"><span data-i18n="result.new">+ New brief</span></button>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-icon" style="background:var(--success-light)">↓</div>
+    <h3 data-i18n="modal.export_title">Export as PDF</h3>
+    <p data-i18n="modal.export_text">Your brief will be downloaded as a PDF file directly to your device.</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('export-modal')" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-accent" onclick="exportPDF()" id="export-pdf-btn" data-i18n="modal.print_btn">↓ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-icon" style="background:#FFF0F0">🗑</div>
+    <h3 data-i18n="modal.delete_title">Delete brief?</h3>
+    <p data-i18n="modal.delete_text">This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal('delete-modal')" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()" data-i18n="modal.delete_confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PRINT LAYER -->
+<div id="pdf-content">
+  <h1 id="pdf-name"></h1>
+  <div class="pdf-meta" id="pdf-meta"></div>
+  <div class="pdf-summary" id="pdf-summary-section" style="display:none">
+    <h3 data-i18n="result.ai_label">AI Summary</h3>
+    <p id="pdf-summary"></p>
+  </div>
+  <div class="pdf-section"><h3 data-i18n="card.overview">Project overview</h3><p id="pdf-task"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.audience">Target audience</h3><p id="pdf-audience"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.goal">User goal</h3><p id="pdf-goal"></p></div>
+  <div class="pdf-section" id="pdf-competitors-section" style="display:none"><h3 data-i18n="card.competitors">Competitors</h3><p id="pdf-competitors"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.style">Style & references</h3><p id="pdf-style"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.budget">Budget</h3><p id="pdf-budget"></p></div>
+  <div class="pdf-section"><h3 data-i18n="card.deadline">Deadline</h3><p id="pdf-deadline"></p></div>
+  <div class="pdf-section" id="pdf-notes-section" style="display:none"><h3 data-i18n="card.notes">Notes</h3><p id="pdf-notes"></p></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// TEMPLATES — with per-template pre-fills
+// ============================================================
+const TEMPLATES = {
+  blank: { title: 'Design Brief', preselect: {} },
+  mobile: {
+    title: 'Mobile App Brief',
+    preselect: { type: ['Mobile app'], platform: ['iOS','Android'] },
+    hints: { task: 'For mobile apps: describe which screens need to be designed (onboarding, home, profile, etc.) and whether you have existing flows.' }
+  },
+  saas: {
+    title: 'Web / SaaS Brief',
+    preselect: { type: ['Web / SaaS'], platform: ['Web browser'] },
+    hints: { task: 'For SaaS: mention if this is a B2B or B2C product, who the admin is vs end user, and which key screens matter most.' }
+  },
+  brand: {
+    title: 'Branding Brief',
+    preselect: { type: ['Branding'] },
+    hints: { task: 'For branding: describe your brand values, industry, and key competitors. Do you need logo only, or full identity (colors, typography, guidelines)?' }
+  },
+  landing: {
+    title: 'Landing Page Brief',
+    preselect: { type: ['Landing page'], platform: ['Web browser'] },
+    hints: { task: 'For landing pages: what is the one action you want visitors to take? What is the main headline you have in mind?' }
+  }
+};
+
+let currentStep = 0;
+let currentTemplate = 'blank';
+const totalSteps = 4;
+const stepNamesEN = ['Project overview','Target audience','Style & references','Budget & timeline'];
+const stepNamesUK = ['Огляд проєкту','Цільова аудиторія','Стиль та референси','Бюджет та терміни'];
+let selectedTags = { type:[], platform:[], style:[] };
+let selectedBudget = '';
+let refImages = [];
+let autosaveTimer = null;
+let aiSummaryText = '';
+let savedBriefSlug = '';
+let savedBriefUrl = '';
+let globalBriefData = null;
+let currentBriefStatus = 'draft';
+let isViewOnly = false; // true when viewing /brief/:slug
+let pendingDeleteSlug = null;
+
+// ============================================================
+// SUPABASE AUTH
+// ============================================================
+let _supabase = null;
+let currentUser = null;
+let _supabaseReady = null;
+
+async function getSupabase() {
+  if (_supabase) return _supabase;
+  await _supabaseReady;
+  return _supabase;
+}
+
+async function initAuth() {
+  _supabaseReady = (async () => {
+    try {
+      const resp = await fetch('/api/auth-config');
+      if (!resp.ok) throw new Error('auth-config returned ' + resp.status);
+      const { url, anonKey } = await resp.json();
+      _supabase = supabase.createClient(url, anonKey);
+
+      _supabase.auth.onAuthStateChange(async (event, session) => {
+        currentUser = session?.user || null;
+        updateNavAuth();
+
+        if (event === 'PASSWORD_RECOVERY') {
+          showScreen('auth-screen');
+          ['login','signup','forgot'].forEach(t => { const el = document.getElementById('auth-'+t); if(el) el.style.display='none'; });
+          document.getElementById('auth-reset-password').style.display = 'block';
+          return;
+        }
+        if (event === 'SIGNED_IN') {
+          const active = document.querySelector('.screen.active');
+          if (active && active.id === 'auth-screen' && !window.location.hash.includes('type=recovery')) {
+            navigateTo('dashboard-screen', '/mybriefs');
+          }
+        }
+        if (event === 'SIGNED_OUT') navigateTo('landing', currentLang === 'uk' ? '/ua' : '/en');
+      });
+
+      const { data: { session } } = await _supabase.auth.getSession();
+      currentUser = session?.user || null;
+      updateNavAuth();
+    } catch(e) {
+      console.error('Supabase init failed:', e);
+    }
+  })();
+  await _supabaseReady;
+}
+
+function updateNavAuth() {
+  const navGuest = document.getElementById('nav-guest');
+  const navUser = document.getElementById('nav-user');
+  const mobileGuest = document.getElementById('mobile-guest');
+  const mobileUser = document.getElementById('mobile-user');
+  if (currentUser) {
+    navGuest.style.display = 'none';
+    navUser.style.display = 'flex';
+    const email = currentUser.email || '';
+    document.getElementById('nav-user-email').textContent = email;
+    if (mobileGuest) mobileGuest.style.display = 'none';
+    if (mobileUser) { mobileUser.style.display = 'block'; document.getElementById('mobile-user-email').textContent = email; }
+  } else {
+    navGuest.style.display = 'flex';
+    navUser.style.display = 'none';
+    if (mobileGuest) mobileGuest.style.display = 'block';
+    if (mobileUser) mobileUser.style.display = 'none';
+  }
+}
+
+function showAuthTab(tab) {
+  ['login','signup','forgot','reset-password'].forEach(t => {
+    const el = document.getElementById('auth-' + t);
+    if(el) el.style.display = (t === tab) ? 'block' : 'none';
+  });
+  showScreen('auth-screen');
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  errEl.classList.remove('show');
+  if (!email || !password) { errEl.textContent = t('err.fill_all'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Вхід…' : 'Signing in…';
+  const sb = await getSupabase();
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.classList.remove('btn-loading'); btn.textContent = t('nav.signin');
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else { navigateTo('dashboard-screen', '/mybriefs'); }
+}
+
+async function doSignup() {
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const password2 = document.getElementById('signup-password2').value;
+  const errEl = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  const btn = document.getElementById('signup-btn');
+  errEl.classList.remove('show'); successEl.classList.remove('show');
+  if (!email || !password) { errEl.textContent = t('err.fill_all'); errEl.classList.add('show'); return; }
+  if (password.length < 6) { errEl.textContent = t('err.pass_length'); errEl.classList.add('show'); return; }
+  if (password !== password2) { errEl.textContent = t('err.pass_match'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Створення…' : 'Creating…';
+  const sb = await getSupabase();
+  const { data: signUpData, error } = await sb.auth.signUp({ email, password });
+  btn.classList.remove('btn-loading'); btn.textContent = t('auth.signup_btn');
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else if (signUpData?.user && !signUpData.session) { successEl.textContent = t('err.confirm_email'); successEl.classList.add('show'); }
+  else { navigateTo('dashboard-screen', '/mybriefs'); }
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errEl = document.getElementById('forgot-error');
+  const successEl = document.getElementById('forgot-success');
+  const btn = document.getElementById('forgot-btn');
+  errEl.classList.remove('show'); successEl.classList.remove('show');
+  if (!email) { errEl.textContent = t('err.enter_email'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Надсилання…' : 'Sending…';
+  const sb = await getSupabase();
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  btn.classList.remove('btn-loading'); btn.textContent = t('auth.send_reset');
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); }
+  else { successEl.textContent = t('err.reset_sent'); successEl.classList.add('show'); }
+}
+
+async function doResetPassword() {
+  const newPassword = document.getElementById('new-password').value;
+  const errEl = document.getElementById('reset-password-error');
+  const btn = document.getElementById('reset-password-btn');
+  errEl.classList.remove('show');
+  if (!newPassword || newPassword.length < 6) { errEl.textContent = t('err.pass_length'); errEl.classList.add('show'); return; }
+  btn.classList.add('btn-loading'); btn.textContent = currentLang === 'uk' ? 'Збереження…' : 'Saving…';
+  try {
+    const sb = await getSupabase();
+    const { error } = await sb.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    showToast(currentLang === 'uk' ? 'Пароль змінено!' : 'Password updated!');
+    document.getElementById('auth-reset-password').style.display = 'none';
+    document.getElementById('auth-login').style.display = 'block';
+    navigateTo('auth-screen', '/login');
+    window.location.hash = '';
+  } catch (error) {
+    errEl.textContent = error.message; errEl.classList.add('show');
+  } finally {
+    btn.classList.remove('btn-loading'); btn.textContent = t('auth.reset_btn');
+  }
+}
+
+async function signOut() {
+  const sb = await getSupabase();
+  await sb.auth.signOut();
+}
+
+// ============================================================
+// DASHBOARD — with clickable cards + delete
+// ============================================================
+async function loadDashboard() {
+  if (!currentUser) { navigateTo('auth-screen', '/login'); return; }
+  const container = document.getElementById('briefs-list');
+  // Show skeleton loader
+  container.innerHTML = `<div class="skeleton-grid">${[1,2,3].map(()=>`
+    <div class="skeleton-card">
+      <div class="skeleton-line medium" style="margin-bottom:10px"></div>
+      <div class="skeleton-line short" style="margin-bottom:14px"></div>
+      <div class="skeleton-line short"></div>
+    </div>`).join('')}</div>`;
+  
+  try {
+    const resp = await fetch(`/api/briefs?user_id=${encodeURIComponent(currentUser.id)}`);
+    
+    if (!resp.ok) {
+      container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Не вдалося завантажити.' : 'Failed to load briefs.'}</p>`;
+      return;
+    }
+    
+    const result = await resp.json();
+    const data = result.data || [];
+    const FREE_LIMIT = 3;
+    const used = data.length;
+    const quotaEl = document.getElementById('briefs-quota');
+    const isUk = currentLang === 'uk';
+    const pct = Math.min(100, Math.round((used / FREE_LIMIT) * 100));
+    const left = Math.max(0, FREE_LIMIT - used);
+
+    // BUG FIX: always show quota; show warning when limit reached
+    quotaEl.style.display = 'block';
+    if (used >= FREE_LIMIT) {
+      // Limit reached — show actionable banner
+      quotaEl.innerHTML = `<div class="quota-banner quota-full">
+        <div class="quota-banner-row">
+          <span class="quota-banner-text">⚠️ ${isUk ? 'Ви використали всі 3 безкоштовні брифи' : 'You\'ve used all 3 free briefs'}</span>
+          <span class="quota-banner-count" style="color:var(--warn)">${isUk ? 'Pro — незабаром' : 'Pro — coming soon'}</span>
+        </div>
+        <div class="quota-bar"><div class="quota-bar-fill" style="width:100%;background:var(--warn)"></div></div>
+        <p style="font-size:12px;color:var(--warn);margin-top:8px">${isUk ? '💡 Видаліть один бриф, щоб створити новий' : '💡 Delete a brief to create a new one'}</p>
+      </div>`;
+    } else {
+      quotaEl.innerHTML = `<div class="quota-banner">
+        <div class="quota-banner-row">
+          <span class="quota-banner-text">${isUk ? `Використано ${used} з ${FREE_LIMIT} безкоштовних брифів` : `${used} of ${FREE_LIMIT} free briefs used`}</span>
+          <span class="quota-banner-count" style="color:${left===1?'var(--warn)':'#7A7672'}">${isUk ? `Залишилось: ${left}` : `${left} left`}</span>
+        </div>
+        <div class="quota-bar"><div class="quota-bar-fill" style="width:${pct}%;background:${pct>=66?'var(--warn)':'var(--accent)'}"></div></div>
+      </div>`;
+    }
+
+    if (data.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${t('dash.empty')}</p><button class="btn btn-accent" onclick="startBrief('blank')">${t('dash.scratch')}</button></div>`;
+      return;
+    }
+
+    const statusLabels = {
+      en: { draft:'Draft', sent:'Sent', filled:'Filled', approved:'Approved' },
+      uk: { draft:'Чернетка', sent:'Надіслано', filled:'Заповнено', approved:'Затверджено' }
+    };
+
+    container.innerHTML = `<div class="briefs-grid">${data.map(b => {
+      const d = b.data || {};
+      // FIX: date with time
+      const dateTime = new Date(b.created_at).toLocaleString(isUk ? 'uk-UA' : 'en-GB', {
+        day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+      });
+      const typeTag = d.type ? `<span class="brief-item-tag">📁 ${d.type}</span>` : '';
+      const status = b.status || 'draft';
+      const statusLabel = statusLabels[currentLang]?.[status] || status;
+      const statusClass = `s-${status}`;
+      return `<div class="brief-item" onclick="openBrief('${b.slug}')">
+        <div class="brief-item-name">${d.name || (isUk ? 'Бриф без назви' : 'Untitled Brief')}</div>
+        <div class="brief-item-meta">${dateTime}</div>
+        <div class="brief-item-footer">
+          <div class="brief-item-tags">
+            ${typeTag}
+            <span class="brief-item-status ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="brief-item-menu-wrap" onclick="event.stopPropagation()">
+            <button class="brief-item-dots" onclick="toggleCardMenu('menu-${b.slug}',event)" aria-label="Options">⋯</button>
+            <div class="card-menu" id="menu-${b.slug}">
+              <div class="card-menu-item" onclick="closeAllCardMenus();editBriefFromDash('${b.slug}')">✏️ ${isUk ? 'Редагувати' : 'Edit'}</div>
+              <div class="card-menu-item danger" onclick="closeAllCardMenus();askDelete('${b.slug}')">🗑 ${isUk ? 'Видалити' : 'Delete'}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+
+  } catch(e) {
+    console.error('Dashboard rendering error:', e);
+    container.innerHTML = `<p style="color:#c0392b;font-size:14px">${currentLang === 'uk' ? 'Помилка завантаження.' : 'Error loading briefs.'}</p>`;
+  }
+}
+
+function openBrief(slug) {
+  window.location.href = '/brief/' + slug;
+}
+
+function askDelete(slug) {
+  pendingDeleteSlug = slug;
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteSlug || !currentUser) return;
+  closeModal('delete-modal');
+  try {
+    const resp = await fetch('/api/briefs', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: pendingDeleteSlug, user_id: currentUser.id })
+    });
+    if (resp.ok) {
+      showToast(currentLang === 'uk' ? 'Бриф видалено' : 'Brief deleted');
+      loadDashboard();
+    }
+  } catch(e) { console.error('Delete failed:', e); }
+  pendingDeleteSlug = null;
+}
+
+// ============================================================
+// SCREEN NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  if (id === 'dashboard-screen') loadDashboard();
+  document.getElementById('view-only-bar').classList.remove('show');
+}
+
+function navigateTo(screenId, urlPath) {
+  showScreen(screenId);
+  if (urlPath) window.history.pushState({}, '', urlPath);
+  if (screenId === 'auth-screen' && urlPath) {
+    if (urlPath === '/login') showAuthTab('login');
+    if (urlPath === '/signup') showAuthTab('signup');
+    if (urlPath === '/forgot') showAuthTab('forgot');
+  }
+}
+
+// ============================================================
+// FORM LOGIC
+// ============================================================
+async function startBrief(template, fresh) {
+  // Check limit BEFORE opening form for logged-in users
+  if (currentUser && (fresh || template)) {
+    try {
+      const resp = await fetch(`/api/briefs?user_id=${encodeURIComponent(currentUser.id)}`);
+      if (resp.ok) {
+        const result = await resp.json();
+        const used = (result.data || []).length;
+        if (used >= 3) {
+          showLimitModal();
+          return;
+        }
+      }
+    } catch(e) { /* proceed if check fails */ }
+  }
+
+  isViewOnly = false;
+  currentTemplate = template || 'blank';
+  const tpl = TEMPLATES[currentTemplate];
+
+  // Always reset form for new brief or template
+  if (fresh || template) {
+    // BUG FIX: clear draft so old data doesn't bleed into new brief
+    try { localStorage.removeItem('briffity_draft'); } catch(e) {}
+    document.querySelectorAll('#form-screen input, #form-screen textarea').forEach(el => el.value = '');
+    document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
+    document.querySelectorAll('.budget-option.selected').forEach(b => b.classList.remove('selected'));
+    selectedTags = { type:[], platform:[], style:[] };
+    selectedBudget = '';
+    refImages = [];
+    document.getElementById('ref-previews').innerHTML = '';
+    document.getElementById('autosave-badge').classList.remove('show');
+    savedBriefSlug = '';
+    savedBriefUrl = '';
+  }
+
+  let titleText = tpl.title;
+  if (currentLang === 'uk') {
+    const ukTitles = { mobile:'Бриф мобільного застосунку', saas:'Бриф Вебсайту / SaaS', brand:'Бриф на брендинг', landing:'Бриф лендінгу', blank:'Дизайн-бриф' };
+    titleText = ukTitles[currentTemplate] || 'Дизайн-бриф';
+  }
+  document.getElementById('form-title').textContent = titleText;
+
+  // Pre-select template tags
+  if (tpl.preselect) {
+    Object.entries(tpl.preselect).forEach(([group, vals]) => {
+      document.querySelectorAll('#section-0 .tag, #section-1 .tag').forEach(tag => {
+        const tagVal = tag.getAttribute('data-en-val') || tag.textContent.trim();
+        if (vals.includes(tagVal)) {
+          tag.classList.add('selected');
+          if (!selectedTags[group]) selectedTags[group] = [];
+          if (!selectedTags[group].includes(tagVal)) selectedTags[group].push(tagVal);
+        }
+      });
+    });
+  }
+
+  // Show template-specific hint in task field
+  if (tpl.hints?.task) {
+    const tip = document.getElementById('tip-task');
+    if (tip) { tip.querySelector('span:last-child').textContent = tpl.hints.task; }
+  }
+
+  loadDraft();
+  goToStep(0);
+  showScreen('form-screen');
+}
+
+function goToStep(step) { currentStep = step; updateForm(); }
+
+function updateForm() {
+  document.querySelectorAll('.form-section').forEach((s,i) => s.classList.toggle('active', i === currentStep));
+  document.querySelectorAll('.step-dot').forEach((d,i) => {
+    d.classList.remove('active','done');
+    if (i < currentStep) d.classList.add('done');
+    if (i === currentStep) d.classList.add('active');
+  });
+  document.getElementById('step-num').textContent = currentStep + 1;
+  document.getElementById('step-name').textContent = currentLang === 'uk' ? stepNamesUK[currentStep] : stepNamesEN[currentStep];
+  document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'inline-flex';
+  document.getElementById('btn-next').textContent = currentStep === totalSteps - 1
+    ? (currentLang === 'uk' ? 'Згенерувати бриф →' : 'Generate brief →')
+    : (currentLang === 'uk' ? 'Продовжити →' : 'Continue →');
+  clearErrors();
+}
+
+function validateStep() {
+  if (currentStep === 0) {
+    let ok = true;
+    if (!document.getElementById('f-name').value.trim()) { document.getElementById('field-name').classList.add('error'); ok = false; }
+    if (!document.getElementById('f-task').value.trim()) { document.getElementById('field-task').classList.add('error'); ok = false; }
+    return ok;
+  }
+  return true;
+}
+
+function clearErrors() { document.querySelectorAll('.field.error').forEach(f => f.classList.remove('error')); }
+
+function nextStep() {
+  if (!validateStep()) return;
+  if (currentStep < totalSteps - 1) { currentStep++; updateForm(); }
+  else generateResult();
+}
+function prevStep() { if (currentStep > 0) { currentStep--; updateForm(); } }
+
+function toggleTag(el, group) {
+  const val = el.getAttribute('data-en-val') || el.textContent.trim();
+  el.classList.toggle('selected');
+  if (!selectedTags[group]) selectedTags[group] = [];
+  if (el.classList.contains('selected')) selectedTags[group].push(val);
+  else selectedTags[group] = selectedTags[group].filter(v => v !== val);
+  autosave();
+}
+
+function selectBudget(el, val) {
+  document.querySelectorAll('.budget-option').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBudget = val;
+  autosave();
+}
+
+function maybeShowTip(id, val, min) {
+  const tip = document.getElementById(id);
+  if (tip) {
+    if (val.length >= min) {
+      tip.classList.add('visible');
+    } else {
+      tip.classList.remove('visible');
+    }
+  }
+}
+
+function autosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    const data = {
+      name: document.getElementById('f-name').value,
+      task: document.getElementById('f-task').value,
+      audience: document.getElementById('f-audience').value,
+      goal: document.getElementById('f-goal').value,
+      competitors: document.getElementById('f-competitors').value,
+      refs: document.getElementById('f-refs').value,
+      avoid: document.getElementById('f-avoid').value,
+      deadline: document.getElementById('f-deadline').value,
+      notes: document.getElementById('f-notes').value,
+      tags: selectedTags,
+      budget: selectedBudget
+    };
+    try { localStorage.setItem('briffity_draft', JSON.stringify(data)); } catch(e) {}
+    const badge = document.getElementById('autosave-badge');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 2000);
+  }, 800);
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem('briffity_draft');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
+    setVal('f-name', d.name); setVal('f-task', d.task); setVal('f-audience', d.audience);
+    setVal('f-goal', d.goal); setVal('f-competitors', d.competitors); setVal('f-refs', d.refs);
+    setVal('f-avoid', d.avoid); setVal('f-deadline', d.deadline); setVal('f-notes', d.notes);
+    if (d.budget) {
+      selectedBudget = d.budget;
+      document.querySelectorAll('.budget-option').forEach(b => {
+        b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === d.budget);
+      });
+    }
+  } catch(e) {}
+}
+
+function handleDrag(e, on) { e.preventDefault(); document.getElementById('upload-area').classList.toggle('drag', on); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('upload-area').classList.remove('drag'); handleFiles(e.dataTransfer.files); }
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => { refImages.push(e.target.result); renderPreviews(); };
+    reader.readAsDataURL(file);
+  });
+}
+function renderPreviews() {
+  const container = document.getElementById('ref-previews');
+  container.innerHTML = '';
+  refImages.forEach((src, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'ref-thumb';
+    wrap.innerHTML = `<img src="${src}" alt="Ref ${i+1}"><div class="remove" onclick="removeRef(${i})">✕</div>`;
+    container.appendChild(wrap);
+  });
+}
+function removeRef(i) { refImages.splice(i, 1); renderPreviews(); }
+
+// ============================================================
+// GENERATE RESULT
+// ============================================================
+async function generateResult() {
+  isViewOnly = false;
+  const name = document.getElementById('f-name').value || (currentLang === 'uk' ? 'Проєкт без назви' : 'Untitled project');
+  const task = document.getElementById('f-task').value || '—';
+  const type = selectedTags.type.join(', ');
+  const audience = document.getElementById('f-audience').value || '—';
+  const goal = document.getElementById('f-goal').value || '—';
+  const competitors = document.getElementById('f-competitors').value;
+  const platforms = selectedTags.platform.join(', ');
+  const style = selectedTags.style.join(', ');
+  const refs = document.getElementById('f-refs').value;
+  const avoid = document.getElementById('f-avoid').value;
+  const deadline = document.getElementById('f-deadline').value || '—';
+  const notes = document.getElementById('f-notes').value;
+
+  const typeLabel = currentLang === 'uk' ? 'Тип' : 'Type';
+  const platLabel = currentLang === 'uk' ? 'Платформи' : 'Platforms';
+  const refsLabel = currentLang === 'uk' ? 'Референси' : 'References';
+  const avoidLabel = currentLang === 'uk' ? 'Уникати' : 'Avoid';
+
+  const taskFull = [task, type ? `${typeLabel}: ${type}` : ''].filter(Boolean).join('\n');
+  const audienceFull = [audience, platforms ? `${platLabel}: ${platforms}` : ''].filter(Boolean).join('\n');
+  const styleFull = [style, refs ? `${refsLabel}: ${refs}` : '', avoid ? `${avoidLabel}: ${avoid}` : ''].filter(Boolean).join('\n');
+  let localizedBudget = selectedBudget || '—';
+  if (currentLang === 'uk' && selectedBudget === 'Under $500') localizedBudget = 'До $500';
+
+  // Fill result screen
+  document.getElementById('res-project-name').textContent = name;
+  document.getElementById('res-date').textContent = (currentLang === 'uk' ? 'Створено ' : 'Generated ') + new Date().toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('res-task').textContent = taskFull;
+  document.getElementById('res-audience').textContent = audienceFull;
+  document.getElementById('res-goal').textContent = goal;
+  document.getElementById('res-style').textContent = styleFull || '—';
+  document.getElementById('res-budget').textContent = localizedBudget;
+  document.getElementById('res-deadline').textContent = deadline;
+
+  if (competitors) {
+    document.getElementById('res-competitors').textContent = competitors;
+    document.getElementById('res-competitors-card').style.display = 'block';
+  } else {
+    document.getElementById('res-competitors-card').style.display = 'none';
+  }
+
+  if (notes) { document.getElementById('res-notes').textContent = notes; document.getElementById('res-notes-card').style.display = 'block'; }
+  else { document.getElementById('res-notes-card').style.display = 'none'; }
+
+  const refsImgContainer = document.getElementById('res-refs-imgs');
+  refsImgContainer.innerHTML = '';
+  refImages.forEach(src => {
+    const div = document.createElement('div'); div.className = 'ref-result-thumb';
+    div.innerHTML = `<img src="${src}" alt="ref">`; refsImgContainer.appendChild(div);
+  });
+
+  // PDF layer
+  document.getElementById('pdf-name').textContent = name;
+  document.getElementById('pdf-meta').textContent = (currentLang === 'uk' ? 'Дизайн-бриф · ' : 'Design Brief · ') + new Date().toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pdf-task').textContent = taskFull;
+  document.getElementById('pdf-audience').textContent = audienceFull;
+  document.getElementById('pdf-goal').textContent = goal;
+  document.getElementById('pdf-style').textContent = styleFull || '—';
+  document.getElementById('pdf-budget').textContent = localizedBudget;
+  document.getElementById('pdf-deadline').textContent = deadline;
+  if (competitors) { document.getElementById('pdf-competitors').textContent = competitors; document.getElementById('pdf-competitors-section').style.display = 'block'; }
+  else { document.getElementById('pdf-competitors-section').style.display = 'none'; }
+  if (notes) { document.getElementById('pdf-notes').textContent = notes; document.getElementById('pdf-notes-section').style.display = 'block'; }
+  else { document.getElementById('pdf-notes-section').style.display = 'none'; }
+
+  // Reset AI summary
+  aiSummaryText = '';
+  document.getElementById('pdf-summary-section').style.display = 'none';
+
+  // Status dropdown
+  currentBriefStatus = 'draft';
+  document.getElementById('status-dropdown').style.display = 'none';
+
+  // Show/hide bottom action buttons depending on context
+  document.getElementById('btn-edit-brief').style.display = 'inline-flex';
+
+  showScreen('result-screen');
+
+  // Show save wall for guests
+  document.getElementById('save-wall').style.display = currentUser ? 'none' : 'block';
+  document.getElementById('share-box').style.display = 'none';
+
+  // Store brief data
+  globalBriefData = { name, task, type, audience, goal, competitors, style, refs, avoid, selectedBudget, deadline, notes, aiSummary: '' };
+
+  // Save brief and get shareable URL
+  await saveBrief(globalBriefData);
+
+  // AUTO-generate AI summary (no manual button)
+  triggerAiSummary();
+}
+
+// ============================================================
+// AI SUMMARY — AUTO-TRIGGERED
+// ============================================================
+async function triggerAiSummary() {
+  const name = document.getElementById('f-name').value || document.getElementById('res-project-name').textContent || 'Project';
+  const task = document.getElementById('f-task').value || document.getElementById('res-task').textContent || '—';
+  const audience = document.getElementById('f-audience').value || document.getElementById('res-audience').textContent || '—';
+  const goal = document.getElementById('f-goal').value || document.getElementById('res-goal').textContent || '—';
+  const style = document.getElementById('res-style').textContent || '—';
+
+  const loadingText = currentLang === 'uk' ? 'Генерація підсумку' : 'Generating summary';
+  document.getElementById('ai-summary-content').innerHTML = `<div class="ai-loading">${loadingText}<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+
+  const briefText = `Project: ${name}\nTask: ${task}\nAudience: ${audience}\nGoal: ${goal}\nStyle: ${style}\nBudget: ${selectedBudget || document.getElementById('res-budget').textContent}\nDeadline: ${document.getElementById('res-deadline').textContent}`;
+
+  const systemInstruction = `You are an expert design assistant. Summarize this brief into 2-3 clear, professional, cohesive sentences. CRITICAL: Output ONLY the summary text. No labels, no markdown, no preamble. Language: ${currentLang === 'uk' ? 'Ukrainian' : 'English'}.`;
+
+  try {
+    const resp = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ briefText, systemInstruction })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.summary) throw new Error(data.error || 'Empty');
+
+    aiSummaryText = data.summary.replace(/^\s*✦?\s*(AI-підсумок|AI summary|Summary):\s*/i, '').replace(/\*?\*?(Sentence|Речення)\s*\d+:?\*?\*?/gi, '');
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${aiSummaryText}</div>`;
+    document.getElementById('pdf-summary').textContent = aiSummaryText;
+    document.getElementById('pdf-summary-section').style.display = 'block';
+
+    // Update saved brief with AI summary
+    if (savedBriefSlug) {
+      fetch('/api/briefs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: savedBriefSlug, ai_summary: aiSummaryText })
+      }).catch(() => {});
+    }
+  } catch(e) {
+    const errorText = currentLang === 'uk' ? 'Підсумок недоступний.' : 'Summary unavailable — try refreshing.';
+    document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text" style="color:var(--ink2)">${errorText} <button class="btn btn-secondary btn-xs" onclick="triggerAiSummary()" style="margin-left:8px">${currentLang === 'uk' ? 'Повторити' : 'Retry'}</button></div>`;
+  }
+}
+
+// ============================================================
+// SAVE BRIEF TO API
+// ============================================================
+async function saveBrief(briefData) {
+  const payload = { data: briefData };
+  if (currentUser) {
+    payload.user_id = currentUser.id;
+    payload.ownerEmail = currentUser.email;
+  }
+  try {
+    const resp = await fetch('/api/briefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await resp.json();
+
+    // ── Лимит достигнут ─────────────────────────────────────
+    if (resp.status === 403 && result.error === 'limit_reached') {
+      showLimitModal();
+      return;
+    }
+    // ────────────────────────────────────────────────────────
+
+    if (result.url && result.slug) {
+      savedBriefSlug = result.slug;
+      savedBriefUrl = result.url;
+      // Show share box for logged-in users
+      if (currentUser) {
+        document.getElementById('share-box').style.display = 'flex';
+        document.getElementById('share-box-url').textContent = result.url;
+        // Show status dropdown for owners
+        document.getElementById('status-dropdown').style.display = 'inline-flex';
+        updateStatusBadge('draft');
+      }
+    }
+  } catch(e) {
+    console.error('Save failed:', e);
+  }
+}
+
+// ============================================================
+// LIMIT MODAL
+// ============================================================
+function showLimitModal() {
+  const isUk = currentLang === 'uk';
+  document.getElementById('limit-title').textContent = isUk
+    ? 'Ви використали всі 3 безкоштовні брифи'
+    : 'You\'ve used all 3 free briefs';
+  document.getElementById('limit-desc').textContent = isUk
+    ? 'Безкоштовний план включає 3 брифи. Оновіться до Pro, щоб створювати необмежену кількість брифів.'
+    : 'The free plan includes 3 briefs. Upgrade to Pro to create unlimited briefs and unlock more features.';
+  document.getElementById('limit-badge').textContent = isUk ? 'Незабаром' : 'Coming soon';
+  document.getElementById('limit-pro-btn').textContent = isUk ? 'Зрозуміло' : 'Got it';
+  document.getElementById('limit-cancel-btn').textContent = isUk ? 'Може пізніше' : 'Maybe later';
+  document.getElementById('limit-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLimitModal() {
+  document.getElementById('limit-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+function toggleStatusMenu() {
+  document.getElementById('status-menu').classList.toggle('open');
+}
+
+async function setStatus(newStatus) {
+  document.getElementById('status-menu').classList.remove('open');
+  if (!savedBriefSlug) return;
+  currentBriefStatus = newStatus;
+  updateStatusBadge(newStatus);
+  try {
+    await fetch('/api/briefs', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: savedBriefSlug, status: newStatus })
+    });
+    showToast(t('status.' + newStatus));
+  } catch(e) { console.error('Status update failed:', e); }
+}
+
+function updateStatusBadge(status) {
+  const badge = document.getElementById('status-badge');
+  badge.className = 'status-badge status-' + status;
+  document.getElementById('status-label').textContent = t('status.' + status) || status;
+}
+
+// Close menus on outside click
+document.addEventListener('click', e => {
+  const menu = document.getElementById('status-menu');
+  if (menu && menu.classList.contains('open') && !e.target.closest('.status-dropdown')) {
+    menu.classList.remove('open');
+  }
+  if (!e.target.closest('.brief-item-menu-wrap')) {
+    closeAllCardMenus();
+  }
+  if (!e.target.closest('.mobile-menu') && !e.target.closest('.burger-btn')) {
+    closeMobileMenu();
+  }
+});
+
+// ============================================================
+// LOAD BRIEF FROM /brief/:slug
+// ============================================================
+async function loadBriefFromUrl() {
+  const match = window.location.pathname.match(/\/brief\/([a-z0-9_\-]+)/i);
+  if (!match) return;
+  const slug = match[1];
+  isViewOnly = true;
+
+  // Show view-only bar
+  document.getElementById('view-only-bar').classList.add('show');
+
+  showScreen('result-screen');
+
+  // Hide form-edit and new-brief buttons for view-only
+  document.getElementById('btn-edit-brief').style.display = 'none';
+  document.getElementById('save-wall').style.display = 'none';
+  document.getElementById('share-box').style.display = 'none';
+  document.getElementById('status-dropdown').style.display = 'none';
+
+  document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Завантаження…' : 'Loading…';
+
+  try {
+    const resp = await fetch(`/api/briefs?slug=${encodeURIComponent(slug)}`);
+    if (!resp.ok) {
+      document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Бриф не знайдено' : 'Brief not found';
+      document.getElementById('res-task').textContent = currentLang === 'uk' ? 'Посилання недійсне або бриф видалено.' : 'This link is invalid or the brief was deleted.';
+      return;
+    }
+    const row = await resp.json();
+    const d = row.data || row;
+
+    document.getElementById('res-project-name').textContent = d.name || (currentLang === 'uk' ? 'Бриф без назви' : 'Untitled Brief');
+    document.getElementById('res-date').textContent = (currentLang === 'uk' ? 'Створено ' : 'Generated ') + new Date(row.created_at || Date.now()).toLocaleDateString(currentLang === 'uk' ? 'uk-UA' : 'en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+    const typeLabel = currentLang === 'uk' ? 'Тип' : 'Type';
+    const platLabel = currentLang === 'uk' ? 'Платформи' : 'Platforms';
+    const refsLabel = currentLang === 'uk' ? 'Референси' : 'References';
+    const avoidLabel = currentLang === 'uk' ? 'Уникати' : 'Avoid';
+
+    document.getElementById('res-task').textContent = [d.task, d.type ? `${typeLabel}: ${d.type}` : ''].filter(Boolean).join('\n');
+    document.getElementById('res-audience').textContent = d.audience || '—';
+    document.getElementById('res-goal').textContent = d.goal || '—';
+
+    if (d.competitors) {
+      document.getElementById('res-competitors').textContent = d.competitors;
+      document.getElementById('res-competitors-card').style.display = 'block';
+    }
+
+    document.getElementById('res-style').textContent = [d.style, d.refs ? `${refsLabel}: ${d.refs}` : '', d.avoid ? `${avoidLabel}: ${d.avoid}` : ''].filter(Boolean).join('\n') || '—';
+
+    let displayBudget = d.selectedBudget || d.budget || '—';
+    if (currentLang === 'uk' && displayBudget === 'Under $500') displayBudget = 'До $500';
+    document.getElementById('res-budget').textContent = displayBudget;
+    document.getElementById('res-deadline').textContent = d.deadline || '—';
+
+    if (d.notes) { document.getElementById('res-notes').textContent = d.notes; document.getElementById('res-notes-card').style.display = 'block'; }
+
+    // AI summary
+    const summaryToShow = row.ai_summary || d.aiSummary;
+    if (summaryToShow) {
+      aiSummaryText = summaryToShow;
+      document.getElementById('ai-summary-content').innerHTML = `<div class="ai-summary-text">${summaryToShow}</div>`;
+      document.getElementById('pdf-summary').textContent = summaryToShow;
+      document.getElementById('pdf-summary-section').style.display = 'block';
+    } else {
+      // Auto-generate if no cached summary
+      savedBriefSlug = slug;
+      document.getElementById('f-name') && (document.getElementById('f-name').value = d.name || '');
+      document.getElementById('f-task') && (document.getElementById('f-task').value = d.task || '');
+      document.getElementById('f-audience') && (document.getElementById('f-audience').value = d.audience || '');
+      document.getElementById('f-goal') && (document.getElementById('f-goal').value = d.goal || '');
+      selectedBudget = d.selectedBudget || d.budget || '';
+      triggerAiSummary();
+    }
+
+    // If current user is owner, show share + status controls
+    if (currentUser && row.user_id === currentUser.id) {
+      savedBriefSlug = slug;
+      savedBriefUrl = window.location.href;
+      document.getElementById('share-box-url').textContent = window.location.href;
+      document.getElementById('share-box').style.display = 'flex';
+      document.getElementById('status-dropdown').style.display = 'inline-flex';
+      updateStatusBadge(row.status || 'draft');
+      // Show edit button for owner
+      const editBtn = document.getElementById('btn-edit-brief');
+      editBtn.style.display = 'inline-flex';
+      editBtn.onclick = () => editBriefFromDash(slug);
+    }
+
+  } catch(e) {
+    document.getElementById('res-project-name').textContent = currentLang === 'uk' ? 'Помилка' : 'Error loading brief';
+    document.getElementById('res-task').textContent = String(e);
+  }
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function openExportModal() { document.getElementById('export-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+async function exportPDF() {
+  closeModal('export-modal');
+  const btn = document.getElementById('export-pdf-btn');
+  const el = document.getElementById('pdf-content');
+  el.style.display = 'block';
+  const projectName = document.getElementById('pdf-name').textContent || 'brief';
+  const filename = projectName.toLowerCase().replace(/[^a-zа-яёіїєa-z0-9]+/gi,'_').slice(0,40) + '_brief.pdf';
+  if (btn) { btn.textContent = currentLang === 'uk' ? '⏳ Генерація…' : '⏳ Generating…'; btn.classList.add('btn-loading'); }
+  try {
+    await html2pdf().set({
+      margin: [15, 15, 15, 15],
+      filename,
+      image: { type: 'jpeg', quality: 0.96 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all'] }
+    }).from(el).save();
+  } catch(err) {
+    console.error('PDF error:', err);
+    // fallback to print
+    window.print();
+  } finally {
+    el.style.display = 'none';
+    if (btn) { btn.textContent = currentLang === 'uk' ? '↓ Завантажити PDF' : '↓ Download PDF'; btn.classList.remove('btn-loading'); }
+    showToast(currentLang === 'uk' ? '✓ PDF завантажується' : '✓ PDF downloading');
+  }
+}
+
+function copyShareLink() {
+  const url = savedBriefUrl || window.location.href;
+  navigator.clipboard.writeText(url).catch(()=>{});
+  showToast(currentLang === 'uk' ? 'Посилання скопійовано!' : 'Link copied!');
+}
+
+function copyBriefText() {
+  const parts = [
+    `${currentLang === 'uk' ? 'Дизайн-бриф' : 'Design Brief'}: ${document.getElementById('res-project-name').textContent}`,
+    aiSummaryText ? `\n${currentLang === 'uk' ? 'Підсумок' : 'Summary'}: ${aiSummaryText}` : '',
+    `\n${currentLang === 'uk' ? 'Проєкт' : 'Project'}: ${document.getElementById('res-task').textContent}`,
+    `${currentLang === 'uk' ? 'Аудиторія' : 'Audience'}: ${document.getElementById('res-audience').textContent}`,
+    `${currentLang === 'uk' ? 'Ціль' : 'Goal'}: ${document.getElementById('res-goal').textContent}`,
+    `${currentLang === 'uk' ? 'Стиль' : 'Style'}: ${document.getElementById('res-style').textContent}`,
+    `${currentLang === 'uk' ? 'Бюджет' : 'Budget'}: ${document.getElementById('res-budget').textContent}`,
+    `${currentLang === 'uk' ? 'Дедлайн' : 'Deadline'}: ${document.getElementById('res-deadline').textContent}`
+  ].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(parts).catch(()=>{});
+  showToast(currentLang === 'uk' ? 'Бриф скопійовано!' : 'Brief copied to clipboard');
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+
+// ============================================================
+// EDIT BRIEF
+// ============================================================
+
+// Called from result screen bottom button (when brief was just generated)
+function editBrief() {
+  // Simply go back to form screen — data is still in fields
+  showScreen('form-screen');
+  goToStep(0);
+}
+
+// Called from dashboard card menu — loads brief data into form for editing
+async function editBriefFromDash(slug) {
+  // Close any open card menus
+  document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
+
+  try {
+    const resp = await fetch('/api/briefs?slug=' + encodeURIComponent(slug));
+    if (!resp.ok) { showToast(currentLang === 'uk' ? 'Помилка завантаження' : 'Failed to load'); return; }
+    const row = await resp.json();
+    const d = row.data || row;
+
+    // Reset form state
+    isViewOnly = false;
+    currentTemplate = 'blank';
+    selectedTags = { type:[], platform:[], style:[] };
+    selectedBudget = '';
+    refImages = [];
+    document.getElementById('ref-previews').innerHTML = '';
+    document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
+    document.querySelectorAll('.budget-option.selected').forEach(b => b.classList.remove('selected'));
+
+    // Fill form fields
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
+    setVal('f-name', d.name);
+    setVal('f-task', d.task);
+    setVal('f-audience', d.audience);
+    setVal('f-goal', d.goal);
+    setVal('f-competitors', d.competitors);
+    setVal('f-refs', d.refs);
+    setVal('f-avoid', d.avoid);
+    setVal('f-deadline', d.deadline);
+    setVal('f-notes', d.notes);
+
+    // Restore selected tags (type)
+    if (d.type) {
+      const typeVals = d.type.split(', ');
+      document.querySelectorAll('#section-0 .tag').forEach(tag => {
+        const v = tag.getAttribute('data-en-val') || tag.textContent.trim();
+        if (typeVals.includes(v)) { tag.classList.add('selected'); selectedTags.type.push(v); }
+      });
+    }
+
+    // Restore budget
+    if (d.selectedBudget || d.budget) {
+      const bval = d.selectedBudget || d.budget;
+      selectedBudget = bval;
+      document.querySelectorAll('.budget-option').forEach(b => {
+        b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === bval);
+      });
+    }
+
+    // Keep slug so re-generating overwrites same brief
+    savedBriefSlug = slug;
+    savedBriefUrl = row.url || window.location.origin + '/brief/' + slug;
+
+    document.getElementById('form-title').textContent = d.name || (currentLang === 'uk' ? 'Дизайн-бриф' : 'Design Brief');
+
+    showScreen('form-screen');
+    goToStep(0);
+    showToast(currentLang === 'uk' ? 'Бриф завантажено — редагуйте та збережіть' : 'Brief loaded — edit and regenerate');
+  } catch(e) {
+    console.error('editBriefFromDash error:', e);
+    showToast(currentLang === 'uk' ? 'Помилка' : 'Error loading brief');
+  }
+}
+
+// toggleCardMenu for dots button
+function toggleCardMenu(menuId, e) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  const menu = document.getElementById(menuId);
+  if (!menu) return;
+  const wasOpen = menu.classList.contains('open');
+  closeAllCardMenus();
+  if (!wasOpen) {
+    const rect = btn.getBoundingClientRect();
+    // Temporarily show to measure
+    menu.style.visibility = 'hidden';
+    menu.style.display = 'block';
+    const menuW = menu.offsetWidth;
+    const menuH = menu.offsetHeight;
+    menu.style.display = '';
+    menu.style.visibility = '';
+
+    let top = rect.bottom + 6;
+    let left = rect.right - menuW;
+
+    if (left < 8) left = 8;
+    if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+    if (top + menuH > window.innerHeight - 8) top = rect.top - menuH - 6;
+
+    menu.style.top = top + 'px';
+    menu.style.left = left + 'px';
+    menu.style.right = 'auto';
+    menu.classList.add('open');
+  }
+}
+function closeAllCardMenus() {
+  document.querySelectorAll('.card-menu.open').forEach(m => m.classList.remove('open'));
+}
+
+// toggleMobileMenu
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('burger-btn');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('burger-btn').classList.remove('open');
+}
+
+// ============================================================
+// DEMO
+// ============================================================
+function showDemo() {
+  startBrief('mobile');
+  setTimeout(() => {
+    document.getElementById('f-name').value = currentLang === 'uk' ? 'Редизайн додатку доставки' : 'Delivery app redesign';
+    document.getElementById('f-task').value = currentLang === 'uk' ? 'Редизайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
+    document.getElementById('f-audience').value = currentLang === 'uk' ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
+    document.getElementById('f-goal').value = currentLang === 'uk' ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes';
+    document.getElementById('f-competitors').value = 'Glovo, Bolt Food, Wolt';
+    document.getElementById('f-refs').value = 'Bolt Food, Airbnb, Notion';
+    document.getElementById('f-avoid').value = currentLang === 'uk' ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI';
+    document.getElementById('f-deadline').value = currentLang === 'uk' ? 'Кінець червня 2026' : 'End of June 2026';
+    document.getElementById('f-notes').value = currentLang === 'uk' ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
+    selectedBudget = '$1,200 – $3,000';
+    document.querySelectorAll('.budget-option').forEach(b => b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === selectedBudget));
+    ['Minimal','Modern'].forEach(s => {
+      document.querySelectorAll('#section-2 .tag').forEach(tag => {
+        if (tag.getAttribute('data-en-val') === s) { tag.classList.add('selected'); if (!selectedTags.style.includes(s)) selectedTags.style.push(s); }
+      });
+    });
+  }, 100);
+}
+
+// ============================================================
+// i18n
+// ============================================================
+const TRANSLATIONS = {
+  en: {
+    'nav.signin':'Sign in','nav.signup':'Sign up','nav.mybriefs':'My briefs','nav.signout':'Sign out',
+    'landing.tag':'✦ Design Brief Generator','landing.h1':'Your client fills the brief.','landing.h1youget':'You get','landing.h1em':'everything','landing.h1b':'you need.',
+    'landing.sub':'AI hints, reference uploads, niche templates — so you stop chasing information and start designing.',
+    'landing.start':'Start from scratch →','landing.demo':'See example','landing.templates':'Or start with a template',
+    'tpl.mobile':'Mobile app','tpl.mobile_desc':'iOS / Android design','tpl.saas':'Web / SaaS','tpl.saas_desc':'Dashboard, product UI',
+    'tpl.brand':'Branding','tpl.brand_desc':'Logo, identity, style guide','tpl.landing':'Landing page','tpl.landing_desc':'Promo, marketing site',
+    'auth.login_title':'Welcome back','auth.login_sub':'Sign in to access your briefs',
+    'auth.signup_title':'Create account','auth.signup_sub':'Join Briffity to save and manage your briefs',
+    'auth.forgot_title':'Reset password','auth.forgot_sub':"We'll send a reset link to your email",
+    'auth.reset_title':'New password','auth.reset_sub':'Enter your new secure password','auth.reset_btn':'Save new password',
+    'auth.email':'Email','auth.password':'Password','auth.confirm_password':'Confirm password',
+    'auth.noaccount':'No account?','auth.createone':'Create one','auth.forgotlink':'Forgot password?',
+    'auth.haveaccount':'Already have an account?','auth.signup_btn':'Create account','auth.send_reset':'Send reset link','auth.back_signin':'← Back to sign in',
+    'dash.title':'My Briefs','dash.new':'+ New brief','dash.empty':'No briefs yet. Create your first one!','dash.scratch':'Start from scratch',
+    'form.subtitle':'Answer honestly — the more specific, the better the outcome','form.saved':'✓ Draft saved',
+    'form.step':'Step','form.of':'of','form.back':'← Back','form.continue':'Continue →',
+    'section0.title':"What's the project?",'section0.sub':"Give us the basics — we'll help sharpen the details",
+    'fields.project_name':'Project name','fields.task':'What needs to be done?','fields.type':'Project type',
+    'fields.audience':'Target audience','fields.goal':'Key user goal — what should they do in 1 sentence?',
+    'fields.competitors':'Competitors or similar products',
+    'fields.platforms':'Platforms','fields.style':'Style','fields.refs':'Apps or sites you admire',
+    'fields.upload':'Upload visual references (optional)','fields.avoid':'What to avoid',
+    'fields.budget':'Budget range','fields.deadline':'Deadline','fields.notes':'Anything else the designer should know?',
+    'val.name':'Please give your project a name','val.task':'Please describe what needs to be done',
+    'tips.task':'Is this updating something existing, or designing from scratch? Knowing this shapes the whole approach.',
+    'tips.audience':'Describe a real person. What do they do daily? What frustrates them? Specifics make a better design.',
+    'tags.mobile':'Mobile app','tags.saas':'Web / SaaS','tags.landing':'Landing page','tags.brand':'Branding',
+    'tags.dashboard':'Dashboard','tags.email':'Email design','tags.other':'Other','tags.web':'Web browser','tags.desktop':'Desktop app','tags.tablet':'Tablet',
+    'section1.title':'Who is this for?','section1.sub':'The audience shapes every design decision',
+    'section2.title':'Look, feel & references','section2.sub':'Visuals communicate faster than words',
+    'section3.title':'Budget & timeline','section3.sub':'Help the designer plan the right scope',
+    'style.minimal':'Minimal','style.modern':'Modern','style.playful':'Playful','style.corporate':'Corporate',
+    'style.bold':'Bold','style.elegant':'Elegant','style.friendly':'Friendly','style.dark':'Dark / edgy',
+    'budget.under500':'Under $500','budget.small':'Small scope','budget.mid':'Mid project','budget.full':'Full design cycle','budget.complex':'Complex / ongoing',
+    'result.copy':'⇢ Copy text','result.pdf':'↓ Export PDF','result.ai_label':'✦ AI summary','result.edit':'← Edit brief','result.new':'+ New brief',
+    'card.overview':'Project overview','card.audience':'Audience','card.goal':'User goal','card.competitors':'Competitors',
+    'card.style':'Style & references','card.budget':'Budget','card.deadline':'Deadline','card.notes':'Additional notes',
+    'ai.generating':'Generating summary',
+    'share.label':'🔗 Share link:','share.copy':'Copy',
+    'savewall.title':'Save your brief','savewall.text':'Create a free account to save this brief and get a shareable link. Free plan includes 3 briefs. Pro plan — coming soon 🚀','savewall.cta':'Create free account →',
+    'status.draft':'Draft','status.sent':'Sent to client','status.filled':'Client filled','status.approved':'Approved',
+    'modal.export_title':'Export as PDF','modal.export_text':'Your brief will be downloaded as a PDF file directly to your device.',
+    'modal.cancel':'Cancel','modal.print_btn':'↓ Download PDF',
+    'modal.delete_title':'Delete brief?','modal.delete_text':'This action cannot be undone.','modal.delete_confirm':'Delete',
+    'viewbar.text':'👁 You\'re viewing a shared brief','viewbar.cta':'Create your own →',
+    'err.fill_all':'Please fill in all fields.','err.pass_length':'Password must be at least 6 characters.',
+    'err.pass_match':'Passwords do not match.','err.confirm_email':'Check your email to confirm your account, then sign in.',
+    'err.enter_email':'Enter your email address.','err.reset_sent':'Reset link sent! Check your inbox.'
+  },
+  uk: {
+    'nav.signin':'Увійти','nav.signup':'Реєстрація','nav.mybriefs':'Мої брифи','nav.signout':'Вийти',
+    'landing.tag':'✦ Генератор дизайн-брифів','landing.h1':'Клієнт заповнює бриф.','landing.h1youget':'Ви отримаєте','landing.h1em':'все','landing.h1b':'що вам потрібно.',
+    'landing.sub':'AI-підказки, референси, готові шаблони — щоб ви не витрачали час на уточнення і одразу почали дизайн.',
+    'landing.start':'Почати з нуля →','landing.demo':'Приклад','landing.templates':'Або оберіть шаблон',
+    'tpl.mobile':'Мобільний застосунок','tpl.mobile_desc':'iOS / Android design','tpl.saas':'Вебсайт / SaaS','tpl.saas_desc':'Дашборд, продуктовий UI',
+    'tpl.brand':'Брендинг','tpl.brand_desc':'Логотип, айдентика, стайлгайд','tpl.landing':'Лендінг','tpl.landing_desc':'Промо, marketing site',
+    'auth.login_title':'З поверненням','auth.login_sub':'Увійти, щоб отримати доступ до брифів',
+    'auth.signup_title':'Створити акаунт','auth.signup_sub':'Реєструйтеся, щоб зберігати брифи та керувати ними',
+    'auth.forgot_title':'Відновити пароль','auth.forgot_sub':'Ми надішлемо посилання для скидання на вашу пошту',
+    'auth.reset_title':'Новий пароль','auth.reset_sub':'Введіть ваш новий надійний пароль','auth.reset_btn':'Зберегти новий пароль',
+    'auth.email':'Електронна пошта','auth.password':'Пароль','auth.confirm_password':'Підтвердження паролю',
+    'auth.noaccount':'Немає акаунту?','auth.createone':'Створити акаунт','auth.forgotlink':'Забули пароль?',
+    'auth.haveaccount':'Вже є акаунт?','auth.signup_btn':'Зареєструватися','auth.send_reset':'Надіслати посилання','auth.back_signin':'← Назад до входу',
+    'dash.title':'Мої брифи','dash.new':'+ Новий бриф','dash.empty':'Поки що немає брифів. Створіть перший!','dash.scratch':'Почати з нуля',
+    'form.subtitle':'Відповідайте чесно — чим точніше, тим кращим буде результат','form.saved':'✓ Чернетку збережено',
+    'form.step':'Крок','form.of':'з','form.back':'← Назад','form.continue':'Продовжити →',
+    'section0.title':'Що за проєкт?','section0.sub':'Вкажіть базові речі — ми допоможемо уточнити деталі',
+    'fields.project_name':'Назва проєкту','fields.task':'Що саме потрібно зробити?','fields.type':'Тип проєкту',
+    'fields.audience':'Цільова аудиторія','fields.goal':'Головна ціль користувача — що він має зробити за 1 речення?',
+    'fields.competitors':'Конкуренти або схожі продукти',
+    'fields.platforms':'Платформи','fields.style':'Стиль UI','fields.refs':'Додатки чи сайти, які вам подобаються',
+    'fields.upload':'Завантажити візуальні референси (опціонально)','fields.avoid':'Чого варто уникати',
+    'fields.budget':'Бюджетний діапазон','fields.deadline':'Терміни / Дедлайн','fields.notes':'Що ще потрібно знати дизайнеру?',
+    'val.name':'Будь ласка, вкажіть назву проєкту','val.task':'Будь ласка, опишіть завдання проєкту',
+    'tips.task':'Це оновлення чогось існуючого чи дизайн з нуля? Це змінює весь підхід до роботи.',
+    'tips.audience':'Опишіть реальну людину. Що вона робить щодня? Що її дратує? Деталі роблять дизайн кращим.',
+    'tags.mobile':'Мобільний застосунок','tags.saas':'Вебсайт / SaaS','tags.landing':'Лендінг','tags.brand':'Брендинг',
+    'tags.dashboard':'Дашборд','tags.email':'Дизайн email','tags.other':'Інше','tags.web':'Веб-браузер','tags.desktop':'Десктоп додаток','tags.tablet':'Планшет',
+    'section1.title':'Для кого це?','section1.sub':'Аудиторія визначає кожне дизайнерське рішення',
+    'section2.title':'Стиль, емоція та референси','section2.sub':'Візуальні образи говорять швидше за слова',
+    'section3.title':'Бюджет та терміни','section3.sub':'Допоможіть дизайнеру правильно розрахувати обсяг роботи',
+    'style.minimal':'Мінімалістичний','style.modern':'Сучасний','style.playful':'Грайливий','style.corporate':'Corporate',
+    'style.bold':'Сміливий / Яскравий','style.elegant':'Елегантний','style.friendly':'Дружній','style.dark':'Темний / Еджи',
+    'budget.under500':'До $500','budget.small':'Невеликий обсяг','budget.mid':'Середній проєкт','budget.full':'Повний цикл дизайну','budget.complex':'Складний / Постійний',
+    'result.copy':'⇢ Скопіювати текст','result.pdf':'↓ Експорт PDF','result.ai_label':'✦ AI-підсумок','result.edit':'← Редагувати бриф','result.new':'+ Новий бриф',
+    'card.overview':'Огляд проєкту','card.audience':'Аудиторія','card.goal':'Ціль користувача','card.competitors':'Конкуренти',
+    'card.style':'Стиль та референси','card.budget':'Бюджет','card.deadline':'Терміни','card.notes':'Додаткові нотатки',
+    'ai.generating':'Генерація підсумку',
+    'share.label':'🔗 Посилання:','share.copy':'Копіювати',
+    'savewall.title':'Збережіть бриф','savewall.text':'Створіть безкоштовний акаунт, щоб зберегти бриф та отримати посилання для шерінгу. Безкоштовний план — 3 брифи. Pro — незабаром 🚀','savewall.cta':'Створити акаунт →',
+    'status.draft':'Чернетка','status.sent':'Надіслано клієнту','status.filled':'Клієнт заповнив','status.approved':'Затверджено',
+    'modal.export_title':'Експорт у PDF','modal.export_text':'Ваш бриф відкриється в режимі друку — збережіть його як PDF або надішліть на друк.',
+    'modal.cancel':'Скасувати','modal.print_btn':'Друкувати / Зберегти PDF',
+    'modal.delete_title':'Видалити бриф?','modal.delete_text':'Цю дію неможливо скасувати.','modal.delete_confirm':'Видалити',
+    'viewbar.text':'👁 Ви переглядаєте чужий бриф','viewbar.cta':'Створити свій →',
+    'err.fill_all':'Будь ласка, заповніть усі поля.','err.pass_length':'Пароль має містити не менше 6 символів.',
+    'err.pass_match':'Паролі не збігаються.','err.confirm_email':'Перевірте пошту для підтвердження акаунту, а потім увійдіть.',
+    'err.enter_email':'Введіть вашу електронну адресу.','err.reset_sent':'Посилання для скидання надіслано! Перевірте пошту.'
+  }
+};
+
+let currentLang = 'en';
+
+function setLang(lang, updateUrl = true) {
+  currentLang = lang;
+  localStorage.setItem('briffity_lang', lang);
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-uk').classList.toggle('active', lang === 'uk');
+  applyTranslations();
+  if (updateUrl) {
+    const p = window.location.pathname;
+    if (p === '/' || p === '/en' || p === '/ua') window.history.pushState({}, '', lang === 'uk' ? '/ua' : '/en');
+  }
+  if (document.getElementById('dashboard-screen').classList.contains('active')) loadDashboard();
+  if (document.getElementById('form-screen').classList.contains('active')) updateForm();
+}
+
+function t(key) { return TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS['en'][key] || key; }
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  const uk = currentLang === 'uk';
+  document.getElementById('f-name').placeholder = uk ? 'наприклад, Редизайн додатку доставки' : 'e.g. Delivery app redesign';
+  document.getElementById('f-task').placeholder = uk ? 'Опишіть своїми словами...' : 'Describe in your own words...';
+  document.getElementById('f-audience').placeholder = uk ? 'Вік, інтереси, рівень технологій, болі...' : 'Age, interests, tech level, pain points...';
+  document.getElementById('f-goal').placeholder = uk ? 'наприклад, Замовити їжу менш ніж за 2 хвилини' : 'e.g. Order food in under 2 minutes';
+  document.getElementById('f-competitors').placeholder = uk ? 'наприклад, Glovo, Bolt — що вони роблять правильно?' : 'e.g. Figma, Notion, Linear — what are they doing right?';
+  document.getElementById('f-refs').placeholder = uk ? 'наприклад, Bolt, Notion, Linear, Airbnb' : 'e.g. Bolt, Notion, Linear, Airbnb';
+  document.getElementById('f-avoid').placeholder = uk ? 'наприклад, Стокові фото, червоний колір' : 'e.g. Stock photos, red color, heavy gradients';
+  document.getElementById('f-deadline').placeholder = uk ? 'наприклад, Кінець червня, якомога швидше' : 'e.g. End of June, ASAP, flexible';
+  document.getElementById('f-notes').placeholder = uk ? 'Існуючі активи бренду, розмір команди, технічні обмеження...' : 'Existing brand assets, team size, technical constraints...';
+  document.getElementById('upload-text-container').innerHTML = uk
+    ? '<strong>Натисніть для завантаження</strong> або перетягніть<br>PNG, JPG, GIF до 5 МБ кожен'
+    : '<strong>Click to upload</strong> or drag & drop<br>PNG, JPG, GIF up to 5 MB each';
+}
+
+function navigateTo(screenId, urlPath) {
+  showScreen(screenId);
+  if (urlPath) window.history.pushState({}, '', urlPath);
+  if (screenId === 'auth-screen' && urlPath) {
+    if (urlPath === '/login') showAuthTab('login');
+    if (urlPath === '/signup') showAuthTab('signup');
+    if (urlPath === '/forgot') showAuthTab('forgot');
+  }
+}
+
+function handleInitialRouting() {
+  // Получаем чистый путь без слеша на конце и лишних пробелов
+  let path = window.location.pathname.trim();
+  if (path.endsWith('/') && path.length > 1) {
+    path = path.slice(0, -1);
+  }
+  const hash = window.location.hash;
+
+  // Языковой роутинг
+  if (path.startsWith('/ua') || path.startsWith('/uk')) {
+    setLang('uk', false);
+  } else {
+    setLang(localStorage.getItem('briffity_lang') || 'en', false);
+  }
+
+  // Восстановление пароля из хэша Supabase
+  if (hash && (hash.includes('type=recovery') || hash.includes('access_token='))) {
+    showScreen('auth-screen');
+    ['login','signup','forgot'].forEach(id => { 
+      const el = document.getElementById('auth-'+id); 
+      if(el) el.style.style.display='none'; 
+    });
+    document.getElementById('auth-reset-password').style.display = 'block';
+    return;
+  }
+
+  // Проверка экранов авторизации и дашборда
+  if (path === '/login' || path === '/ua/login') { 
+    showScreen('auth-screen'); 
+    showAuthTab('login'); 
+  }
+  else if (path === '/signup' || path === '/ua/signup') { 
+    showScreen('auth-screen'); 
+    showAuthTab('signup'); 
+  }
+  else if (path === '/forgot' || path === '/ua/forgot') { 
+    showScreen('auth-screen'); 
+    showAuthTab('forgot'); 
+  }
+  else if (path === '/mybriefs' || path === '/ua/mybriefs') {
+    if (!currentUser) {
+      navigateTo('auth-screen', '/login');
+    } else {
+      showScreen('dashboard-screen');
+    }
+  }
+  // Улучшенная проверка регулярного выражения для слага брифа
+  else if (/^\/(ua\/)?brief\/([a-z0-9_\-]+)$/i.test(path)) {
+    loadBriefFromUrl();
+  }
+  else {
+    showScreen('landing');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await initAuth(); // Гарантированно дожидаемся загрузки сессии Supabase из сети
+  handleInitialRouting(); // Только теперь переключаем экран, зная точный статус юзера
+});
+  
+window.addEventListener('popstate', handleInitialRouting);
+</script>
+
+<!-- LIMIT MODAL -->
+<div class="limit-overlay" id="limit-overlay" style="display:none" onclick="if(event.target===this)closeLimitModal()">
+  <div class="limit-modal">
+    <div class="limit-icon">🚀</div>
+    <h3 id="limit-title">You've used all 3 free briefs</h3>
+    <p id="limit-desc">The free plan includes 3 briefs. Upgrade to Pro to create unlimited briefs and unlock more features.</p>
+    <div class="limit-plans">
+      <div class="plan-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0</div>
+        <div class="plan-features">
+          <span>✓ 3 briefs</span>
+          <span>✓ AI summary</span>
+          <span>✓ PDF export</span>
+          <span style="color:var(--ink3)">✗ Unlimited briefs</span>
+        </div>
+      </div>
+      <div class="plan-card active">
+        <div class="plan-badge" id="limit-badge">Coming soon</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">—</div>
+        <div class="plan-features">
+          <span>✓ Unlimited briefs</span>
+          <span>✓ AI summary</span>
+          <span>✓ PDF export</span>
+          <span>✓ Priority support</span>
+        </div>
+      </div>
+    </div>
+    <div class="limit-modal-actions">
+      <button class="btn btn-accent" id="limit-pro-btn" onclick="closeLimitModal()" style="width:100%;justify-content:center">Got it</button>
+      <button class="btn btn-secondary" onclick="closeLimitModal()" style="width:100%;justify-content:center" id="limit-cancel-btn">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
