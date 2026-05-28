@@ -2027,28 +2027,62 @@ function closeMobileMenu() {
 }
 
 // ============================================================
-// DEMO
+// DEMO — ИСПРАВЛЕННАЯ ГЕНЕРАЦИЯ ПРИМЕРА
 // ============================================================
 function showDemo() {
-  startBrief('mobile');
+  const isUk = currentLang === 'uk';
+  
+  // Создаем объект с демонстрационными данными
+  const demoData = {
+    name: isUk ? 'Редизайн додатку доставки' : 'Delivery app redesign',
+    task: isUk ? 'Редизайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.',
+    audience: isUk ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.',
+    goal: isUk ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes',
+    competitors: 'Glovo, Bolt Food, Wolt',
+    refs: 'Bolt Food, Airbnb, Notion',
+    avoid: isUk ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI',
+    deadline: isUk ? 'Кінець червня 2026' : 'End of June 2026',
+    notes: isUk ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.',
+    tags: { type: ['Mobile app'], platform: ['iOS', 'Android'], style: ['Minimal', 'Modern'] },
+    budget: '$1,200 – $3,000'
+  };
+
+  // Записываем демонстрационный бриф в localStorage как черновик, чтобы startBrief подтянул его
+  try { 
+    localStorage.setItem('briffity_draft', JSON.stringify(demoData)); 
+  } catch(e) {
+    console.error('Demo localStorage error:', e);
+  }
+
+  // Запускаем бриф без флага fresh, чтобы сработал loadDraft()
+  startBrief('mobile', false);
+
+  // Дополнительно форсируем визуальное заполнение полей для 100% надежности
   setTimeout(() => {
-    document.getElementById('f-name').value = currentLang === 'uk' ? 'Редизайн додатку доставки' : 'Delivery app redesign';
-    document.getElementById('f-task').value = currentLang === 'uk' ? 'Редизайн існуючого мобільного додатку для доставки їжі. Поточний дизайн застарів. Фокус на процесі замовлення.' : 'Redesign of an existing food delivery mobile app. The current design feels outdated. Focus on the ordering flow — it should feel fast and effortless.';
-    document.getElementById('f-audience').value = currentLang === 'uk' ? 'Міські професіонали, 25–38 років. Постійно в русі, цінують швидкість та простоту.' : 'Urban professionals, 25–38 years old. Always on the go, value speed and simplicity.';
-    document.getElementById('f-goal').value = currentLang === 'uk' ? 'Оформити замовлення їжі менш ніж за 2 хвилини' : 'Complete a food order in under 2 minutes';
-    document.getElementById('f-competitors').value = 'Glovo, Bolt Food, Wolt';
-    document.getElementById('f-refs').value = 'Bolt Food, Airbnb, Notion';
-    document.getElementById('f-avoid').value = currentLang === 'uk' ? 'Стокові фотографії, занадто яскравий UI' : 'Heavy stock photography, overly colorful UI';
-    document.getElementById('f-deadline').value = currentLang === 'uk' ? 'Кінець червня 2026' : 'End of June 2026';
-    document.getElementById('f-notes').value = currentLang === 'uk' ? 'Маємо бренд-кольори (помаранчевий #FF6B35) та логотип.' : 'We have existing brand colors (orange #FF6B35) and a logo. iOS-first.';
-    selectedBudget = '$1,200 – $3,000';
-    document.querySelectorAll('.budget-option').forEach(b => b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === selectedBudget));
-    ['Minimal','Modern'].forEach(s => {
-      document.querySelectorAll('#section-2 .tag').forEach(tag => {
-        if (tag.getAttribute('data-en-val') === s) { tag.classList.add('selected'); if (!selectedTags.style.includes(s)) selectedTags.style.push(s); }
-      });
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+    setVal('f-name', demoData.name); 
+    setVal('f-task', demoData.task); 
+    setVal('f-audience', demoData.audience);
+    setVal('f-goal', demoData.goal); 
+    setVal('f-competitors', demoData.competitors); 
+    setVal('f-refs', demoData.refs);
+    setVal('f-avoid', demoData.avoid); 
+    setVal('f-deadline', demoData.deadline); 
+    setVal('f-notes', demoData.notes);
+
+    // Подсвечиваем выбранный бюджет
+    selectedBudget = demoData.budget;
+    document.querySelectorAll('.budget-option').forEach(b => {
+      b.classList.toggle('selected', b.querySelector('.range').textContent.trim() === selectedBudget);
     });
-  }, 100);
+
+    // Очищаем и заново подсвечиваем теги стиля
+    selectedTags.style = [...demoData.tags.style];
+    document.querySelectorAll('#section-2 .tag').forEach(tag => {
+      const s = tag.getAttribute('data-en-val') || tag.textContent.trim();
+      tag.classList.toggle('selected', demoData.tags.style.includes(s));
+    });
+  }, 50);
 }
 
 // ============================================================
