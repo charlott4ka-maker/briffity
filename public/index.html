@@ -354,48 +354,124 @@ h1 em{color:var(--accent);font-style:italic}
 .mobile-menu .user-email-mobile+.btn{margin-top:2px}
 .mobile-menu .user-email-mobile{font-size:13px;color:var(--ink2);padding:4px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   
-/* CARD CONTEXT MENU (⋯) */
-.brief-item-menu-wrap{
-  position: relative; /* Важно: теперь меню позиционируется относительно этой обёртки */
+/* CARD CONTEXT MENU & MOBILE ACTIONS */
+.brief-actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
+}
+
+/* Десктопная обертка */
+.brief-item-menu-wrap {
+  position: relative;
   display: inline-block;
 }
-.brief-item-dots{background:none;border:1px solid transparent;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:16px;color:var(--ink3);line-height:1;transition:all .15s;opacity:0}
+.brief-item-dots {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 6px;
+  font-size: 16px;
+  color: var(--ink3);
+  line-height: 1;
+  transition: all .15s;
+  opacity: 0;
+}
+.brief-item:hover .brief-item-dots {
+  opacity: 1;
+}
+.brief-item-dots:hover {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--ink);
+}
 
-/* На мобилках точки видны всегда, на десктопе — при ховере */
-.brief-item:hover .brief-item-dots,
-.brief-item-dots { opacity: 1; } 
-
-.brief-item-dots:hover{background:var(--bg);border-color:var(--border);color:var(--ink)}
-
-.card-menu{
-  position: absolute;          /* Изменено с fixed на absolute */
-  top: calc(100% + 4px);       /* Строго под троеточием */
-  right: 0;                    /* Выравниваем по правому краю точек */
-  left: auto;                  /* Сбрасываем левую привязку */
+/* Стили выпадающего меню на десктопе */
+.card-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: auto;
   background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  z-index: 1000;               /* Поднимаем повыше, чтобы не перекрывалось другими карточками */
+  z-index: 160;
   min-width: 160px;
   box-shadow: 0 4px 20px rgba(0,0,0,.13);
   display: none;
 }
-.card-menu.open{display:block}
-.card-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;color:var(--ink)}
-.card-menu-item:hover{background:var(--bg)}
-.card-menu-item.danger{color:#c0392b}
-.card-menu-item.danger:hover{background:#fff0f0}
+.card-menu.open { display: block; }
+.card-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .12s;
+  color: var(--ink);
+}
+.card-menu-item:hover { background: var(--bg); }
+.card-menu-item.danger { color: #c0392b; }
+.card-menu-item.danger:hover { background: #fff0f0; }
 
-@media(max-width:768px){
-  nav{padding:14px 20px}
-  .nav-right,.user-menu{display:none!important}
-  .burger-btn{display:flex}
+/* По умолчанию скрываем мобильные кнопки действий на десктопе */
+.mobile-card-actions {
+  display: none;
+  gap: 8px;
+}
+
+/* АДАПТИВ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
+@media(max-width: 768px) {
+  nav { padding: 14px 20px; }
+  .nav-right, .user-menu { display: none !important; }
+  .burger-btn { display: flex; }
+
+  /* 1. Скрываем десктопное троеточие полностью */
+  .desktop-only-actions {
+    display: none !important;
+  }
+
+  /* 2. Показываем мобильные кнопки в ряд */
+  .mobile-card-actions {
+    display: flex !important;
+  }
+
+  /* 3. Красивые стили для мобильных иконок */
+  .action-icon-btn {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.1s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
   
-  /* Фикс для мобильной версии, чтобы точки на карточках не скрывались */
-  .brief-item .brief-item-dots {
-    opacity: 1 !important;
+  .action-icon-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Стили для кнопки редактирования */
+  .action-icon-btn.edit-btn:active {
+    background: var(--bg);
+  }
+
+  /* Стили для кнопки удаления (подсвечиваем легким красным при клике) */
+  .action-icon-btn.delete-btn {
+    border-color: rgba(192, 57, 43, 0.2);
+  }
+  .action-icon-btn.delete-btn:active {
+    background: #fff0f0;
+    border-color: #c0392b;
   }
 }
   
@@ -1142,12 +1218,26 @@ async function loadDashboard() {
             ${typeTag}
             <span class="brief-item-status ${statusClass}">${statusLabel}</span>
           </div>
-          <div class="brief-item-menu-wrap" onclick="event.stopPropagation()">
-            <button class="brief-item-dots" onclick="toggleCardMenu('menu-${b.slug}',event)" aria-label="Options">⋯</button>
-            <div class="card-menu" id="menu-${b.slug}">
-              <div class="card-menu-item" onclick="closeAllCardMenus();editBriefFromDash('${b.slug}')">✏️ ${isUk ? 'Редагувати' : 'Edit'}</div>
-              <div class="card-menu-item danger" onclick="closeAllCardMenus();askDelete('${b.slug}')">🗑 ${isUk ? 'Видалити' : 'Delete'}</div>
+          
+          <div class="brief-actions-container" onclick="event.stopPropagation()">
+            
+            <div class="mobile-card-actions">
+              <button class="action-icon-btn edit-btn" onclick="editBriefFromDash('${b.slug}')" title="${isUk ? 'Редагувати' : 'Edit'}">
+                ✏️
+              </button>
+              <button class="action-icon-btn delete-btn" onclick="askDelete('${b.slug}')" title="${isUk ? 'Видалити' : 'Delete'}">
+                🗑️
+              </button>
             </div>
+
+            <div class="brief-item-menu-wrap desktop-only-actions">
+              <button class="brief-item-dots" onclick="toggleCardMenu('menu-${b.slug}',event)" aria-label="Options">⋯</button>
+              <div class="card-menu" id="menu-${b.slug}">
+                <div class="card-menu-item" onclick="closeAllCardMenus();editBriefFromDash('${b.slug}')">✏️ ${isUk ? 'Редагувати' : 'Edit'}</div>
+                <div class="card-menu-item danger" onclick="closeAllCardMenus();askDelete('${b.slug}')">🗑 ${isUk ? 'Видалити' : 'Delete'}</div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>`;
