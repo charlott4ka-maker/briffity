@@ -1391,8 +1391,12 @@ function updateForm() {
   document.getElementById('step-num').textContent = currentStep + 1;
   document.getElementById('step-name').textContent = currentLang === 'uk' ? stepNamesUK[currentStep] : stepNamesEN[currentStep];
   document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'inline-flex';
-  document.getElementById('btn-next').textContent = currentStep === totalSteps - 1
-    ? (currentLang === 'uk' ? 'Згенерувати бриф →' : 'Generate brief →')
+  const isLastStep = currentStep === totalSteps - 1;
+  const isEditing = !!savedBriefSlug;
+  document.getElementById('btn-next').textContent = isLastStep
+    ? (isEditing
+        ? (currentLang === 'uk' ? 'Зберегти зміни →' : 'Save changes →')
+        : (currentLang === 'uk' ? 'Згенерувати бриф →' : 'Generate brief →'))
     : (currentLang === 'uk' ? 'Продовжити →' : 'Continue →');
   clearErrors();
 }
@@ -1693,18 +1697,44 @@ async function triggerAiSummary() {
 // SAVE BRIEF TO API
 // ============================================================
 async function saveBrief(briefData) {
-  const payload = { data: briefData };
-  if (currentUser) {
-    payload.user_id = currentUser.id;
-    payload.ownerEmail = currentUser.email;
-  }
   try {
-    const resp = await fetch('/api/briefs', {
+    let resp, result;
+
+    // If we're editing an existing brief, update it via PATCH
+    if (savedBriefSlug) {
+      const patchPayload = { slug: savedBriefSlug, data: briefData };
+      resp = await fetch('/api/briefs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchPayload)
+      });
+      result = await resp.json();
+
+      if (resp.ok) {
+        // Show share box for logged-in users (slug/url already known)
+        if (currentUser) {
+          document.getElementById('share-box').style.display = 'flex';
+          document.getElementById('share-box-url').textContent = savedBriefUrl;
+          document.getElementById('status-dropdown').style.display = 'inline-flex';
+          updateStatusBadge(currentBriefStatus || 'draft');
+        }
+        showToast(currentLang === 'uk' ? '✓ Бриф оновлено' : '✓ Brief updated');
+        return;
+      }
+    }
+
+    // Otherwise create a new brief via POST
+    const payload = { data: briefData };
+    if (currentUser) {
+      payload.user_id = currentUser.id;
+      payload.ownerEmail = currentUser.email;
+    }
+    resp = await fetch('/api/briefs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const result = await resp.json();
+    result = await resp.json();
 
     // ── Лимит достигнут ─────────────────────────────────────
     if (resp.status === 403 && result.error === 'limit_reached') {
