@@ -712,7 +712,7 @@ h1 em{color:var(--accent);font-style:italic}
     <div class="brief-card-body"><p id="res-notes"></p></div>
   </div>
   <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap" id="result-bottom-actions">
-    <button class="btn btn-secondary" onclick="goToStep(0)" id="btn-edit-brief"><span data-i18n="result.edit">← Edit brief</span></button>
+    <button class="btn btn-secondary" onclick="editBrief()" id="btn-edit-brief"><span data-i18n="result.edit">← Edit brief</span></button>
     <button class="btn btn-primary" onclick="startBrief('blank',true)"><span data-i18n="result.new">+ New brief</span></button>
   </div>
 </div>
@@ -1100,7 +1100,22 @@ function navigateTo(screenId, urlPath) {
 // ============================================================
 // FORM LOGIC
 // ============================================================
-function startBrief(template, fresh) {
+async function startBrief(template, fresh) {
+  // Check limit BEFORE opening form for logged-in users
+  if (currentUser && (fresh || template)) {
+    try {
+      const resp = await fetch(`/api/briefs?user_id=${encodeURIComponent(currentUser.id)}`);
+      if (resp.ok) {
+        const result = await resp.json();
+        const used = (result.data || []).length;
+        if (used >= 3) {
+          showLimitModal();
+          return;
+        }
+      }
+    } catch(e) { /* proceed if check fails */ }
+  }
+
   isViewOnly = false;
   currentTemplate = template || 'blank';
   const tpl = TEMPLATES[currentTemplate];
