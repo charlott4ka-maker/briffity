@@ -5,6 +5,7 @@
   "description": "Design Brief Generator with AI summaries",
   "dependencies": {
     "@supabase/supabase-js": "^2.43.0",
+    "@vercel/analytics": "^2.0.1",
     "nanoid": "^5.0.7"
   },
   "scripts": {
